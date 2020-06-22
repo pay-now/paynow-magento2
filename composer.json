@@ -19,10 +19,10 @@
   ],
   "minimum-stability": "stable",
   "require": {
-    "magento/framework": "^102.0",
-    "magento/module-checkout": "^100.3",
-    "magento/module-payment": "^100.3",
-    "magento/module-sales": "^102.0",
+    "magento/framework": ">=102.0",
+    "magento/module-checkout": ">=100.3",
+    "magento/module-payment": ">=100.3",
+    "magento/module-sales": ">=102.0",
     "nyholm/psr7": "^1.2",
     "pay-now/paynow-php-sdk": "^2.0",
     "php": ">=7.1",
@@ -51,6 +51,9 @@
     "test": [
       "Composer\\Config::disableProcessTimeout",
       "vendor/bin/phpunit -c Test/phpunit.xml"
+    ],
+    "cs": [
+      "vendor/bin/phpcs --standard=Magento2 --ignore=*/vendor/* ."
     ],
     "post-install-cmd": [
       "([ $COMPOSER_DEV_MODE -eq 0 ] || vendor/bin/phpcs --config-set installed_paths ../../magento/magento-coding-standard/)"

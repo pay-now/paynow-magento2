@@ -7,6 +7,5 @@ php:
 before_script:
   - echo "{\"http-basic\":{\"repo.magento.com\":{\"username\":\"${MAGENTO_USERNAME}\",\"password\":\"${MAGENTO_PASSWORD}\"}}}" > auth.json
   - composer install --prefer-dist
-branches:
-  except:
-    - master
+script:
+  - composer test
