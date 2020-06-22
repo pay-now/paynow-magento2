@@ -1,5 +1,5 @@
 {
-  "name": "paynow/paynow-magento2",
+  "name": "pay-now/paynow-magento2",
   "description": "Module for Paynow payments",
   "type": "magento2-module",
   "version": "1.0.0",
