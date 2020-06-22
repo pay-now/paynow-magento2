@@ -1,0 +1,11 @@
+<?php
+/** @var Magento\Sales\Model\Order $order */
+$order = $this->getData('order');
+if ($order !== null) :
+    if ($this->canRetryPayment($order->getEntityId())) : ?>
+        <a href="<?= $this->escapeUrl($this->getRetryPaymentUrl($order->getEntityId())); ?>" class="action order">
+            <span><?= $this->escapeHtml(__('Retry payment')); ?></span>
+        </a>
+        <?php
+    endif;
+endif;

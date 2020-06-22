@@ -1,0 +1,65 @@
+{
+  "name": "paynow/paynow-magento2",
+  "description": "Module for Paynow payments",
+  "type": "magento2-module",
+  "version": "1.0.0",
+  "license": "MIT",
+  "keywords": [
+    "paynow",
+    "mbank",
+    "payments gateway",
+    "paynow magento",
+    "paynow magento2"
+  ],
+  "authors": [
+    {
+      "name": "mElements S.A.",
+      "email": "kontakt@paynow.pl"
+    }
+  ],
+  "minimum-stability": "stable",
+  "require": {
+    "magento/framework": ">=102.0",
+    "magento/module-checkout": ">=100.3",
+    "magento/module-payment": ">=100.3",
+    "magento/module-sales": ">=102.0",
+    "nyholm/psr7": "^1.2",
+    "pay-now/paynow-php-sdk": "^2.0",
+    "php": ">=7.1",
+    "php-http/curl-client": "^2.1"
+  },
+  "require-dev": {
+    "magento/magento-coding-standard": "2.*",
+    "phpunit/phpunit": "~6.2.0",
+    "phpmd/phpmd": "@stable"
+  },
+  "autoload": {
+    "files": [
+      "registration.php"
+    ],
+    "psr-4": {
+      "Paynow\\PaymentGateway\\": ""
+    }
+  },
+  "repositories": [
+    {
+      "type": "composer",
+      "url": "https://repo.magento.com/"
+    }
+  ],
+  "scripts": {
+    "test": [
+      "Composer\\Config::disableProcessTimeout",
+      "vendor/bin/phpunit -c Test/phpunit.xml"
+    ],
+    "cs": [
+      "vendor/bin/phpcs --standard=Magento2 --ignore=*/vendor/* ."
+    ],
+    "post-install-cmd": [
+      "([ $COMPOSER_DEV_MODE -eq 0 ] || vendor/bin/phpcs --config-set installed_paths ../../magento/magento-coding-standard/)"
+    ],
+    "post-update-cmd": [
+      "([ $COMPOSER_DEV_MODE -eq 0 ] || vendor/bin/phpcs --config-set installed_paths ../../magento/magento-coding-standard/)"
+    ]
+  }
+}

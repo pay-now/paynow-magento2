@@ -1,0 +1,35 @@
+"An error occurred during checkout. Please try again for a moment.","Podczas tworzenia zamówienia wystąpił błąd. Skontaktuj się z obsługą sklepu lub spróbuj ponownie."
+"Retry payment is not active.","Ponowienie płatności nie jest dostępne."
+"Retry payment is not available for the order.","Ponowienie płatności nie jest dostępne dla tego zamówienia."
+"Order No: ","Zamówienie numer: "
+"Error occurred during the payment process.","Podczas autoryzacji płatności wystąpił błąd."
+"Error occurred during the capture process.","Podczas potwierdzania płatności wystąpił błąd."
+"Awaiting payment confirmation from Paynow.","Oczekuje na potwierdzenie płatności z Paynow."
+"Payment has not been authorized by the buyer.","Płatność nie została zatwierdzona przez kupującego."
+"Payment has been ended with an error.","Płatność zakończona błędem."
+"Retry payment","Ponów płatność"
+Orders,Zamówienia
+"Order #","Zamówienie #"
+Date,Data
+"Ship To","Adres wysyłki"
+"Order Total","Kwota zamówienia"
+Status,Status
+Action,Akcja
+Actions,Akcje
+"View Order","Szczegóły"
+Reorder,"Zamów ponownie"
+"You have placed no orders.","Nie masz jeszcze żadnych zamówień."
+"Pay by Paynow","Płacę z Paynow"
+"Place Order","Złóż zamówienie"
+Paynow,Paynow
+"General settings","Ustawienia główne"
+Enabled,Włączona
+"Test mode (Sandbox)","Tryb testowy (Sandbox)"
+Debug,Debug
+"Sort Order","Kolejność na liście"
+Information,Informacje
+"Module version","Wersja modułu"
+"Production configuration","Konfiguracja środowiska produkcyjnego"
+"API key","Klucz dostępu do API"
+"Signature Key","Klucz obliczania podpisu"
+"Sandbox configuration","Konfiguracja środowiska testowego"

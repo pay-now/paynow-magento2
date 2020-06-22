@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<include xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_include.xsd">
+    <group id="paynow_production_settings" translate="label" type="text" sortOrder="3" showInDefault="1" showInWebsite="1" showInStore="1">
+        <label><![CDATA[Production configuration]]></label>
+        <frontend_model>Magento\Config\Block\System\Config\Form\Fieldset</frontend_model>
+        <comment><![CDATA[Production authentication keys are available in <i>the Paynow tab > Settings > Shops and payment points > Authentication data</i> in mBank's online banking.]]></comment>
+        <field id="production_api_key" translate="label" type="obscure" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="0">
+            <label>API key</label>
+            <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+            <config_path>payment/paynow_gateway/production_api_key</config_path>
+            <comment model="Paynow\PaymentGateway\Block\Adminhtml\System\Config\Comment\StoredKeyMasker" />
+            <validate>validate-no-empty</validate>
+        </field>
+        <field id="production_signature_key" translate="label" type="obscure" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="0">
+            <label>Signature Key</label>
+            <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+            <config_path>payment/paynow_gateway/production_signature_key</config_path>
+            <comment model="Paynow\PaymentGateway\Block\Adminhtml\System\Config\Comment\StoredKeyMasker" />
+            <validate>validate-no-empty</validate>
+        </field>
+        <depends>
+            <field id="*/*/paynow_general_settings/active">1</field>
+            <field id="*/*/paynow_general_settings/test_mode">0</field>
+        </depends>
+        <attribute type="expanded">1</attribute>
+    </group>
+</include>

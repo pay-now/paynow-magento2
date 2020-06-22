@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<include xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_include.xsd">
+    <group id="paynow_sandbox_settings" translate="label" type="text" sortOrder="4" showInDefault="1" showInWebsite="1" showInStore="1">
+        <label><![CDATA[Sandbox configuration]]></label>
+        <frontend_model>Magento\Config\Block\System\Config\Form\Fieldset</frontend_model>
+        <comment><![CDATA[Sandbox authentication keys can be found in <i>Settings > Shops and poses > Authentication data</i> in <a href="https://panel.sandbox.paynow.pl/auth/login" target="_blank">the Paynow Sandbox panel</a>.]]></comment>
+        <field id="sandbox_api_key" translate="label" type="obscure" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="0">
+            <label>API key</label>
+            <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+            <config_path>payment/paynow_gateway/sandbox_api_key</config_path>
+            <comment model="Paynow\PaymentGateway\Block\Adminhtml\System\Config\Comment\StoredKeyMasker" />
+            <validate>validate-no-empty</validate>
+        </field>
+        <field id="sandbox_signature_key" translate="label" type="obscure" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="0">
+            <label>Signature Key</label>
+            <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+            <config_path>payment/paynow_gateway/sandbox_signature_key</config_path>
+            <comment model="Paynow\PaymentGateway\Block\Adminhtml\System\Config\Comment\StoredKeyMasker" />
+            <validate>validate-no-empty</validate>
+        </field>
+        <depends>
+            <field id="*/*/paynow_general_settings/active">1</field>
+            <field id="*/*/paynow_general_settings/test_mode">1</field>
+        </depends>
+        <attribute type="expanded">1</attribute>
+    </group>
+</include>
