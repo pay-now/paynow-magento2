@@ -1,0 +1,114 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <!-- Payment Method Facade configuration -->
+    <virtualType name="PaynowPaymentGatewayFacade" type="Magento\Payment\Model\Method\Adapter">
+        <arguments>
+            <argument name="code" xsi:type="const">Paynow\PaymentGateway\Model\Ui\ConfigProvider::CODE</argument>
+            <argument name="valueHandlerPool" xsi:type="object">PaynowPaymentGatewayValueHandlerPool</argument>
+            <argument name="commandPool" xsi:type="object">PaynowPaymentGatewayCommandPool</argument>
+            <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
+            <argument name="infoBlockType" xsi:type="string">Paynow\PaymentGateway\Block\Info</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Configuration reader -->
+    <virtualType name="PaynowPaymentGatewayConfig" type="Magento\Payment\Gateway\Config\Config">
+        <arguments>
+            <argument name="methodCode" xsi:type="const">Paynow\PaymentGateway\Model\Ui\ConfigProvider::CODE</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Commands infrastructure -->
+    <virtualType name="PaynowPaymentGatewayCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="authorize" xsi:type="string">PaynowPaymentGatewayAuthorizeCommand</item>
+                <item name="capture" xsi:type="string">PaynowPaymentGatewayCaptureCommand</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Authorize command -->
+    <virtualType name="PaynowPaymentGatewayAuthorizeCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">PaynowPaymentGatewayAuthorizeRequest</argument>
+            <argument name="transferFactory" xsi:type="object">Paynow\PaymentGateway\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">Paynow\PaymentGateway\Gateway\Http\Client\PaymentAuthorization</argument>
+            <argument name="handler" xsi:type="object">Paynow\PaymentGateway\Gateway\Response\Payment\AuthorizationHandler</argument>
+            <argument name="validator" xsi:type="object">Paynow\PaymentGateway\Gateway\Validator\Payment\AuthorizationValidator</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Authorization Request -->
+    <virtualType name="PaynowPaymentGatewayAuthorizeRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="transaction" xsi:type="string">Paynow\PaymentGateway\Gateway\Request\Payment\AuthorizeRequest</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Capture command -->
+    <virtualType name="PaynowPaymentGatewayCaptureCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">PaynowPaymentGatewayCaptureRequest</argument>
+            <argument name="transferFactory" xsi:type="object">Paynow\PaymentGateway\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">Paynow\PaymentGateway\Gateway\Http\Client\PaymentCapture</argument>
+            <argument name="validator" xsi:type="object">Paynow\PaymentGateway\Gateway\Validator\Payment\CaptureValidator</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Capture Request -->
+    <virtualType name="PaynowPaymentGatewayCaptureRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="capture" xsi:type="string">Paynow\PaymentGateway\Gateway\Request\Payment\CaptureRequest</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Value handlers infrastructure -->
+    <virtualType name="PaynowPaymentGatewayValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">PaynowPaymentGatewayConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="PaynowPaymentGatewayConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">PaynowPaymentGatewayConfig</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Paynow\PaymentGateway\Model\Logger\Handler">
+        <arguments>
+            <argument name="filesystem" xsi:type="object">Magento\Framework\Filesystem\Driver\File</argument>
+        </arguments>
+    </type>
+    <type name="Paynow\PaymentGateway\Model\Logger\Logger">
+        <arguments>
+            <argument name="name" xsi:type="string">paynow</argument>
+            <argument name="handlers"  xsi:type="array">
+                <item name="system" xsi:type="object">Paynow\PaymentGateway\Model\Logger\Handler</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <!--Sensitive and system-specific configuration-->
+    <type name="Magento\Config\Model\Config\TypePool">
+        <arguments>
+            <argument name="environment" xsi:type="array">
+                <item name="payment/paynow_gateway/test_mode" xsi:type="string">1</item>
+                <item name="payment/paynow_gateway/debug" xsi:type="string">1</item>
+            </argument>
+            <argument name="sensitive" xsi:type="array">
+                <item name="payment/paynow_gateway/production_api_key" xsi:type="string">1</item>
+                <item name="payment/paynow_gateway/production_signature_key" xsi:type="string">1</item>
+                <item name="payment/paynow_gateway/sandbox_api_key" xsi:type="string">1</item>
+                <item name="payment/paynow_gateway/sandbox_api_key" xsi:type="string">1</item>
+            </argument>
+        </arguments>
+    </type>
+</config>

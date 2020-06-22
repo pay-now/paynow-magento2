@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<include xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_include.xsd">
+    <group id="paynow_getting_started" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+        <label><![CDATA[Information]]></label>
+        <frontend_model>Magento\Config\Block\System\Config\Form\Fieldset</frontend_model>
+        <comment>
+            <![CDATA[<p>If you do not have an account in the Paynow system yet, <a href="https://paynow.pl/boarding" target="_blank">register in the Production</a> or <a href="https://panel.sandbox.paynow.pl/auth/register" target="_blank">Sandbox</a> environment.</p>]]>
+        </comment>
+        <field id="version" translate="label" type="label" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="0">
+            <label>Module version</label>
+            <frontend_model>Paynow\PaymentGateway\Block\Adminhtml\System\Config\Field\Version</frontend_model>
+        </field>
+        <attribute type="expanded">1</attribute>
+    </group>
+</include>

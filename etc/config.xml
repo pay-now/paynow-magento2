@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <payment>
+            <paynow_gateway>
+                <active>1</active>
+                <debug>1</debug>
+                <can_authorize>1</can_authorize>
+                <can_capture>1</can_capture>
+                <can_void>0</can_void>
+                <can_use_checkout>1</can_use_checkout>
+                <can_use_internal>0</can_use_internal>
+                <currency>PLN</currency>
+                <is_gateway>1</is_gateway>
+                <model>PaynowPaymentGatewayFacade</model>
+                <payment_action>authorize</payment_action>
+                <sort_order>1</sort_order>
+                <title>Paynow</title>
+                <group>paynow_group</group>
+            </paynow_gateway>
+        </payment>
+    </default>
+</config>

@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceContainer name="content">
+            <referenceBlock name="sales.order.history">
+                <action method="setTemplate">
+                    <argument name="template" xsi:type="string">Paynow_PaymentGateway::order/history/list.phtml</argument>
+                </action>
+                <block class="Paynow\PaymentGateway\Block\Order\History\Action" name="order.history.action" template="Paynow_PaymentGateway::order/history/action.phtml"/>
+            </referenceBlock>
+        </referenceContainer>
+    </body>
+</page>
