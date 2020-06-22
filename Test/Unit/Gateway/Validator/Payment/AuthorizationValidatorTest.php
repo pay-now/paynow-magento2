@@ -11,6 +11,11 @@ use Paynow\PaymentGateway\Helper\PaymentField;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * Class AuthorizationValidatorTest
+ *
+ * @package Paynow\PaymentGateway\Test\Unit\Gateway\Validator\Payment
+ */
 class AuthorizationValidatorTest extends TestCase
 {
     /**

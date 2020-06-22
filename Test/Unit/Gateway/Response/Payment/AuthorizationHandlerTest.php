@@ -9,6 +9,11 @@ use Paynow\PaymentGateway\Gateway\Response\Payment\AuthorizationHandler;
 use Paynow\PaymentGateway\Helper\PaymentField;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * Class AuthorizationHandlerTest
+ *
+ * @package Paynow\PaymentGateway\Test\Unit\Gateway\Response\Payment
+ */
 class AuthorizationHandlerTest extends TestCase
 {
     public function testHandle()
@@ -41,14 +46,22 @@ class AuthorizationHandlerTest extends TestCase
 
         $paymentInfo->expects(static::once())
             ->method('setTransactionId')
-            ->with("testPaymentId");
+            ->with("testPaymentId")
+            ->willReturn($paymentInfo);
 
         $paymentInfo->expects(static::once())
             ->method('setIsTransactionPending')
-            ->with(true);
+            ->with(true)
+            ->willReturn($paymentInfo);
+
         $paymentInfo->expects(static::once())
             ->method('setIsTransactionClosed')
-            ->with(false);
+            ->with(false)
+            ->willReturn($paymentInfo);
+
+        $paymentInfo->expects(static::exactly(3))
+            ->method('setAdditionalInformation')
+            ->willReturn($paymentInfo);
 
         $handler = new AuthorizationHandler();
         $handler->handle($handlingSubject, $response);

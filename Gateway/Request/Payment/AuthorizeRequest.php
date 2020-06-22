@@ -37,7 +37,8 @@ class AuthorizeRequest implements BuilderInterface
         $referenceId = $order->getOrderIncrementId();
         $paymentDescription = __('Order No: ') . $referenceId;
 
-        $isRetry = $paymentDataObject->getPayment()->hasAdditionalInformation(PaymentField::IS_PAYMENT_RETRY_FIELD_NAME);
+        $isRetry = $paymentDataObject->getPayment()
+            ->hasAdditionalInformation(PaymentField::IS_PAYMENT_RETRY_FIELD_NAME);
 
         $request['body'] = [
             PaymentField::AMOUNT_FIELD_NAME => $this->paymentHelper->formatAmount($order->getGrandTotalAmount()),

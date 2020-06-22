@@ -10,6 +10,11 @@ use Paynow\PaymentGateway\Helper\PaymentField;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * Class CaptureValidatorTest
+ *
+ * @package Paynow\PaymentGateway\Test\Unit\Gateway\Validator\Payment
+ */
 class CaptureValidatorTest extends TestCase
 {
     /**
