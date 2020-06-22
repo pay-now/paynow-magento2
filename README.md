@@ -1,3 +1,5 @@
+[**English version**][ext0]
+
 # Wtyczka Paynow dla Magento 2
 
 Wtyczka Paynow dodaje szybkie płatności i płatności BLIK do sklepu na Magento 2.
@@ -51,5 +53,6 @@ Jeśli chciałbyś dowiedzieć się więcej o bramce płatności Paynow odwiedź
 ## Licencja
 Licencja MIT. Szczegółowe informacje znajdziesz w pliku LICENSE.
 
+[ext0]: README.EN.md
 [ext1]: https://github.com/pay-now/paynow-magento2/releases/latest
 [ext2]: https://panel.sandbox.paynow.pl/auth/register

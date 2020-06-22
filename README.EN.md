@@ -1,0 +1,65 @@
+[**Polska wersja**][ext0]
+
+# Paynow plugin for Magento 2
+
+The Paynow plugin adds quick bank transfers and BLIK payments to a WooCommerce shop.
+
+## Table of Contents
+
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [FAQ](#FAQ)
+- [Sandbox](#sandbox)
+- [Support](#support)
+- [License](#license)
+
+## Prerequisites
+
+- PHP since 7.1
+- Magento version from 2.0 to 2.2
+
+## Installation
+
+You can install our plugin through Composer:
+```bash
+composer require pay-now/paynow-magento2
+bin/magento module:enable Paynow_PaymentGateway
+bin/magento setup:upgrade
+```
+
+## Configuration
+
+1. Go to administration page
+2. Go to **Stores > Configuration > Sales > Payment Methods**.
+3. From available payment methods choose **Paynow**
+4. After changes save your configuration
+
+## FAQ
+
+**How to configure the return address?**
+
+The return address will be set automatically for each order. There is no need to manually configure this address.
+
+**How to configure the notification address?**
+
+In the Paynow merchant panel go to the tab `Settings > Shops and poses`, in the field `Notification address` set the address:
+`https://twoja-domena.pl/paynow/payment/notifications`.
+
+## Sandbox
+
+To be able to test our Paynow Sandbox environment, register [here][ext2].
+
+## Support
+
+If you have any questions or issues, please contact our support at support@paynow.pl.
+
+If you wish to learn more about Paynow visit our website: https://www.paynow.pl/.
+
+## License
+
+MIT license. For more information, see the LICENSE file.
+
+[ext0]: README.md
+[ext1]: https://github.com/pay-now/paynow-magento2/releases/latest
+[ext2]: https://panel.sandbox.paynow.pl/auth/register
