@@ -5,6 +5,7 @@ namespace Paynow\PaymentGateway\Controller\Payment;
 use Exception;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
+use Magento\Framework\App\Request\Http;
 use Magento\Store\Model\StoreManagerInterface;
 use Paynow\Exception\SignatureVerificationException;
 use Paynow\Notification;
@@ -61,6 +62,13 @@ class Notifications extends Action
         $this->notificationProcessor = $notificationProcessor;
         $this->logger = $logger;
         $this->paymentHelper = $paymentHelper;
+        if (interface_exists("\Magento\Framework\App\CsrfAwareActionInterface")) {
+            $request = $this->getRequest();
+            if ($request instanceof Http && $request->isPost()) {
+                $request->setParam('isAjax', true);
+                $request->getHeaders()->addHeaderLine('X_REQUESTED_WITH', 'XMLHttpRequest');
+            }
+        }
     }
 
     /**

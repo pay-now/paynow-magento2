@@ -5,6 +5,7 @@ namespace Paynow\PaymentGateway\Controller\Checkout;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
+use Magento\Framework\App\Request\Http;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Controller\Result\Redirect as ResponseRedirect;
 use Magento\Framework\Controller\ResultInterface;
@@ -49,6 +50,13 @@ class Redirect extends Action
         $this->checkoutSession = $checkoutSession;
         $this->logger = $logger;
         $this->redirectResult = $this->resultRedirectFactory->create();
+        if (interface_exists("\Magento\Framework\App\CsrfAwareActionInterface")) {
+            $request = $this->getRequest();
+            if ($request instanceof Http && $request->isPost()) {
+                $request->setParam('isAjax', true);
+                $request->getHeaders()->addHeaderLine('X_REQUESTED_WITH', 'XMLHttpRequest');
+            }
+        }
     }
 
     /**
@@ -72,7 +80,7 @@ class Redirect extends Action
                             PaymentField::PAYMENT_ID_FIELD_NAME => $paymentId
                         ]
                     );
-                    $this->redirectResult->setUrl($redirectUrl);
+                    $this->redirectResult->setUrl((string)$redirectUrl);
                 }
             }
         } catch (LocalizedException $exception) {
