@@ -217,7 +217,7 @@ class PaymentHelper extends AbstractHelper
             return $this->getDecryptedApiKey('sandbox_api_key', $storeId);
         }
 
-        return $this->getDecryptedApiKey('prod_api_key', $storeId);
+        return $this->getDecryptedApiKey('production_api_key', $storeId);
     }
 
     /**
@@ -233,7 +233,7 @@ class PaymentHelper extends AbstractHelper
             return $this->getDecryptedApiKey('sandbox_signature_key', $storeId);
         }
 
-        return $this->getDecryptedApiKey('prod_signature_key', $storeId);
+        return $this->getDecryptedApiKey('production_signature_key', $storeId);
     }
 
     /**
