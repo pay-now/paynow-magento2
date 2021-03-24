@@ -9,9 +9,9 @@ use Magento\Framework\App\Request\Http;
 use Magento\Store\Model\StoreManagerInterface;
 use Paynow\Exception\SignatureVerificationException;
 use Paynow\Notification;
+use Paynow\PaymentGateway\Helper\NotificationProcessor;
 use Paynow\PaymentGateway\Helper\PaymentField;
 use Paynow\PaymentGateway\Helper\PaymentHelper;
-use Paynow\PaymentGateway\Helper\NotificationProcessor;
 use Paynow\PaymentGateway\Model\Logger\Logger;
 use Zend\Http\Headers;
 
@@ -108,6 +108,6 @@ class Notifications extends Action
      */
     private function getSignaturesFromHeaders(Headers $headers)
     {
-        return ['Signature' => $headers->has('Signature') ? $headers->get('Signature') : $headers->has('signature')];
+        return ['Signature' => $headers->has('Signature') ? $headers->get('Signature')->getFieldValue() : $headers->get('signature')->getFieldValue()];
     }
 }
