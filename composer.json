@@ -19,10 +19,10 @@
   ],
   "minimum-stability": "stable",
   "require": {
-    "magento/framework": ">=100",
+    "magento/framework": ">=101",
     "magento/module-checkout": ">=100",
     "magento/module-payment": ">=100",
-    "magento/module-sales": ">=100",
+    "magento/module-sales": ">=101",
     "nyholm/psr7": "^1.2",
     "pay-now/paynow-php-sdk": "^2.0",
     "php": ">=7.1",
