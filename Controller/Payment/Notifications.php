@@ -12,6 +12,7 @@ use Paynow\Notification;
 use Paynow\PaymentGateway\Helper\NotificationProcessor;
 use Paynow\PaymentGateway\Helper\PaymentField;
 use Paynow\PaymentGateway\Helper\PaymentHelper;
+use Paynow\PaymentGateway\Model\Exception\OrderPaymentStatusTransitionException;
 use Paynow\PaymentGateway\Model\Logger\Logger;
 use Zend\Http\Headers;
 
@@ -93,9 +94,15 @@ class Notifications extends Action
                 $notificationData[PaymentField::STATUS_FIELD_NAME],
                 $notificationData[PaymentField::EXTERNAL_ID_FIELD_NAME]
             );
-        } catch (SignatureVerificationException | Exception $exception) {
+        } catch (SignatureVerificationException $exception) {
             $this->logger->error(
                 'Error occurred handling notification: ' . $exception->getMessage(),
+                $notificationData
+            );
+            $this->getResponse()->setHttpResponseCode(400);
+        } catch (OrderPaymentStatusTransitionException $exception) {
+            $this->logger->warning(
+				$exception->getMessage(),
                 $notificationData
             );
             $this->getResponse()->setHttpResponseCode(400);
