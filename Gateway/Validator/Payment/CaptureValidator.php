@@ -24,6 +24,7 @@ class CaptureValidator extends AbstractValidator
 
     /**
      * CaptureValidator constructor.
+     *
      * @param ResultInterfaceFactory $resultFactory
      * @param Logger $logger
      */
@@ -35,14 +36,15 @@ class CaptureValidator extends AbstractValidator
 
     /**
      * @param array $validationSubject
+     *
      * @return ResultInterface
      */
     public function validate(array $validationSubject)
     {
-        $response = SubjectReader::readResponse($validationSubject);
+        $response        = SubjectReader::readResponse($validationSubject);
         $isResponseValid = array_key_exists(PaymentField::PAYMENT_ID_FIELD_NAME, $response) &&
-            array_key_exists(PaymentField::STATUS_FIELD_NAME, $response) &&
-            $response[PaymentField::STATUS_FIELD_NAME] === Status::STATUS_CONFIRMED;
+                           array_key_exists(PaymentField::STATUS_FIELD_NAME, $response) &&
+                           $response[PaymentField::STATUS_FIELD_NAME] === Status::STATUS_CONFIRMED;
 
         $this->logger->debug("Validating capture response", ['valid' => $isResponseValid]);
 

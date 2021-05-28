@@ -2,6 +2,7 @@
 
 namespace Paynow\PaymentGateway\Test\Unit\Gateway\Validator\Payment;
 
+use InvalidArgumentException;
 use Magento\Framework\Phrase;
 use Magento\Payment\Gateway\Validator\Result;
 use Magento\Payment\Gateway\Validator\ResultInterface;
@@ -35,13 +36,13 @@ class CaptureValidatorTest extends TestCase
     protected function setUp()
     {
         $this->resultFactory = $this->getMockBuilder('Magento\Payment\Gateway\Validator\ResultInterfaceFactory')
-            ->disableOriginalConstructor()
-            ->setMethods(['create'])
-            ->getMock();
+                                    ->disableOriginalConstructor()
+                                    ->setMethods(['create'])
+                                    ->getMock();
 
         $loggerMock = $this->getMockBuilder('Paynow\PaymentGateway\Model\Logger\Logger')
-            ->disableOriginalConstructor()
-            ->getMock();
+                           ->disableOriginalConstructor()
+                           ->getMock();
 
         $this->captureValidator = new CaptureValidator(
             $this->resultFactory,
@@ -51,7 +52,7 @@ class CaptureValidatorTest extends TestCase
 
     public function testValidateReadResponseException()
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $validationSubject = [
             'response' => null
         ];
@@ -65,6 +66,7 @@ class CaptureValidatorTest extends TestCase
      * @param array $validationSubject
      * @param bool $isValid
      * @param Phrase[] $messages
+     *
      * @return void
      *
      * @dataProvider dataProviderTestValidate
@@ -75,14 +77,14 @@ class CaptureValidatorTest extends TestCase
         $result = new Result($isValid, $messages);
 
         $this->resultFactory->method('create')
-            ->with(
-                [
-                    'isValid' => $isValid,
-                    'failsDescription' => $messages,
-                    'errorCodes' => []
-                ]
-            )
-            ->willReturn($result);
+                            ->with(
+                                [
+                                    'isValid'          => $isValid,
+                                    'failsDescription' => $messages,
+                                    'errorCodes'       => []
+                                ]
+                            )
+                            ->willReturn($result);
 
         $actual = $this->captureValidator->validate($validationSubject);
 
@@ -99,20 +101,20 @@ class CaptureValidatorTest extends TestCase
                 'validationSubject' => [
                     'response' => [
                         PaymentField::PAYMENT_ID_FIELD_NAME => 'testPaymentId',
-                        PaymentField::STATUS_FIELD_NAME => 'CONFIRMED'
+                        PaymentField::STATUS_FIELD_NAME     => 'CONFIRMED'
                     ],
                 ],
-                'isValid' => true,
+                'isValid'           => true,
                 []
             ],
             [
                 'validationSubject' => [
                     'response' => [
                         PaymentField::PAYMENT_ID_FIELD_NAME => 'testPaymentId',
-                        PaymentField::STATUS_FIELD_NAME => 'NEW'
+                        PaymentField::STATUS_FIELD_NAME     => 'NEW'
                     ]
                 ],
-                'isValid' => false,
+                'isValid'           => false,
                 [
                     __('Error occurred during the capture process.')
                 ]

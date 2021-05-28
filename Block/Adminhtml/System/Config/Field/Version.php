@@ -29,6 +29,7 @@ class Version extends Field
      * Retrieve version of the module
      *
      * @param AbstractElement $element
+     *
      * @return string
      */
     protected function _getElementHtml(AbstractElement $element)

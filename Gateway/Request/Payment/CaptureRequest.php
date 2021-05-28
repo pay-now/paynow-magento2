@@ -16,13 +16,14 @@ class CaptureRequest implements BuilderInterface
 {
     /**
      * @param array $buildSubject
+     *
      * @return array
      */
     public function build(array $buildSubject)
     {
         /** @var PaymentDataObject $paymentDataObject */
         $paymentDataObject = SubjectReader::readPayment($buildSubject);
-        $payment = $paymentDataObject->getPayment();
+        $payment           = $paymentDataObject->getPayment();
 
         $request['body'] = [
             PaymentField::PAYMENT_ID_FIELD_NAME => $payment->getLastTransId()

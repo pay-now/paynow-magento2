@@ -21,6 +21,7 @@ class AuthorizationHandler implements HandlerInterface
      *
      * @param array $handlingSubject
      * @param array $response
+     *
      * @throws LocalizedException
      */
     public function handle(array $handlingSubject, array $response)
@@ -35,19 +36,19 @@ class AuthorizationHandler implements HandlerInterface
         $payment->getOrder()->setCanSendNewEmailFlag(false);
 
         $payment->setIsTransactionPending(true)
-            ->setTransactionId($response[PaymentField::PAYMENT_ID_FIELD_NAME])
-            ->setIsTransactionClosed(false)
-            ->setAdditionalInformation(
-                PaymentField::REDIRECT_URL_FIELD_NAME,
-                $response[PaymentField::REDIRECT_URL_FIELD_NAME]
-            )
-            ->setAdditionalInformation(
-                PaymentField::PAYMENT_ID_FIELD_NAME,
-                $response[PaymentField::PAYMENT_ID_FIELD_NAME]
-            )
-            ->setAdditionalInformation(
-                PaymentField::STATUS_FIELD_NAME,
-                $response[PaymentField::STATUS_FIELD_NAME]
-            );
+                ->setTransactionId($response[PaymentField::PAYMENT_ID_FIELD_NAME])
+                ->setIsTransactionClosed(false)
+                ->setAdditionalInformation(
+                    PaymentField::REDIRECT_URL_FIELD_NAME,
+                    $response[PaymentField::REDIRECT_URL_FIELD_NAME]
+                )
+                ->setAdditionalInformation(
+                    PaymentField::PAYMENT_ID_FIELD_NAME,
+                    $response[PaymentField::PAYMENT_ID_FIELD_NAME]
+                )
+                ->setAdditionalInformation(
+                    PaymentField::STATUS_FIELD_NAME,
+                    $response[PaymentField::STATUS_FIELD_NAME]
+                );
     }
 }

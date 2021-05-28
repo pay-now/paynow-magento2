@@ -36,17 +36,18 @@ class PaymentCapture implements ClientInterface
 
     /**
      * @param TransferInterface $transferObject
+     *
      * @return array
      */
     public function placeRequest(TransferInterface $transferObject)
     {
-        $request = $transferObject->getBody();
+        $request       = $transferObject->getBody();
         $loggerContext = [PaymentField::PAYMENT_ID_FIELD_NAME => $request[PaymentField::PAYMENT_ID_FIELD_NAME]];
         try {
-            $service = new Payment($this->client);
+            $service           = new Payment($this->client);
             $apiResponseObject = $service->status($request[PaymentField::PAYMENT_ID_FIELD_NAME]);
-            $response = [
-                PaymentField::STATUS_FIELD_NAME => $apiResponseObject->getStatus(),
+            $response          = [
+                PaymentField::STATUS_FIELD_NAME     => $apiResponseObject->getStatus(),
                 PaymentField::PAYMENT_ID_FIELD_NAME => $apiResponseObject->getPaymentId(),
             ];
             $this->logger->debug(
@@ -59,7 +60,7 @@ class PaymentCapture implements ClientInterface
                 $loggerContext,
                 [
                     'service' => 'Payment',
-                    'action' => 'status'
+                    'action'  => 'status'
                 ]
             ));
         }

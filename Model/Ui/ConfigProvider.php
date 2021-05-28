@@ -47,9 +47,9 @@ class ConfigProvider implements ConfigProviderInterface
         RequestInterface $request,
         PaymentHelper $paymentHelper
     ) {
-        $this->repository = $repository;
-        $this->urlBuilder = $urlBuilder;
-        $this->request = $request;
+        $this->repository    = $repository;
+        $this->urlBuilder    = $urlBuilder;
+        $this->request       = $request;
         $this->paymentHelper = $paymentHelper;
     }
 
@@ -63,8 +63,8 @@ class ConfigProvider implements ConfigProviderInterface
         return [
             'payment' => [
                 self::CODE => [
-                    'iActive' => $this->paymentHelper->isActive(),
-                    'logoPath' => $this->getLogoPath(),
+                    'iActive'     => $this->paymentHelper->isActive(),
+                    'logoPath'    => $this->getLogoPath(),
                     'redirectUrl' => $this->getRedirectUrl()
                 ]
             ]

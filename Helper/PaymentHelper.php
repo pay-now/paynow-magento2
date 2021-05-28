@@ -62,24 +62,24 @@ class PaymentHelper extends AbstractHelper
      */
     protected $driverFile;
 
-	/**
-	 * @var Resolver
-	 */
+    /**
+     * @var Resolver
+     */
     protected $localeResolver;
 
-	/**
-	 * Data constructor.
-	 *
-	 * @param Context $context
-	 * @param ComponentRegistrarInterface $componentRegistrar
-	 * @param StoreManagerInterface $storeManager
-	 * @param ProductMetadataInterface $productMetadata
-	 * @param EncryptorInterface $encryptor
-	 * @param ScopeConfigInterface $scopeConfig
-	 * @param UrlInterface $urlBuilder
-	 * @param File $driverFile
-	 * @param Resolver $localeResolver
-	 */
+    /**
+     * Data constructor.
+     *
+     * @param Context $context
+     * @param ComponentRegistrarInterface $componentRegistrar
+     * @param StoreManagerInterface $storeManager
+     * @param ProductMetadataInterface $productMetadata
+     * @param EncryptorInterface $encryptor
+     * @param ScopeConfigInterface $scopeConfig
+     * @param UrlInterface $urlBuilder
+     * @param File $driverFile
+     * @param Resolver $localeResolver
+     */
     public function __construct(
         Context $context,
         ComponentRegistrarInterface $componentRegistrar,
@@ -89,23 +89,24 @@ class PaymentHelper extends AbstractHelper
         ScopeConfigInterface $scopeConfig,
         UrlInterface $urlBuilder,
         File $driverFile,
-	    Resolver $localeResolver
+        Resolver $localeResolver
     ) {
         parent::__construct($context);
         $this->componentRegistrar = $componentRegistrar;
-        $this->storeManager = $storeManager;
-        $this->productMetadata = $productMetadata;
-        $this->encryptor = $encryptor;
-        $this->scopeConfig = $scopeConfig;
-        $this->urlBuilder = $urlBuilder;
-        $this->driverFile = $driverFile;
-        $this->localeResolver = $localeResolver;
+        $this->storeManager       = $storeManager;
+        $this->productMetadata    = $productMetadata;
+        $this->encryptor          = $encryptor;
+        $this->scopeConfig        = $scopeConfig;
+        $this->urlBuilder         = $urlBuilder;
+        $this->driverFile         = $driverFile;
+        $this->localeResolver     = $localeResolver;
     }
 
     /**
      * Return formatted amount
      *
      * @param $amount
+     *
      * @return int
      */
     public function formatAmount($amount): int
@@ -125,13 +126,14 @@ class PaymentHelper extends AbstractHelper
         $composerJson = $this->driverFile->fileGetContents($moduleDir . '/composer.json');
         $composerJson = json_decode($composerJson, true);
 
-        return !empty($composerJson['version']) ? $composerJson['version'] : "no-version";
+        return ! empty($composerJson['version']) ? $composerJson['version'] : "no-version";
     }
 
     /**
      * Initializes and returns Paynow Client
      *
      * @param int|null $storeId
+     *
      * @return Client
      */
     public function initializePaynowClient($storeId = null)
@@ -154,6 +156,7 @@ class PaymentHelper extends AbstractHelper
      * Returns is Test mode enabled
      *
      * @param $storeId
+     *
      * @return bool
      */
     public function isTestMode($storeId): bool
@@ -165,6 +168,7 @@ class PaymentHelper extends AbstractHelper
      * Returns is module enabled
      *
      * @param int|null $storeId
+     *
      * @return bool
      */
     public function isActive($storeId = null)
@@ -180,6 +184,7 @@ class PaymentHelper extends AbstractHelper
      * Returns is module retry payment enabled
      *
      * @param null $storeId
+     *
      * @return bool
      */
     public function isRetryPaymentActive($storeId = null): bool
@@ -195,6 +200,7 @@ class PaymentHelper extends AbstractHelper
      * Returns is order status change enabled
      *
      * @param null $storeId
+     *
      * @return bool
      */
     public function isOrderStatusChangeActive($storeId = null): bool
@@ -210,6 +216,7 @@ class PaymentHelper extends AbstractHelper
      * Returns is retry payment is available for order
      *
      * @param Order $order
+     *
      * @return bool
      */
     public function isRetryPaymentActiveForOrder($order): bool
@@ -217,16 +224,16 @@ class PaymentHelper extends AbstractHelper
         $paymentStatus = $order->getPayment()->getAdditionalInformation(PaymentField::STATUS_FIELD_NAME);
 
         return $this->isRetryPaymentActive() &&
-            $order->getStatus() === Order::STATE_PAYMENT_REVIEW &&
-            in_array(
-                $paymentStatus,
-                [
-                    Status::STATUS_NEW,
-                    Status::STATUS_PENDING,
-                    Status::STATUS_REJECTED,
-                    Status::STATUS_ERROR
-                ]
-            );
+               $order->getStatus() === Order::STATE_PAYMENT_REVIEW &&
+               in_array(
+                   $paymentStatus,
+                   [
+                       Status::STATUS_NEW,
+                       Status::STATUS_PENDING,
+                       Status::STATUS_REJECTED,
+                       Status::STATUS_ERROR
+                   ]
+               );
     }
 
     /**
@@ -234,6 +241,7 @@ class PaymentHelper extends AbstractHelper
      *
      * @param $storeId
      * @param bool $isTestMode
+     *
      * @return string
      */
     public function getApiKey($storeId, $isTestMode = false): string
@@ -250,6 +258,7 @@ class PaymentHelper extends AbstractHelper
      *
      * @param $storeId
      * @param bool $isTestMode
+     *
      * @return string
      */
     public function getSignatureKey($storeId, $isTestMode = false): string
@@ -266,6 +275,7 @@ class PaymentHelper extends AbstractHelper
      *
      * @param $keyName
      * @param $storeId
+     *
      * @return string
      */
     private function getDecryptedApiKey($keyName, $storeId): string
@@ -280,6 +290,7 @@ class PaymentHelper extends AbstractHelper
      * @param $paymentMethodCode
      * @param $storeId
      * @param bool|false $flag
+     *
      * @return bool|string
      */
     public function getConfigData($field, $paymentMethodCode, $storeId, $flag = false)
@@ -301,15 +312,17 @@ class PaymentHelper extends AbstractHelper
     private function getApplicationName(): string
     {
         return $this->productMetadata->getName() .
-            '-' .
-            $this->productMetadata->getVersion() .
-            '/Plugin-' .
-            $this->getModuleVersion();
+               '-' .
+               $this->productMetadata->getVersion() .
+               '/Plugin-' .
+               $this->getModuleVersion();
     }
 
     /**
      * Returns return url
+     *
      * @param bool $forRetryPayment
+     *
      * @return string
      */
     public function getContinueUrl($forRetryPayment = false): string
@@ -335,6 +348,7 @@ class PaymentHelper extends AbstractHelper
      * Returns retry payment url
      *
      * @param $orderId
+     *
      * @return string
      */
     public function getRetryPaymentUrl($orderId): string
@@ -342,12 +356,13 @@ class PaymentHelper extends AbstractHelper
         return $this->urlBuilder->getUrl('paynow/payment/retry', ['order_id' => $orderId]);
     }
 
-	/**
-	 * Returns store locale
-	 *
-	 * @return string
-	 */
-	public function getStoreLocale() {
-    	return str_replace('_', '-', $this->localeResolver->getLocale());
+    /**
+     * Returns store locale
+     *
+     * @return string
+     */
+    public function getStoreLocale()
+    {
+        return str_replace('_', '-', $this->localeResolver->getLocale());
     }
 }

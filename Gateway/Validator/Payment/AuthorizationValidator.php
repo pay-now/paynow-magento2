@@ -24,6 +24,7 @@ class AuthorizationValidator extends AbstractValidator
 
     /**
      * AuthorizationValidator constructor.
+     *
      * @param ResultInterfaceFactory $resultFactory
      * @param Logger $logger
      */
@@ -35,15 +36,16 @@ class AuthorizationValidator extends AbstractValidator
 
     /**
      * @param array $validationSubject
+     *
      * @return ResultInterface
      */
     public function validate(array $validationSubject)
     {
-        $response = SubjectReader::readResponse($validationSubject);
+        $response        = SubjectReader::readResponse($validationSubject);
         $isResponseValid = array_key_exists(PaymentField::PAYMENT_ID_FIELD_NAME, $response) &&
-            array_key_exists(PaymentField::REDIRECT_URL_FIELD_NAME, $response) &&
-            array_key_exists(PaymentField::STATUS_FIELD_NAME, $response) &&
-            $response[PaymentField::STATUS_FIELD_NAME] === Status::STATUS_NEW;
+                           array_key_exists(PaymentField::REDIRECT_URL_FIELD_NAME, $response) &&
+                           array_key_exists(PaymentField::STATUS_FIELD_NAME, $response) &&
+                           $response[PaymentField::STATUS_FIELD_NAME] === Status::STATUS_NEW;
 
         $this->logger->debug("Validating authorization response", ['valid' => $isResponseValid]);
 

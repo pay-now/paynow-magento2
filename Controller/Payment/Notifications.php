@@ -2,7 +2,6 @@
 
 namespace Paynow\PaymentGateway\Controller\Payment;
 
-use Exception;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\Request\Http;
@@ -45,6 +44,7 @@ class Notifications extends Action
 
     /**
      * Redirect constructor.
+     *
      * @param Context $context
      * @param StoreManagerInterface $storeManager
      * @param NotificationProcessor $notificationProcessor
@@ -59,10 +59,10 @@ class Notifications extends Action
         PaymentHelper $paymentHelper
     ) {
         parent::__construct($context);
-        $this->storeManager = $storeManager;
+        $this->storeManager          = $storeManager;
         $this->notificationProcessor = $notificationProcessor;
-        $this->logger = $logger;
-        $this->paymentHelper = $paymentHelper;
+        $this->logger                = $logger;
+        $this->paymentHelper         = $paymentHelper;
         if (interface_exists("\Magento\Framework\App\CsrfAwareActionInterface")) {
             $request = $this->getRequest();
             if ($request instanceof Http && $request->isPost()) {
@@ -77,10 +77,10 @@ class Notifications extends Action
      */
     public function execute()
     {
-        $payload = $this->getRequest()->getContent();
+        $payload          = $this->getRequest()->getContent();
         $notificationData = json_decode($payload, true);
         $this->logger->debug("Received payment status notification", $notificationData);
-        $storeId = $this->storeManager->getStore()->getId();
+        $storeId      = $this->storeManager->getStore()->getId();
         $signatureKey = $this->paymentHelper->getSignatureKey($storeId, $this->paymentHelper->isTestMode($storeId));
 
         try {
@@ -102,7 +102,7 @@ class Notifications extends Action
             $this->getResponse()->setHttpResponseCode(400);
         } catch (OrderPaymentStatusTransitionException $exception) {
             $this->logger->warning(
-				$exception->getMessage(),
+                $exception->getMessage(),
                 $notificationData
             );
             $this->getResponse()->setHttpResponseCode(400);
@@ -111,6 +111,7 @@ class Notifications extends Action
 
     /**
      * @param Headers $headers
+     *
      * @return array
      */
     private function getSignaturesFromHeaders(Headers $headers)

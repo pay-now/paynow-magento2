@@ -27,7 +27,7 @@ class TransferFactory implements TransferFactoryInterface
 
     public function create(array $request)
     {
-        if (!empty($request['headers'])) {
+        if ( ! empty($request['headers'])) {
             $this->transferBuilder->setHeaders($request['headers']);
         }
 

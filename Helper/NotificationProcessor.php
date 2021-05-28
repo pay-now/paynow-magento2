@@ -43,8 +43,8 @@ class NotificationProcessor
 
     public function __construct(OrderFactory $orderFactory, Logger $logger, PaymentHelper $paymentHelper)
     {
-        $this->orderFactory = $orderFactory;
-        $this->logger = $logger;
+        $this->orderFactory  = $orderFactory;
+        $this->logger        = $logger;
         $this->paymentHelper = $paymentHelper;
     }
 
@@ -52,26 +52,27 @@ class NotificationProcessor
      * @param $paymentId
      * @param $status
      * @param $externalId
+     *
      * @throws OrderNotFound
      * @throws OrderPaymentStatusTransitionException
      */
     public function process($paymentId, $status, $externalId)
     {
         $this->loggerContext = [
-            PaymentField::PAYMENT_ID_FIELD_NAME => $paymentId,
+            PaymentField::PAYMENT_ID_FIELD_NAME  => $paymentId,
             PaymentField::EXTERNAL_ID_FIELD_NAME => $externalId
         ];
 
         /** @var Order */
         $this->order = $this->orderFactory->create()->loadByIncrementId($externalId);
-        if (!$this->order->getId()) {
+        if ( ! $this->order->getId()) {
             throw new OrderNotFound($externalId);
         }
 
         $paymentAdditionalInformation = $this->order->getPayment()->getAdditionalInformation();
-        $orderPaymentStatus = $paymentAdditionalInformation[PaymentField::STATUS_FIELD_NAME];
+        $orderPaymentStatus           = $paymentAdditionalInformation[PaymentField::STATUS_FIELD_NAME];
 
-        if (!$this->isCorrectStatus($orderPaymentStatus, $status)) {
+        if ( ! $this->isCorrectStatus($orderPaymentStatus, $status)) {
             throw new OrderPaymentStatusTransitionException($orderPaymentStatus, $status);
         }
 
@@ -96,10 +97,11 @@ class NotificationProcessor
 
     private function paymentPending()
     {
-	    $this->order->addStatusToHistory( Order::STATE_PENDING_PAYMENT, __( 'Awaiting payment confirmation from Paynow.' ), true );
-	    if ($this->paymentHelper->isOrderStatusChangeActive()) {
-		    $this->order->setStatus( Order::STATE_PENDING_PAYMENT );
-	    }
+        $this->order->addStatusToHistory(Order::STATE_PENDING_PAYMENT, __('Awaiting payment confirmation from Paynow.'),
+            true);
+        if ($this->paymentHelper->isOrderStatusChangeActive()) {
+            $this->order->setStatus(Order::STATE_PENDING_PAYMENT);
+        }
         $this->order->getPayment()->setIsClosed(false);
     }
 
@@ -115,57 +117,61 @@ class NotificationProcessor
 
     private function paymentRejected()
     {
-        if ($this->order->canCancel() && !$this->paymentHelper->isRetryPaymentActive()) {
-            $this->order->addStatusToHistory(Order::STATE_CANCELED, __('Payment has not been authorized by the buyer.'));
-	        if ($this->paymentHelper->isOrderStatusChangeActive()) {
-		        $this->order->setState( Order::STATE_CANCELED );
+        if ($this->order->canCancel() && ! $this->paymentHelper->isRetryPaymentActive()) {
+            $this->order->addStatusToHistory(Order::STATE_CANCELED,
+                __('Payment has not been authorized by the buyer.'));
+            if ($this->paymentHelper->isOrderStatusChangeActive()) {
+                $this->order->setState(Order::STATE_CANCELED);
                 $this->order->cancel();
-		        $this->logger->info('Order has been canceled', $this->loggerContext);
-	        }
+                $this->logger->info('Order has been canceled', $this->loggerContext);
+            }
         } else {
-            $this->order->addStatusToHistory(Order::STATE_PAYMENT_REVIEW, __('Payment has not been authorized by the buyer.'));
-	        if ($this->paymentHelper->isOrderStatusChangeActive()) {
-		        $this->order->setState( Order::STATE_PAYMENT_REVIEW );
-		        $this->logger->warning('Order has not been canceled because retry payment is active', $this->loggerContext);
-	        }
+            $this->order->addStatusToHistory(Order::STATE_PAYMENT_REVIEW,
+                __('Payment has not been authorized by the buyer.'));
+            if ($this->paymentHelper->isOrderStatusChangeActive()) {
+                $this->order->setState(Order::STATE_PAYMENT_REVIEW);
+                $this->logger->warning('Order has not been canceled because retry payment is active',
+                    $this->loggerContext);
+            }
 
         }
     }
 
     private function paymentError()
     {
-        if (!$this->paymentHelper->isRetryPaymentActive()) {
+        if ( ! $this->paymentHelper->isRetryPaymentActive()) {
             $this->order->addStatusToHistory(Order::STATE_PAYMENT_REVIEW, __('Payment has been ended with an error.'));
-	        if ($this->paymentHelper->isOrderStatusChangeActive()) {
-		        $this->order->setState( Order::STATE_PAYMENT_REVIEW );
-	        }
+            if ($this->paymentHelper->isOrderStatusChangeActive()) {
+                $this->order->setState(Order::STATE_PAYMENT_REVIEW);
+            }
         }
     }
 
     private function isCorrectStatus($previousStatus, $nextStatus)
     {
         $paymentStatusFlow = [
-            Status::STATUS_NEW => [
+            Status::STATUS_NEW       => [
                 Status::STATUS_NEW,
                 Status::STATUS_PENDING,
                 Status::STATUS_ERROR,
                 Status::STATUS_CONFIRMED,
                 Status::STATUS_REJECTED
             ],
-            Status::STATUS_PENDING => [
+            Status::STATUS_PENDING   => [
                 Status::STATUS_CONFIRMED,
                 Status::STATUS_REJECTED
             ],
-            Status::STATUS_REJECTED => [Status::STATUS_PENDING, Status::STATUS_CONFIRMED],
+            Status::STATUS_REJECTED  => [Status::STATUS_PENDING, Status::STATUS_CONFIRMED],
             Status::STATUS_CONFIRMED => [],
-            Status::STATUS_ERROR => [
+            Status::STATUS_ERROR     => [
                 Status::STATUS_CONFIRMED,
                 Status::STATUS_REJECTED
             ]
         ];
 
         $previousStatusExists = isset($paymentStatusFlow[$previousStatus]);
-        $isChangePossible = in_array($nextStatus, $paymentStatusFlow[$previousStatus]);
+        $isChangePossible     = in_array($nextStatus, $paymentStatusFlow[$previousStatus]);
+
         return $previousStatusExists && $isChangePossible;
     }
 }

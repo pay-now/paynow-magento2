@@ -40,12 +40,13 @@ class Action extends Template
         array $data = []
     ) {
         parent::__construct($context, $data);
-        $this->orderFactory = $orderFactory;
+        $this->orderFactory  = $orderFactory;
         $this->paymentHelper = $paymentHelper;
     }
 
     /**
      * @param $orderId
+     *
      * @return string
      */
     public function canRetryPayment($orderId): string
@@ -60,6 +61,7 @@ class Action extends Template
      * Returns retry payment url
      *
      * @param $orderId
+     *
      * @return string
      */
     public function getRetryPaymentUrl($orderId): string

@@ -37,6 +37,7 @@ class Redirect extends Action
 
     /**
      * Redirect constructor.
+     *
      * @param Context $context
      * @param CheckoutSession $checkoutSession
      * @param Logger $logger
@@ -48,8 +49,8 @@ class Redirect extends Action
     ) {
         parent::__construct($context);
         $this->checkoutSession = $checkoutSession;
-        $this->logger = $logger;
-        $this->redirectResult = $this->resultRedirectFactory->create();
+        $this->logger          = $logger;
+        $this->redirectResult  = $this->resultRedirectFactory->create();
         if (interface_exists("\Magento\Framework\App\CsrfAwareActionInterface")) {
             $request = $this->getRequest();
             if ($request instanceof Http && $request->isPost()) {
@@ -66,18 +67,18 @@ class Redirect extends Action
     {
         $order = $this->checkoutSession->getLastRealOrder();
         try {
-            if (!$order->getRealOrderId()) {
+            if ( ! $order->getRealOrderId()) {
                 $this->logger->error('An error occurred during checkout: Can\'t get order');
                 $this->setRedirectToCart();
             } else {
                 $redirectUrl = $order->getPayment()->getAdditionalInformation(PaymentField::REDIRECT_URL_FIELD_NAME);
-                $paymentId = $order->getPayment()->getAdditionalInformation(PaymentField::PAYMENT_ID_FIELD_NAME);
+                $paymentId   = $order->getPayment()->getAdditionalInformation(PaymentField::PAYMENT_ID_FIELD_NAME);
                 if ($redirectUrl) {
                     $this->logger->info(
                         'Redirecting to payment provider page',
                         [
                             PaymentField::EXTERNAL_ID_FIELD_NAME => $order->getRealOrderId(),
-                            PaymentField::PAYMENT_ID_FIELD_NAME => $paymentId
+                            PaymentField::PAYMENT_ID_FIELD_NAME  => $paymentId
                         ]
                     );
                     $this->redirectResult->setUrl((string)$redirectUrl);

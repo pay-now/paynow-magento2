@@ -27,7 +27,7 @@ class ConfigurationChangeProcessor
     public function __construct(PaymentHelper $paymentHelper, Logger $logger)
     {
         $this->paymentHelper = $paymentHelper;
-        $this->logger = $logger;
+        $this->logger        = $logger;
     }
 
     public function process($storeId = null)
@@ -35,7 +35,7 @@ class ConfigurationChangeProcessor
         try {
             $this->logger->info("Updating shop configuration");
             /** @var Client */
-            $client = $this->paymentHelper->initializePaynowClient($storeId);
+            $client            = $this->paymentHelper->initializePaynowClient($storeId);
             $shopConfiguration = new ShopConfiguration($client);
             $shopConfiguration->changeUrls(
                 $this->paymentHelper->getContinueUrl(),
@@ -47,7 +47,7 @@ class ConfigurationChangeProcessor
                 $exception->getMessage(),
                 [
                     'service' => 'ShopConfiguration',
-                    'action' => 'changeUrls'
+                    'action'  => 'changeUrls'
                 ]
             );
         }

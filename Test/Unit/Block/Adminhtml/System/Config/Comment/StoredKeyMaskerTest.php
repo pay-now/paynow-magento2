@@ -23,7 +23,7 @@ class StoredKeyMaskerTest extends TestCase
     {
         /** @var MockObject|EncryptorInterface $encryptor */
         $encryptor = $this->createMock(Encryptor::class);
-        $map = [
+        $map       = [
             ['694586fc-e15a-4de8-a582-7d9884976a70', '*******-****-****-****-******976a70']
         ];
         $encryptor

@@ -30,6 +30,7 @@ class PaymentAuthorization implements ClientInterface
 
     /**
      * PaymentAuthorization constructor.
+     *
      * @param PaymentHelper $paymentHelper
      * @param Logger $logger
      */
@@ -41,6 +42,7 @@ class PaymentAuthorization implements ClientInterface
 
     /**
      * @param TransferInterface $transferObject
+     *
      * @return array|mixed
      */
     public function placeRequest(TransferInterface $transferObject)
@@ -49,7 +51,7 @@ class PaymentAuthorization implements ClientInterface
             PaymentField::EXTERNAL_ID_FIELD_NAME => $transferObject->getBody()[PaymentField::EXTERNAL_ID_FIELD_NAME]
         ];
         try {
-            $service = new Payment($this->client);
+            $service           = new Payment($this->client);
             $apiResponseObject = $service->authorize(
                 $transferObject->getBody(),
                 $transferObject->getHeaders()[PaymentField::IDEMPOTENCY_KEY_FIELD_NAME]
@@ -57,26 +59,28 @@ class PaymentAuthorization implements ClientInterface
             $this->logger->debug(
                 "Retrieved authorization response",
                 array_merge($loggerContext, [
-                    PaymentField::STATUS_FIELD_NAME => $apiResponseObject->getStatus(),
+                    PaymentField::STATUS_FIELD_NAME     => $apiResponseObject->getStatus(),
                     PaymentField::PAYMENT_ID_FIELD_NAME => $apiResponseObject->getPaymentId()
                 ])
             );
+
             return [
                 PaymentField::REDIRECT_URL_FIELD_NAME => $apiResponseObject->getRedirectUrl(),
-                PaymentField::STATUS_FIELD_NAME => $apiResponseObject->getStatus(),
-                PaymentField::PAYMENT_ID_FIELD_NAME => $apiResponseObject->getPaymentId(),
+                PaymentField::STATUS_FIELD_NAME       => $apiResponseObject->getStatus(),
+                PaymentField::PAYMENT_ID_FIELD_NAME   => $apiResponseObject->getPaymentId(),
             ];
         } catch (PaynowException $exception) {
             $this->logger->error(
                 $exception->getMessage(),
                 array_merge($loggerContext, [
                     'service' => 'Payment',
-                    'action' => 'authorize'
+                    'action'  => 'authorize'
                 ])
             );
             foreach ($exception->getErrors() as $error) {
                 $this->logger->debug($error->getType() . ' - ' . $error->getMessage(), $loggerContext);
             }
+
             return $response['errors'] = $exception->getErrors();
         }
     }

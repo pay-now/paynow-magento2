@@ -31,14 +31,16 @@ class StoredKeyMasker implements CommentInterface
      * Returns the last 6 chars in stored key.
      *
      * @param string $elementValue
+     *
      * @return string
      */
     public function getCommentText($elementValue)
     {
         $apiKeyStored = substr($this->encryptor->decrypt(trim($elementValue)), -6);
-        if (!$apiKeyStored) {
+        if ( ! $apiKeyStored) {
             return '';
         }
+
         return "Stored Key: *******-****-****-****-******$apiKeyStored";
     }
 }
