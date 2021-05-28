@@ -28,6 +28,11 @@
             <config_path>payment/paynow_gateway/retry_payment</config_path>
             <comment>Select Yes if you want to allow retry payments for your customers.</comment>
         </field>
-        <attribute type="expanded">1</attribute>
+        <field id="order_status_change" translate="label" type="select" sortOrder="6" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Change order status</label>
+            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+            <config_path>payment/paynow_gateway/order_status_change</config_path>
+            <comment>Select Yes if you want to allow change order status on during processing notifications.</comment>
+        </field>
     </group>
 </include>

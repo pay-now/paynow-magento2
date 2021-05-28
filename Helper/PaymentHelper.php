@@ -182,6 +182,21 @@ class PaymentHelper extends AbstractHelper
     }
 
     /**
+     * Returns is order status change enabled
+     *
+     * @param null $storeId
+     * @return bool
+     */
+    public function isOrderStatusChangeActive($storeId = null): bool
+    {
+        if ($storeId === null) {
+            $storeId = $this->storeManager->getStore()->getId();
+        }
+
+        return $this->getConfigData('order_status_change', ConfigProvider::CODE, $storeId, true);
+    }
+
+    /**
      * Returns is retry payment is available for order
      *
      * @param Order $order
