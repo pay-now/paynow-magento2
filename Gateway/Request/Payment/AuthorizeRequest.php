@@ -48,7 +48,8 @@ class AuthorizeRequest implements BuilderInterface
             PaymentField::BUYER_FIELD_NAME => [
                 PaymentField::BUYER_EMAIL_FIELD_NAME => $order->getShippingAddress()->getEmail(),
                 PaymentField::BUYER_FIRSTNAME_FIELD_NAME => $order->getShippingAddress()->getFirstname(),
-                PaymentField::BUYER_LASTNAME_FIELD_NAME => $order->getShippingAddress()->getLastname()
+                PaymentField::BUYER_LASTNAME_FIELD_NAME => $order->getShippingAddress()->getLastname(),
+                PaymentField::BUYER_LOCALE => $this->paymentHelper->getStoreLocale(),
             ],
             PaymentField::CONTINUE_URL_FIELD_NAME => $this->paymentHelper->getContinueUrl($isRetry)
         ];
