@@ -62,24 +62,24 @@ class PaymentHelper extends AbstractHelper
      */
     protected $driverFile;
 
-	/**
-	 * @var Resolver
-	 */
+    /**
+     * @var Resolver
+     */
     protected $localeResolver;
 
-	/**
-	 * Data constructor.
-	 *
-	 * @param Context $context
-	 * @param ComponentRegistrarInterface $componentRegistrar
-	 * @param StoreManagerInterface $storeManager
-	 * @param ProductMetadataInterface $productMetadata
-	 * @param EncryptorInterface $encryptor
-	 * @param ScopeConfigInterface $scopeConfig
-	 * @param UrlInterface $urlBuilder
-	 * @param File $driverFile
-	 * @param Resolver $localeResolver
-	 */
+    /**
+     * Data constructor.
+     *
+     * @param Context $context
+     * @param ComponentRegistrarInterface $componentRegistrar
+     * @param StoreManagerInterface $storeManager
+     * @param ProductMetadataInterface $productMetadata
+     * @param EncryptorInterface $encryptor
+     * @param ScopeConfigInterface $scopeConfig
+     * @param UrlInterface $urlBuilder
+     * @param File $driverFile
+     * @param Resolver $localeResolver
+     */
     public function __construct(
         Context $context,
         ComponentRegistrarInterface $componentRegistrar,
@@ -89,7 +89,7 @@ class PaymentHelper extends AbstractHelper
         ScopeConfigInterface $scopeConfig,
         UrlInterface $urlBuilder,
         File $driverFile,
-	    Resolver $localeResolver
+        Resolver $localeResolver
     ) {
         parent::__construct($context);
         $this->componentRegistrar = $componentRegistrar;
@@ -342,12 +342,12 @@ class PaymentHelper extends AbstractHelper
         return $this->urlBuilder->getUrl('paynow/payment/retry', ['order_id' => $orderId]);
     }
 
-	/**
-	 * Returns store locale
-	 *
-	 * @return string
-	 */
-	public function getStoreLocale() {
-    	return str_replace('_', '-', $this->localeResolver->getLocale());
+    /**
+     * Returns store locale
+     *
+     * @return string
+     */
+    public function getStoreLocale() {
+        return str_replace('_', '-', $this->localeResolver->getLocale());
     }
 }

@@ -102,7 +102,7 @@ class Notifications extends Action
             $this->getResponse()->setHttpResponseCode(400);
         } catch (OrderPaymentStatusTransitionException $exception) {
             $this->logger->warning(
-				$exception->getMessage(),
+                $exception->getMessage(),
                 $notificationData
             );
             $this->getResponse()->setHttpResponseCode(400);
