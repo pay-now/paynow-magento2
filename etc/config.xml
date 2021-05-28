@@ -6,6 +6,7 @@
             <paynow_gateway>
                 <active>1</active>
                 <debug>1</debug>
+                <order_status_change>1</order_status_change>
                 <can_authorize>1</can_authorize>
                 <can_capture>1</can_capture>
                 <can_void>0</can_void>
