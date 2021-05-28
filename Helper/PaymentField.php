@@ -14,6 +14,7 @@ class PaymentField
     const BUYER_FIELD_NAME = 'buyer';
     const BUYER_FIRSTNAME_FIELD_NAME = 'firstName';
     const BUYER_LASTNAME_FIELD_NAME = 'lastName';
+    const BUYER_LOCALE = 'locale';
     const CONTINUE_URL_FIELD_NAME = 'continueUrl';
     const CURRENCY_FIELD_NAME = 'currency';
     const DESCRIPTION_FIELD_NAME = 'description';

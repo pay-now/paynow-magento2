@@ -10,6 +10,7 @@ use Magento\Framework\Component\ComponentRegistrar;
 use Magento\Framework\Component\ComponentRegistrarInterface;
 use Magento\Framework\Encryption\EncryptorInterface;
 use Magento\Framework\Filesystem\Driver\File;
+use Magento\Framework\Locale\Resolver;
 use Magento\Framework\UrlInterface;
 use Magento\Sales\Model\Order;
 use Magento\Store\Model\ScopeInterface;
@@ -61,17 +62,24 @@ class PaymentHelper extends AbstractHelper
      */
     protected $driverFile;
 
-    /**
-     * Data constructor.
-     * @param Context $context
-     * @param ComponentRegistrarInterface $componentRegistrar
-     * @param StoreManagerInterface $storeManager
-     * @param ProductMetadataInterface $productMetadata
-     * @param EncryptorInterface $encryptor
-     * @param ScopeConfigInterface $scopeConfig
-     * @param UrlInterface $urlBuilder
-     * @param File $driverFile
-     */
+	/**
+	 * @var Resolver
+	 */
+    protected $localeResolver;
+
+	/**
+	 * Data constructor.
+	 *
+	 * @param Context $context
+	 * @param ComponentRegistrarInterface $componentRegistrar
+	 * @param StoreManagerInterface $storeManager
+	 * @param ProductMetadataInterface $productMetadata
+	 * @param EncryptorInterface $encryptor
+	 * @param ScopeConfigInterface $scopeConfig
+	 * @param UrlInterface $urlBuilder
+	 * @param File $driverFile
+	 * @param Resolver $localeResolver
+	 */
     public function __construct(
         Context $context,
         ComponentRegistrarInterface $componentRegistrar,
@@ -80,7 +88,8 @@ class PaymentHelper extends AbstractHelper
         EncryptorInterface $encryptor,
         ScopeConfigInterface $scopeConfig,
         UrlInterface $urlBuilder,
-        File $driverFile
+        File $driverFile,
+	    Resolver $localeResolver
     ) {
         parent::__construct($context);
         $this->componentRegistrar = $componentRegistrar;
@@ -90,6 +99,7 @@ class PaymentHelper extends AbstractHelper
         $this->scopeConfig = $scopeConfig;
         $this->urlBuilder = $urlBuilder;
         $this->driverFile = $driverFile;
+        $this->localeResolver = $localeResolver;
     }
 
     /**
@@ -330,5 +340,14 @@ class PaymentHelper extends AbstractHelper
     public function getRetryPaymentUrl($orderId): string
     {
         return $this->urlBuilder->getUrl('paynow/payment/retry', ['order_id' => $orderId]);
+    }
+
+	/**
+	 * Returns store locale
+	 *
+	 * @return string
+	 */
+	public function getStoreLocale() {
+    	return str_replace('_', '-', $this->localeResolver->getLocale());
     }
 }
