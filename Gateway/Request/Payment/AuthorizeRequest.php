@@ -2,6 +2,7 @@
 
 namespace Paynow\PaymentGateway\Gateway\Request\Payment;
 
+use Magento\Payment\Gateway\Data\OrderAdapterInterface;
 use Magento\Payment\Gateway\Data\PaymentDataObject;
 use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Request\BuilderInterface;
@@ -50,9 +51,15 @@ class AuthorizeRequest implements BuilderInterface
                 PaymentField::BUYER_FIRSTNAME_FIELD_NAME => $order->getShippingAddress()->getFirstname(),
                 PaymentField::BUYER_LASTNAME_FIELD_NAME => $order->getShippingAddress()->getLastname(),
                 PaymentField::BUYER_LOCALE => $this->paymentHelper->getStoreLocale(),
-            ],
-            PaymentField::CONTINUE_URL_FIELD_NAME => $this->paymentHelper->getContinueUrl($isRetry)
+            ]
         ];
+
+        if ($this->paymentHelper->isSendOrderItemsActive()) {
+            $orderItems = $this->paymentHelper->getOrderItems($order);
+            if (! empty($orderItems)) {
+                $request['body'][PaymentField::ORDER_ITEMS] = $orderItems;
+            }
+        }
 
         $request['headers'] = [
             PaymentField::IDEMPOTENCY_KEY_FIELD_NAME => uniqid($referenceId, true)

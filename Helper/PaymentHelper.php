@@ -2,6 +2,7 @@
 
 namespace Paynow\PaymentGateway\Helper;
 
+use Magento\Catalog\Model\Product;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
@@ -9,9 +10,11 @@ use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\Component\ComponentRegistrar;
 use Magento\Framework\Component\ComponentRegistrarInterface;
 use Magento\Framework\Encryption\EncryptorInterface;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Filesystem\Driver\File;
 use Magento\Framework\Locale\Resolver;
 use Magento\Framework\UrlInterface;
+use Magento\Payment\Gateway\Data\OrderAdapterInterface;
 use Magento\Sales\Model\Order;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
@@ -230,6 +233,65 @@ class PaymentHelper extends AbstractHelper
     }
 
     /**
+     * Returns is send order items enabled
+     *
+     * @param null $storeId
+     * @return bool
+     */
+    public function isSendOrderItemsActive($storeId = null): bool
+    {
+        if ($storeId === null) {
+            $storeId = $this->storeManager->getStore()->getId();
+        }
+
+        return $this->getConfigData('send_order_items', ConfigProvider::CODE, $storeId, true);
+    }
+
+    /**
+     * Returns array of order items for order
+     *
+     * @param OrderAdapterInterface $order
+     * @return array
+     */
+    public function getOrderItems(OrderAdapterInterface $order)
+    {
+        $orderItems = $order->getItems();
+        return array_map(function ($item) {
+            $product       = $item->getProduct();
+            return [
+                'name'     => $item->getName(),
+                'category' => $this->getCategoriesNames($product),
+                'quantity' => $item->getQtyOrdered(),
+                'price'    => $this->formatAmount($item->getPrice())
+            ];
+        }, $orderItems);
+    }
+
+    /**
+     * Returns array of categories names for product
+     *
+     * @param Product $product
+     * @return string array
+     */
+    private function getCategoriesNames(Product $product)
+    {
+        try {
+            $categoriesCollection = $product->getCategoryCollection()->addAttributeToSelect('name');
+            $rootCategoryId = $this->storeManager->getStore()->getRootCategoryId();
+            $categories = [];
+            foreach ($categoriesCollection as $category) {
+                if ($category->getId() != $rootCategoryId) {
+                    $categories[] = $category->getName();
+                }
+            }
+            return implode(', ', $categories);
+
+        } catch (LocalizedException $exception) {
+            $this->logger->error('An error occurred during checkout: ' . $exception->getMessage());
+        }
+    }
+
+    /**
      * Returns Api Key for Paynow API
      *
      * @param $storeId
@@ -347,7 +409,8 @@ class PaymentHelper extends AbstractHelper
      *
      * @return string
      */
-    public function getStoreLocale() {
+    public function getStoreLocale()
+    {
         return str_replace('_', '-', $this->localeResolver->getLocale());
     }
 }
