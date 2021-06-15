@@ -244,7 +244,7 @@ class PaymentHelper extends AbstractHelper
             $storeId = $this->storeManager->getStore()->getId();
         }
 
-        return $this->getConfigData('send_order_items', ConfigProvider::CODE, $storeId, true);
+        return $this->getConfigData('send_order_items', ConfigProvider::CODE, $storeId, false);
     }
 
     /**
