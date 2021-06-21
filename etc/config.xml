@@ -11,6 +11,7 @@
                 <can_capture>1</can_capture>
                 <can_void>0</can_void>
                 <can_refund>1</can_refund>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
                 <can_use_checkout>1</can_use_checkout>
                 <can_use_internal>0</can_use_internal>
                 <currency>PLN</currency>

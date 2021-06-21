@@ -36,7 +36,7 @@ class RefundRequest implements BuilderInterface
         ];
 
         $request['headers'] = [
-            PaymentField::IDEMPOTENCY_KEY_FIELD_NAME => uniqid($referenceId, true)
+            RefundField::IDEMPOTENCY_KEY_FIELD_NAME => uniqid($referenceId, true)
         ];
 
         return $request;

@@ -40,7 +40,7 @@ class RefundValidator extends AbstractValidator
     public function validate(array $validationSubject)
     {
         $response = SubjectReader::readResponse($validationSubject);
-        $isResponseValid = array_key_exists(RefundField::ID_FIELD_NAME, $response) &&
+        $isResponseValid = array_key_exists(RefundField::REFUND_ID_FIELD_NAME, $response) &&
                            array_key_exists(RefundField::STATUS_FIELD_NAME, $response) &&
                             $response[RefundField::STATUS_FIELD_NAME] === Status::STATUS_NEW;
 
