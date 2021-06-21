@@ -25,6 +25,7 @@
             <argument name="commands" xsi:type="array">
                 <item name="authorize" xsi:type="string">PaynowPaymentGatewayAuthorizeCommand</item>
                 <item name="capture" xsi:type="string">PaynowPaymentGatewayCaptureCommand</item>
+                <item name="refund" xsi:type="string">PaynowPaymentGatewayRefundCommand</item>
             </argument>
         </arguments>
     </virtualType>
@@ -64,6 +65,27 @@
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="capture" xsi:type="string">Paynow\PaymentGateway\Gateway\Request\Payment\CaptureRequest</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+
+    <!-- Refund command -->
+    <virtualType name="PaynowPaymentGatewayRefundCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">PaynowPaymentGatewayRefundRequest</argument>
+            <argument name="transferFactory" xsi:type="object">Paynow\PaymentGateway\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">Paynow\PaymentGateway\Gateway\Http\Client\PaymentRefund</argument>
+            <argument name="validator" xsi:type="object">Paynow\PaymentGateway\Gateway\Validator\Refund\RefundValidator</argument>
+        </arguments>
+    </virtualType>
+
+
+    <!-- Refund Request -->
+    <virtualType name="PaynowPaymentGatewayRefundRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="capture" xsi:type="string">Paynow\PaymentGateway\Gateway\Request\Refund\RefundRequest</item>
             </argument>
         </arguments>
     </virtualType>
