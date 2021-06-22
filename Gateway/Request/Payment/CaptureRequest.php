@@ -2,9 +2,8 @@
 
 namespace Paynow\PaymentGateway\Gateway\Request\Payment;
 
-use Magento\Payment\Gateway\Data\PaymentDataObject;
-use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Request\BuilderInterface;
+use Paynow\PaymentGateway\Gateway\Request\AbstractRequest;
 use Paynow\PaymentGateway\Helper\PaymentField;
 
 /**
@@ -12,7 +11,7 @@ use Paynow\PaymentGateway\Helper\PaymentField;
  *
  * @package Paynow\PaymentGateway\Gateway\Request
  */
-class CaptureRequest implements BuilderInterface
+class CaptureRequest extends AbstractRequest implements BuilderInterface
 {
     /**
      * @param array $buildSubject
@@ -20,12 +19,10 @@ class CaptureRequest implements BuilderInterface
      */
     public function build(array $buildSubject)
     {
-        /** @var PaymentDataObject $paymentDataObject */
-        $paymentDataObject = SubjectReader::readPayment($buildSubject);
-        $payment = $paymentDataObject->getPayment();
+        parent::build($buildSubject);
 
         $request['body'] = [
-            PaymentField::PAYMENT_ID_FIELD_NAME => $payment->getLastTransId()
+            PaymentField::PAYMENT_ID_FIELD_NAME => $this->payment->getLastTransId()
         ];
 
         return $request;

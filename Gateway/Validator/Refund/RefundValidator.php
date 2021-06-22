@@ -1,5 +1,7 @@
 <?php
 
+namespace Paynow\PaymentGateway\Gateway\Validator\Refund;
+
 use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Validator\AbstractValidator;
 use Magento\Payment\Gateway\Validator\ResultInterface;
@@ -42,7 +44,7 @@ class RefundValidator extends AbstractValidator
         $response = SubjectReader::readResponse($validationSubject);
         $isResponseValid = array_key_exists(RefundField::REFUND_ID_FIELD_NAME, $response) &&
                            array_key_exists(RefundField::STATUS_FIELD_NAME, $response) &&
-                            $response[RefundField::STATUS_FIELD_NAME] === Status::STATUS_NEW;
+                            $response[RefundField::STATUS_FIELD_NAME] === Status::STATUS_PENDING;
 
         $this->logger->debug("Validating refund response", ['valid' => $isResponseValid]);
 

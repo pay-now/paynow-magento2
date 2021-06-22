@@ -69,7 +69,6 @@
         </arguments>
     </virtualType>
 
-
     <!-- Refund command -->
     <virtualType name="PaynowPaymentGatewayRefundCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
         <arguments>
@@ -80,12 +79,11 @@
         </arguments>
     </virtualType>
 
-
     <!-- Refund Request -->
     <virtualType name="PaynowPaymentGatewayRefundRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
-                <item name="capture" xsi:type="string">Paynow\PaymentGateway\Gateway\Request\Refund\RefundRequest</item>
+                <item name="refund" xsi:type="string">Paynow\PaymentGateway\Gateway\Request\Refund\RefundRequest</item>
             </argument>
         </arguments>
     </virtualType>

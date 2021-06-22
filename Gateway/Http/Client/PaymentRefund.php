@@ -61,12 +61,13 @@ class PaymentRefund implements ClientInterface
                 "Retrieved create refund response",
                 array_merge($loggerContext, [
                     RefundField::STATUS_FIELD_NAME => $apiResponseObject->getStatus(),
-                    RefundField::REFUND_ID_FIELD_NAME => $apiResponseObject->getPaymentId()
+                    PaymentField::PAYMENT_ID_FIELD_NAME => $data[PaymentField::PAYMENT_ID_FIELD_NAME],
+                    RefundField::REFUND_ID_FIELD_NAME => $apiResponseObject->getRefundId()
                 ])
             );
             return [
                 RefundField::STATUS_FIELD_NAME => $apiResponseObject->getStatus(),
-                RefundField::REFUND_ID_FIELD_NAME => $apiResponseObject->getPaymentId(),
+                RefundField::REFUND_ID_FIELD_NAME => $apiResponseObject->getRefundId(),
             ];
         } catch (PaynowException $exception) {
             $this->logger->error(
