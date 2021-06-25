@@ -2,9 +2,8 @@
 
 namespace Paynow\PaymentGateway\Gateway\Request\Payment;
 
-use Magento\Payment\Gateway\Data\PaymentDataObject;
-use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Request\BuilderInterface;
+use Paynow\PaymentGateway\Gateway\Request\AbstractRequest;
 use Paynow\PaymentGateway\Helper\PaymentField;
 use Paynow\PaymentGateway\Helper\PaymentHelper;
 
@@ -13,7 +12,7 @@ use Paynow\PaymentGateway\Helper\PaymentHelper;
  *
  * @package Paynow\PaymentGateway\Gateway\Request
  */
-class AuthorizeRequest implements BuilderInterface
+class AuthorizeRequest extends AbstractRequest implements BuilderInterface
 {
     /**
      * @var PaymentHelper
@@ -31,27 +30,25 @@ class AuthorizeRequest implements BuilderInterface
      */
     public function build(array $buildSubject)
     {
-        /** @var PaymentDataObject $paymentDataObject */
-        $paymentDataObject = SubjectReader::readPayment($buildSubject);
-        $order = $paymentDataObject->getOrder();
-        $referenceId = $order->getOrderIncrementId();
+        parent::build($buildSubject);
+
+        $referenceId = $this->order->getOrderIncrementId();
         $paymentDescription = __('Order No: ') . $referenceId;
 
-        $isRetry = $paymentDataObject->getPayment()
-            ->hasAdditionalInformation(PaymentField::IS_PAYMENT_RETRY_FIELD_NAME);
+        $isRetry = $this->payment->hasAdditionalInformation(PaymentField::IS_PAYMENT_RETRY_FIELD_NAME);
 
         $request['body'] = [
-            PaymentField::AMOUNT_FIELD_NAME => $this->paymentHelper->formatAmount($order->getGrandTotalAmount()),
-            PaymentField::CURRENCY_FIELD_NAME => $order->getCurrencyCode(),
+            PaymentField::AMOUNT_FIELD_NAME => $this->paymentHelper->formatAmount($this->order->getGrandTotalAmount()),
+            PaymentField::CURRENCY_FIELD_NAME => $this->order->getCurrencyCode(),
             PaymentField::EXTERNAL_ID_FIELD_NAME => $referenceId,
             PaymentField::DESCRIPTION_FIELD_NAME => $paymentDescription,
             PaymentField::BUYER_FIELD_NAME => [
-                PaymentField::BUYER_EMAIL_FIELD_NAME => $order->getShippingAddress()->getEmail(),
-                PaymentField::BUYER_FIRSTNAME_FIELD_NAME => $order->getShippingAddress()->getFirstname(),
-                PaymentField::BUYER_LASTNAME_FIELD_NAME => $order->getShippingAddress()->getLastname(),
+                PaymentField::BUYER_EMAIL_FIELD_NAME => $this->order->getShippingAddress()->getEmail(),
+                PaymentField::BUYER_FIRSTNAME_FIELD_NAME => $this->order->getShippingAddress()->getFirstname(),
+                PaymentField::BUYER_LASTNAME_FIELD_NAME => $this->order->getShippingAddress()->getLastname(),
                 PaymentField::BUYER_LOCALE => $this->paymentHelper->getStoreLocale(),
             ],
-            PaymentField::CONTINUE_URL_FIELD_NAME => $this->paymentHelper->getContinueUrl($isRetry)
+//            PaymentField::CONTINUE_URL_FIELD_NAME => $this->paymentHelper->getContinueUrl($isRetry)
         ];
 
         $request['headers'] = [
