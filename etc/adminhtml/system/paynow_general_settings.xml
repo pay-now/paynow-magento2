@@ -34,5 +34,12 @@
             <config_path>payment/paynow_gateway/order_status_change</config_path>
             <comment>Select Yes if you want to allow change order status on during processing notifications.</comment>
         </field>
+        <field id="send_order_items" translate="label" type="select" sortOrder="7" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Send order items</label>
+            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+            <config_path>payment/paynow_gateway/send_order_items</config_path>
+            <comment>Select Yes if you want to send ordered products information: name, categories, quantity and unit price.</comment>
+        </field>
+        <attribute type="expanded">1</attribute>
     </group>
 </include>
