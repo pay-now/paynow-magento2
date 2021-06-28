@@ -96,9 +96,11 @@ class NotificationProcessor
 
     private function paymentPending()
     {
-        $this->order->addStatusToHistory(Order::STATE_PENDING_PAYMENT, __('Awaiting payment confirmation from Paynow.'), true);
+        $message = __('Awaiting payment confirmation from Paynow.');
         if ($this->paymentHelper->isOrderStatusChangeActive()) {
-            $this->order->setStatus(Order::STATE_PENDING_PAYMENT);
+            $this->order->setState(Order::STATE_PENDING_PAYMENT)->addStatusToHistory(Order::STATE_PENDING_PAYMENT, $message);
+        } else {
+            $this->order->addCommentToStatusHistory($message);
         }
         $this->order->getPayment()->setIsClosed(false);
     }
@@ -115,29 +117,35 @@ class NotificationProcessor
 
     private function paymentRejected()
     {
+        $message = __('Payment has not been authorized by the buyer.');
         if ($this->order->canCancel() && !$this->paymentHelper->isRetryPaymentActive()) {
-            $this->order->addStatusToHistory(Order::STATE_CANCELED, __('Payment has not been authorized by the buyer.'));
             if ($this->paymentHelper->isOrderStatusChangeActive()) {
-                $this->order->setState(Order::STATE_CANCELED);
+                $this->order->setState(Order::STATE_CANCELED)->addStatusToHistory(Order::STATE_CANCELED, $message);
                 $this->order->cancel();
                 $this->logger->info('Order has been canceled', $this->loggerContext);
+            } else {
+                $this->order->addCommentToStatusHistory($message);
             }
         } else {
-            $this->order->addStatusToHistory(Order::STATE_PAYMENT_REVIEW, __('Payment has not been authorized by the buyer.'));
             if ($this->paymentHelper->isOrderStatusChangeActive()) {
-                $this->order->setState(Order::STATE_PAYMENT_REVIEW);
+                $this->order->setState(Order::STATE_PAYMENT_REVIEW)->addStatusToHistory(Order::STATE_PAYMENT_REVIEW, $message);
                 $this->logger->warning('Order has not been canceled because retry payment is active', $this->loggerContext);
+            } else {
+                $this->order->addCommentToStatusHistory($message);
             }
+
 
         }
     }
 
     private function paymentError()
     {
+        $message = __('Payment has been ended with an error.');
         if (!$this->paymentHelper->isRetryPaymentActive()) {
-            $this->order->addStatusToHistory(Order::STATE_PAYMENT_REVIEW, __('Payment has been ended with an error.'));
             if ($this->paymentHelper->isOrderStatusChangeActive()) {
-                $this->order->setState(Order::STATE_PAYMENT_REVIEW);
+                $this->order->setState(Order::STATE_PAYMENT_REVIEW)->addStatusToHistory(Order::STATE_PAYMENT_REVIEW, $message);
+            } else {
+                $this->order->addCommentToStatusHistory($message);
             }
         }
     }
