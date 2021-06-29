@@ -98,7 +98,9 @@ class NotificationProcessor
     {
         $message = __('Awaiting payment confirmation from Paynow.');
         if ($this->paymentHelper->isOrderStatusChangeActive()) {
-            $this->order->setState(Order::STATE_PENDING_PAYMENT)->addStatusToHistory(Order::STATE_PENDING_PAYMENT, $message);
+            $this->order
+                ->setState(Order::STATE_PENDING_PAYMENT)
+                ->addStatusToHistory(Order::STATE_PENDING_PAYMENT, $message);
         } else {
             $this->order->addCommentToStatusHistory($message);
         }
@@ -120,7 +122,9 @@ class NotificationProcessor
         $message = __('Payment has not been authorized by the buyer.');
         if ($this->order->canCancel() && !$this->paymentHelper->isRetryPaymentActive()) {
             if ($this->paymentHelper->isOrderStatusChangeActive()) {
-                $this->order->setState(Order::STATE_CANCELED)->addStatusToHistory(Order::STATE_CANCELED, $message);
+                $this->order
+                    ->setState(Order::STATE_CANCELED)
+                    ->addStatusToHistory(Order::STATE_CANCELED, $message);
                 $this->order->cancel();
                 $this->logger->info('Order has been canceled', $this->loggerContext);
             } else {
@@ -128,12 +132,13 @@ class NotificationProcessor
             }
         } else {
             if ($this->paymentHelper->isOrderStatusChangeActive()) {
-                $this->order->setState(Order::STATE_PAYMENT_REVIEW)->addStatusToHistory(Order::STATE_PAYMENT_REVIEW, $message);
+                $this->order
+                    ->setState(Order::STATE_PAYMENT_REVIEW)
+                    ->addStatusToHistory(Order::STATE_PAYMENT_REVIEW, $message);
                 $this->logger->warning('Order has not been canceled because retry payment is active', $this->loggerContext);
             } else {
                 $this->order->addCommentToStatusHistory($message);
             }
-
 
         }
     }
@@ -143,7 +148,9 @@ class NotificationProcessor
         $message = __('Payment has been ended with an error.');
         if (!$this->paymentHelper->isRetryPaymentActive()) {
             if ($this->paymentHelper->isOrderStatusChangeActive()) {
-                $this->order->setState(Order::STATE_PAYMENT_REVIEW)->addStatusToHistory(Order::STATE_PAYMENT_REVIEW, $message);
+                $this->order
+                    ->setState(Order::STATE_PAYMENT_REVIEW)
+                    ->addStatusToHistory(Order::STATE_PAYMENT_REVIEW, $message);
             } else {
                 $this->order->addCommentToStatusHistory($message);
             }
