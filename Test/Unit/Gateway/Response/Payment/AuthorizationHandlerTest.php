@@ -36,10 +36,6 @@ class AuthorizationHandlerTest extends TestCase
             PaymentField::REDIRECT_URL_FIELD_NAME => 'testRedirectUrl',
         ];
 
-        $paymentInfo->expects(static::once())
-            ->method('getOrder')
-            ->willReturn($order);
-
         $paymentDO->expects(static::atLeastOnce())
             ->method('getPayment')
             ->willReturn($paymentInfo);
