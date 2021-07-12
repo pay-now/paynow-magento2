@@ -31,9 +31,6 @@ class AuthorizationHandler implements HandlerInterface
         /** @var Payment $payment */
         $payment = $paymentDataObject->getPayment();
 
-        // don't send order confirmation mail
-        $payment->getOrder()->setCanSendNewEmailFlag(false);
-
         $payment->setIsTransactionPending(true)
             ->setTransactionId($response[PaymentField::PAYMENT_ID_FIELD_NAME])
             ->setIsTransactionClosed(false)
