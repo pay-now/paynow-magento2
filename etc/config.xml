@@ -17,6 +17,8 @@
                 <currency>PLN</currency>
                 <is_gateway>1</is_gateway>
                 <send_order_items>0</send_order_items>
+                <use_payment_validity_time>0</use_payment_validity_time>
+                <payment_validity_time>86400</payment_validity_time>
                 <model>PaynowPaymentGatewayFacade</model>
                 <payment_action>authorize</payment_action>
                 <sort_order>1</sort_order>

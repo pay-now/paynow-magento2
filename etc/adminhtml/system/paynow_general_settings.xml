@@ -40,6 +40,21 @@
             <config_path>payment/paynow_gateway/send_order_items</config_path>
             <comment>Select Yes if you want to send ordered products information: name, categories, quantity and unit price.</comment>
         </field>
+        <field id="use_payment_validity_time" translate="label" type="select" sortOrder="8" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Use payment validity time</label>
+            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+            <config_path>payment/paynow_gateway/use_payment_validity</config_path>
+            <comment>Select Yes if you want to limit the validity of the payment.</comment>
+        </field>
+        <field id="payment_validity_time" translate="label" type="text" sortOrder="9" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Payment validity time</label>
+            <config_path>payment/paynow_gateway/payment_validity_time</config_path>
+            <validate>validate-number validate-number-range number-range-60-86400</validate>
+            <comment>Determines how long it will be possible to pay for the order from the moment the payment link is generated. Value expressed in seconds. Maximum value is 86400 seconds.</comment>
+            <depends>
+                <field id="*/*/paynow_general_settings/use_payment_validity_time">1</field>
+            </depends>
+        </field>
         <attribute type="expanded">1</attribute>
     </group>
 </include>

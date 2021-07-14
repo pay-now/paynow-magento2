@@ -25,4 +25,5 @@ class PaymentField
     const REDIRECT_URL_FIELD_NAME = 'redirectUrl';
     const STATUS_FIELD_NAME = 'status';
     const ORDER_ITEMS = 'orderItems';
+    const VALIDITY_TIME = 'validityTime';
 }
