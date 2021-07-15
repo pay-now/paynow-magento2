@@ -90,6 +90,9 @@ class NotificationProcessor
             case Status::STATUS_ERROR:
                 $this->paymentError();
                 break;
+            case Status::STATUS_EXPIRED:
+                $this->paymentExpired();
+                break;
         }
         $this->order->save();
     }
@@ -139,7 +142,6 @@ class NotificationProcessor
             } else {
                 $this->order->addCommentToStatusHistory($message);
             }
-
         }
     }
 
@@ -157,6 +159,19 @@ class NotificationProcessor
         }
     }
 
+    private function paymentExpired()
+    {
+        $message = __('Payment has been expired.');
+        if ($this->paymentHelper->isOrderStatusChangeActive()) {
+            $this->order
+                ->setState(Order::STATE_PAYMENT_REVIEW)
+                ->addStatusToHistory(Order::STATE_PAYMENT_REVIEW, $message);
+        } else {
+            $this->order->addCommentToStatusHistory($message);
+        }
+        $this->order->getPayment()->setIsClosed(true);
+    }
+
     private function isCorrectStatus($previousStatus, $nextStatus)
     {
         $paymentStatusFlow = [
@@ -164,19 +179,22 @@ class NotificationProcessor
                 Status::STATUS_NEW,
                 Status::STATUS_PENDING,
                 Status::STATUS_ERROR,
+                Status::STATUS_EXPIRED,
                 Status::STATUS_CONFIRMED,
                 Status::STATUS_REJECTED
             ],
             Status::STATUS_PENDING => [
                 Status::STATUS_CONFIRMED,
-                Status::STATUS_REJECTED
+                Status::STATUS_REJECTED,
+                Status::STATUS_EXPIRED
             ],
             Status::STATUS_REJECTED => [Status::STATUS_PENDING, Status::STATUS_CONFIRMED],
             Status::STATUS_CONFIRMED => [],
             Status::STATUS_ERROR => [
                 Status::STATUS_CONFIRMED,
                 Status::STATUS_REJECTED
-            ]
+            ],
+            Status::STATUS_EXPIRED => []
         ];
 
         $previousStatusExists = isset($paymentStatusFlow[$previousStatus]);
