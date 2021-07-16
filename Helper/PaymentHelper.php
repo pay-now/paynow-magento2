@@ -11,6 +11,7 @@ use Magento\Framework\Component\ComponentRegistrar;
 use Magento\Framework\Component\ComponentRegistrarInterface;
 use Magento\Framework\Encryption\EncryptorInterface;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Filesystem\Driver\File;
 use Magento\Framework\Locale\Resolver;
 use Magento\Framework\UrlInterface;
@@ -236,7 +237,9 @@ class PaymentHelper extends AbstractHelper
      * Returns is send order items enabled
      *
      * @param null $storeId
+     *
      * @return bool
+     * @throws NoSuchEntityException
      */
     public function isSendOrderItemsActive($storeId = null): bool
     {
@@ -244,7 +247,7 @@ class PaymentHelper extends AbstractHelper
             $storeId = $this->storeManager->getStore()->getId();
         }
 
-        return $this->getConfigData('send_order_items', ConfigProvider::CODE, $storeId, false);
+        return $this->getConfigData('send_order_items', ConfigProvider::CODE, $storeId, true);
     }
 
     /**
@@ -289,6 +292,40 @@ class PaymentHelper extends AbstractHelper
         } catch (LocalizedException $exception) {
             $this->logger->error('An error occurred during checkout: ' . $exception->getMessage());
         }
+    }
+
+    /**
+     * Returns is payment validity usage enabled
+     *
+     * @param null $storeId
+     *
+     * @return bool
+     * @throws NoSuchEntityException
+     */
+    public function isPaymentValidityActive($storeId = null): bool
+    {
+        if ($storeId === null) {
+            $storeId = $this->storeManager->getStore()->getId();
+        }
+
+        return $this->getConfigData('use_payment_validity', ConfigProvider::CODE, $storeId, true);
+    }
+
+    /**
+     * Returns is payment validity time
+     *
+     * @param null $storeId
+     *
+     * @return int
+     * @throws NoSuchEntityException
+     */
+    public function getPaymentValidityTime($storeId = null): int
+    {
+        if ($storeId === null) {
+            $storeId = $this->storeManager->getStore()->getId();
+        }
+
+        return intval($this->getConfigData('payment_validity_time', ConfigProvider::CODE, $storeId, false));
     }
 
     /**

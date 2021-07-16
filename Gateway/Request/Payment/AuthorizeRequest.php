@@ -2,9 +2,6 @@
 
 namespace Paynow\PaymentGateway\Gateway\Request\Payment;
 
-use Magento\Payment\Gateway\Data\OrderAdapterInterface;
-use Magento\Payment\Gateway\Data\PaymentDataObject;
-use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 use Paynow\PaymentGateway\Gateway\Request\AbstractRequest;
 use Paynow\PaymentGateway\Helper\PaymentField;
@@ -58,6 +55,13 @@ class AuthorizeRequest extends AbstractRequest implements BuilderInterface
             $orderItems = $this->paymentHelper->getOrderItems($this->order);
             if (! empty($orderItems)) {
                 $request['body'][PaymentField::ORDER_ITEMS] = $orderItems;
+            }
+        }
+
+        if ($this->paymentHelper->isPaymentValidityActive()) {
+            $validityTime = $this->paymentHelper->getPaymentValidityTime();
+            if (! empty($validityTime)) {
+                $request['body'][PaymentField::VALIDITY_TIME] = $this->paymentHelper->getPaymentValidityTime();
             }
         }
 
