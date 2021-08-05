@@ -2,7 +2,6 @@
 
 namespace Paynow\PaymentGateway\Controller\Payment;
 
-use Exception;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\Request\Http;
@@ -109,10 +108,7 @@ class Notifications extends Action
             );
             $this->getResponse()->setHttpResponseCode(400);
         } catch (OrderHasBeenAlreadyPaidException $exception) {
-            $this->logger->info(
-                $exception->getMessage(),
-                $notificationData
-            );
+            $this->logger->info($exception->getMessage() . ' Skip processing the notification.');
             $this->getResponse()->setHttpResponseCode(200);
         }
     }
