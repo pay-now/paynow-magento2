@@ -1,10 +1,11 @@
 <?php
+/** @var Paynow\PaymentGateway\Block\Order\History\Action $block */
 /** @var Magento\Sales\Model\Order $order */
-$order = $this->getData('order');
+$order = $block->getData('order');
 if ($order !== null) :
-    if ($this->canRetryPayment($order->getEntityId())) : ?>
-        <a href="<?= $this->escapeUrl($this->getRetryPaymentUrl($order->getEntityId())); ?>" class="action order">
-            <span><?= $this->escapeHtml(__('Retry payment')); ?></span>
+    if ($block->canRetryPayment($order->getEntityId())) : ?>
+        <a href="<?= $block->escapeUrl($block->getRetryPaymentUrl($order->getEntityId())); ?>" class="action order">
+            <span><?= $block->escapeHtml(__('Retry payment')); ?></span>
         </a>
         <?php
     endif;

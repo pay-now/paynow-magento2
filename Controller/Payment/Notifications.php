@@ -2,7 +2,6 @@
 
 namespace Paynow\PaymentGateway\Controller\Payment;
 
-use Exception;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\Request\Http;
@@ -12,6 +11,7 @@ use Paynow\Notification;
 use Paynow\PaymentGateway\Helper\NotificationProcessor;
 use Paynow\PaymentGateway\Helper\PaymentField;
 use Paynow\PaymentGateway\Helper\PaymentHelper;
+use Paynow\PaymentGateway\Model\Exception\OrderHasBeenAlreadyPaidException;
 use Paynow\PaymentGateway\Model\Exception\OrderPaymentStatusTransitionException;
 use Paynow\PaymentGateway\Model\Logger\Logger;
 use Zend\Http\Headers;
@@ -45,6 +45,7 @@ class Notifications extends Action
 
     /**
      * Redirect constructor.
+     *
      * @param Context $context
      * @param StoreManagerInterface $storeManager
      * @param NotificationProcessor $notificationProcessor
@@ -59,11 +60,11 @@ class Notifications extends Action
         PaymentHelper $paymentHelper
     ) {
         parent::__construct($context);
-        $this->storeManager = $storeManager;
+        $this->storeManager          = $storeManager;
         $this->notificationProcessor = $notificationProcessor;
-        $this->logger = $logger;
-        $this->paymentHelper = $paymentHelper;
-        if (interface_exists("\Magento\Framework\App\CsrfAwareActionInterface")) {
+        $this->logger                = $logger;
+        $this->paymentHelper         = $paymentHelper;
+        if (interface_exists(\Magento\Framework\App\CsrfAwareActionInterface::class)) {
             $request = $this->getRequest();
             if ($request instanceof Http && $request->isPost()) {
                 $request->setParam('isAjax', true);
@@ -77,10 +78,10 @@ class Notifications extends Action
      */
     public function execute()
     {
-        $payload = $this->getRequest()->getContent();
+        $payload          = $this->getRequest()->getContent();
         $notificationData = json_decode($payload, true);
         $this->logger->debug("Received payment status notification", $notificationData);
-        $storeId = $this->storeManager->getStore()->getId();
+        $storeId      = $this->storeManager->getStore()->getId();
         $signatureKey = $this->paymentHelper->getSignatureKey($storeId, $this->paymentHelper->isTestMode($storeId));
 
         try {
@@ -106,15 +107,27 @@ class Notifications extends Action
                 $notificationData
             );
             $this->getResponse()->setHttpResponseCode(400);
+        } catch (OrderHasBeenAlreadyPaidException $exception) {
+            $this->logger->info($exception->getMessage() . ' Skip processing the notification.');
+            $this->getResponse()->setHttpResponseCode(200);
         }
     }
 
     /**
      * @param Headers $headers
+     *
      * @return array
      */
     private function getSignaturesFromHeaders(Headers $headers)
     {
-        return ['Signature' => $headers->has('Signature') ? $headers->get('Signature')->getFieldValue() : $headers->get('signature')->getFieldValue()];
+        if ($headers->has('Signature')) {
+            $signature = $headers->get('Signature')->getFieldValue();
+        } else {
+            $signature = $headers->get('signature')->getFieldValue();
+        }
+
+        return [
+            'Signature' => $signature
+        ];
     }
 }

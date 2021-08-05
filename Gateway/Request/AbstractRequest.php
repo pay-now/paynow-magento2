@@ -8,6 +8,11 @@ use Magento\Payment\Gateway\Data\PaymentDataObject;
 use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Sales\Model\Order\Payment;
 
+/**
+ * Class AbstractRequest
+ *
+ * @package Paynow\PaymentGateway\Gateway\Request
+ */
 abstract class AbstractRequest
 {
     /**

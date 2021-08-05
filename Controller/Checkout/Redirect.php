@@ -5,6 +5,7 @@ namespace Paynow\PaymentGateway\Controller\Checkout;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
+use Magento\Framework\App\CsrfAwareActionInterface;
 use Magento\Framework\App\Request\Http;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Controller\Result\Redirect as ResponseRedirect;
@@ -50,7 +51,7 @@ class Redirect extends Action
         $this->checkoutSession = $checkoutSession;
         $this->logger = $logger;
         $this->redirectResult = $this->resultRedirectFactory->create();
-        if (interface_exists("\Magento\Framework\App\CsrfAwareActionInterface")) {
+        if (interface_exists(CsrfAwareActionInterface::class)) {
             $request = $this->getRequest();
             if ($request instanceof Http && $request->isPost()) {
                 $request->setParam('isAjax', true);
