@@ -12,6 +12,7 @@ use Paynow\Notification;
 use Paynow\PaymentGateway\Helper\NotificationProcessor;
 use Paynow\PaymentGateway\Helper\PaymentField;
 use Paynow\PaymentGateway\Helper\PaymentHelper;
+use Paynow\PaymentGateway\Model\Exception\OrderHasBeenAlreadyPaidException;
 use Paynow\PaymentGateway\Model\Exception\OrderPaymentStatusTransitionException;
 use Paynow\PaymentGateway\Model\Logger\Logger;
 use Zend\Http\Headers;
@@ -106,6 +107,12 @@ class Notifications extends Action
                 $notificationData
             );
             $this->getResponse()->setHttpResponseCode(400);
+        } catch (OrderHasBeenAlreadyPaidException $exception) {
+            $this->logger->info(
+                $exception->getMessage(),
+                $notificationData
+            );
+            $this->getResponse()->setHttpResponseCode(200);
         }
     }
 

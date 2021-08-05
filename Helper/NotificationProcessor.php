@@ -5,6 +5,7 @@ namespace Paynow\PaymentGateway\Helper;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\OrderFactory;
 use Paynow\Model\Payment\Status;
+use Paynow\PaymentGateway\Model\Exception\OrderHasBeenAlreadyPaidException;
 use Paynow\PaymentGateway\Model\Exception\OrderNotFound;
 use Paynow\PaymentGateway\Model\Exception\OrderPaymentStatusTransitionException;
 use Paynow\PaymentGateway\Model\Logger\Logger;
@@ -53,6 +54,7 @@ class NotificationProcessor
      * @param $status
      * @param $externalId
      * @throws OrderNotFound
+     * @throws OrderHasBeenAlreadyPaidException
      * @throws OrderPaymentStatusTransitionException
      */
     public function process($paymentId, $status, $externalId)
@@ -70,8 +72,14 @@ class NotificationProcessor
 
         $paymentAdditionalInformation = $this->order->getPayment()->getAdditionalInformation();
         $orderPaymentStatus = $paymentAdditionalInformation[PaymentField::STATUS_FIELD_NAME];
+        $finalPaymentStatus = $orderPaymentStatus == Status::STATUS_CONFIRMED;
 
-        if (!$this->isCorrectStatus($orderPaymentStatus, $status)) {
+        if ($finalPaymentStatus) {
+            $this->logger->info('Order has paid status. Skipped notification processing', $this->loggerContext);
+            throw new OrderHasBeenAlreadyPaidException($externalId, $paymentId);
+        }
+
+        if ( ! $this->isCorrectStatus($orderPaymentStatus, $status)) {
             throw new OrderPaymentStatusTransitionException($orderPaymentStatus, $status);
         }
 
