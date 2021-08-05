@@ -79,7 +79,7 @@ class NotificationProcessor
             throw new OrderHasBeenAlreadyPaidException($externalId, $paymentId);
         }
 
-        if ( ! $this->isCorrectStatus($orderPaymentStatus, $status)) {
+        if (! $this->isCorrectStatus($orderPaymentStatus, $status)) {
             throw new OrderPaymentStatusTransitionException($orderPaymentStatus, $status);
         }
 
@@ -146,7 +146,10 @@ class NotificationProcessor
                 $this->order
                     ->setState(Order::STATE_PAYMENT_REVIEW)
                     ->addStatusToHistory(Order::STATE_PAYMENT_REVIEW, $message);
-                $this->logger->warning('Order has not been canceled because retry payment is active', $this->loggerContext);
+                $this->logger->warning(
+                    'Order has not been canceled because retry payment is active',
+                    $this->loggerContext
+                );
             } else {
                 $this->order->addCommentToStatusHistory($message);
             }

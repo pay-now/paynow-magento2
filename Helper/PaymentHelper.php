@@ -325,7 +325,7 @@ class PaymentHelper extends AbstractHelper
             $storeId = $this->storeManager->getStore()->getId();
         }
 
-        return intval($this->getConfigData('payment_validity_time', ConfigProvider::CODE, $storeId, false));
+        return (int)$this->getConfigData('payment_validity_time', ConfigProvider::CODE, $storeId, false);
     }
 
     /**

@@ -9,7 +9,7 @@ use Paynow\PaymentGateway\Helper\PaymentField;
 /**
  * Class PaymentCaptureRequest
  *
- * @package Paynow\PaymentGateway\Gateway\Request
+ * @package Paynow\PaymentGateway\Gateway\Request\Payment
  */
 class CaptureRequest extends AbstractRequest implements BuilderInterface
 {

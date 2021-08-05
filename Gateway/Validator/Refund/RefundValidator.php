@@ -10,11 +10,10 @@ use Paynow\Model\Payment\Status;
 use Paynow\PaymentGateway\Helper\RefundField;
 use Paynow\PaymentGateway\Model\Logger\Logger;
 
-
 /**
  * Class PaymentRefundValidator
  *
- * @package Paynow\PaymentGateway\Validator
+ * @package Paynow\PaymentGateway\Validator\Refund
  */
 class RefundValidator extends AbstractValidator
 {
@@ -33,7 +32,6 @@ class RefundValidator extends AbstractValidator
         parent::__construct($resultFactory);
         $this->logger = $logger;
     }
-
 
     /**
      * @param array $validationSubject

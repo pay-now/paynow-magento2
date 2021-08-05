@@ -12,7 +12,7 @@ use Paynow\PaymentGateway\Helper\PaymentField;
 /**
  * Class PaymentAuthorizationHandler
  *
- * @package Paynow\PaymentGateway\Gateway\Response
+ * @package Paynow\PaymentGateway\Gateway\Response\Payment
  */
 class AuthorizationHandler implements HandlerInterface
 {

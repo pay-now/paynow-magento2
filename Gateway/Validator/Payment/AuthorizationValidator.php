@@ -13,7 +13,7 @@ use Paynow\PaymentGateway\Model\Logger\Logger;
 /**
  * Class PaymentAuthorizationValidator
  *
- * @package Paynow\PaymentGateway\Validator
+ * @package Paynow\PaymentGateway\Validator\Payment
  */
 class AuthorizationValidator extends AbstractValidator
 {

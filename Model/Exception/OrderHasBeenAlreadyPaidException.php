@@ -9,7 +9,6 @@ use Exception;
  *
  * @package Paynow\PaymentGateway\Model\Exception
  */
-
 class OrderHasBeenAlreadyPaidException extends Exception
 {
     const EXCEPTION_MESSAGE = 'Order %s has been already paid in %s.';

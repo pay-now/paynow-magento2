@@ -31,7 +31,9 @@
   "require-dev": {
     "magento/magento-coding-standard": "2.*",
     "phpunit/phpunit": "~6.2.0",
-    "phpmd/phpmd": "@stable"
+    "phpmd/phpmd": "@stable",
+    "phpcs/phpcs": "@stable",
+    "phpcs/phpcbf": "@stable"
   },
   "autoload": {
     "files": [
@@ -53,7 +55,7 @@
       "vendor/bin/phpunit -c Test/phpunit.xml"
     ],
     "cs": [
-      "vendor/bin/phpcs --standard=Magento2 --ignore=*/vendor/* ."
+      "vendor/bin/phpcs --standard=Magento2 --ignore=*/vendor/*,*/Test/* ."
     ],
     "post-install-cmd": [
       "([ $COMPOSER_DEV_MODE -eq 0 ] || vendor/bin/phpcs --config-set installed_paths ../../magento/magento-coding-standard/)"

@@ -10,7 +10,7 @@ use Paynow\PaymentGateway\Helper\PaymentHelper;
 /**
  * Class PaymentAuthorizationRequest
  *
- * @package Paynow\PaymentGateway\Gateway\Request
+ * @package Paynow\PaymentGateway\Gateway\Request\Payment
  */
 class AuthorizeRequest extends AbstractRequest implements BuilderInterface
 {

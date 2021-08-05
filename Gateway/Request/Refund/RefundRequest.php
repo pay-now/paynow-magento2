@@ -10,6 +10,11 @@ use Paynow\PaymentGateway\Helper\PaymentField;
 use Paynow\PaymentGateway\Helper\PaymentHelper;
 use Paynow\PaymentGateway\Helper\RefundField;
 
+/**
+ * Class RefundRequest
+ *
+ * @package Paynow\PaymentGateway\Gateway\Request\Refund
+ */
 class RefundRequest extends AbstractRequest implements BuilderInterface
 {
     /**
@@ -30,13 +35,14 @@ class RefundRequest extends AbstractRequest implements BuilderInterface
     {
         parent::build($buildSubject);
 
+        $paymentId = $this->payment->getAdditionalInformation(PaymentField::PAYMENT_ID_FIELD_NAME);
         $referenceId = $this->order->getOrderIncrementId();
         $refundAmount = SubjectReader::readAmount($buildSubject);
 
         $request['body'] = [
             RefundField::AMOUNT_FIELD_NAME => $this->paymentHelper->formatAmount($refundAmount),
             PaymentField::EXTERNAL_ID_FIELD_NAME => $referenceId,
-            PaymentField::PAYMENT_ID_FIELD_NAME => $this->payment->getAdditionalInformation(PaymentField::PAYMENT_ID_FIELD_NAME)
+            PaymentField::PAYMENT_ID_FIELD_NAME => $paymentId
         ];
 
         $request['headers'] = [
