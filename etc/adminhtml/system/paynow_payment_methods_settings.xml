@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<include xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_include.xsd">
+    <group id="paynow_payment_methods_settings" translate="label" type="text" sortOrder="4" showInDefault="1" showInWebsite="1" showInStore="1">
+        <label><![CDATA[Payment methods configuration]]></label>
+        <frontend_model>Magento\Config\Block\System\Config\Form\Fieldset</frontend_model>
+        <field id="show_payment_methods" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Show payment methods</label>
+            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+            <config_path>payment/paynow_gateway/test_mode</config_path>
+            <comment>Select Yes if you want show separated payment methods</comment>
+        </field>
+        <field id="show_separated_blik" translate="label" type="select" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Show Blik payment</label>
+            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+            <config_path>payment/paynow_gateway/test_mode</config_path>
+            <comment>Select Yes if you want show separated Blik payment method</comment>
+        </field>
+    </group>
+</include>

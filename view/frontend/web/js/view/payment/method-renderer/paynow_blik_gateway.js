@@ -24,11 +24,10 @@ define(
 
         return Component.extend({
             defaults: {
-                template: 'Paynow_PaymentGateway/payment/paynow_gateway',
-                paymentMethods: JSON.parse(window.checkoutConfig.payment.paynow_gateway.paymentMethods)
+                template: 'Paynow_PaymentGateway/payment/paynow_blik_gateway'
             },
             getCode: function() {
-                return 'paynow_gateway';
+                return 'paynow_blik_gateway';
             },
             placeOrder: function (data, event) {
                 if (event) {
@@ -59,17 +58,14 @@ define(
                 return true;
             },
             afterPlaceOrder: function () {
-                window.location.replace(window.checkoutConfig.payment.paynow_gateway.redirectUrl);
+                window.location.replace(window.checkoutConfig.payment.paynow_blik_gateway.redirectUrl);
             },
             getLogoPath: function () {
-                return window.checkoutConfig.payment.paynow_gateway.logoPath;
+                return window.checkoutConfig.payment.paynow_blik_gateway.logoPath;
             },
             isButtonActive: function () {
                 return this.getCode() === this.isChecked();
             },
-            // getPaymentMethods: function() {
-            //     return window.checkoutConfig.payment.paynow_gateway.paymentMethods;
-            // }
         });
     }
 );

@@ -10,6 +10,7 @@
                 <include path="Paynow_PaymentGateway::system/paynow_general_settings.xml"/>
                 <include path="Paynow_PaymentGateway::system/paynow_sandbox_settings.xml"/>
                 <include path="Paynow_PaymentGateway::system/paynow_production_settings.xml"/>
+                <include path="Paynow_PaymentGateway::system/paynow_payment_methods_settings.xml"/>
             </group>
         </section>
     </system>

@@ -5,8 +5,8 @@
                class="radio"
                data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()"/>
         <label data-bind="attr: {'for': getCode()}" class="label">
-            <img data-bind="attr: {src: getLogoPath(), alt: $t('Pay by paynow.pl'), width: 80}" class="payment-icon"/>
-            <span data-bind="i18n: 'Pay by paynow.pl'"></span>
+            <img data-bind="attr: {src: getLogoPath(), alt: $t('Blik payment'), width: 80}" class="payment-icon"/>
+            <span data-bind="i18n: 'Blik payment'"></span>
         </label>
     </div>
     <div class="payment-method-content">
@@ -18,14 +18,6 @@
             <!-- ko foreach: $parent.getRegion(getBillingAddressFormName()) -->
             <!-- ko template: getTemplate() --><!-- /ko -->
             <!--/ko-->
-        </div>
-
-        <div class="payment-methods">
-            <div class="paynow-payment-options" data-bind="visible: isButtonActive(), foreach: paymentMethods">
-                <div class="paynow-payment-option">
-                    <span class="paynow-payment-option-image"><img data-bind="attr: {src: $data.image}"/></span>
-                </div>
-            </div>
         </div>
 
         <div class="checkout-agreements-block">

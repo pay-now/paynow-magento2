@@ -12,6 +12,16 @@
         </arguments>
     </virtualType>
 
+    <virtualType name="PaynowBlikPaymentGatewayFacade" type="Magento\Payment\Model\Method\Adapter">
+        <arguments>
+            <argument name="code" xsi:type="const">Paynow\PaymentGateway\Model\Ui\BlikConfigProvider::CODE</argument>
+            <argument name="valueHandlerPool" xsi:type="object">PaynowPaymentGatewayValueHandlerPool</argument>
+            <argument name="commandPool" xsi:type="object">PaynowPaymentGatewayCommandPool</argument>
+            <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
+            <argument name="infoBlockType" xsi:type="string">Paynow\PaymentGateway\Block\Info</argument>
+        </arguments>
+    </virtualType>
+
     <!-- Configuration reader -->
     <virtualType name="PaynowPaymentGatewayConfig" type="Magento\Payment\Gateway\Config\Config">
         <arguments>

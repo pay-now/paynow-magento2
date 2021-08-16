@@ -13,16 +13,11 @@ use Paynow\PaymentGateway\Helper\PaymentHelper;
  *
  * @package Paynow\PaymentGateway\Model\Ui
  */
-class ConfigProvider implements ConfigProviderInterface
+class BlikConfigProvider implements ConfigProviderInterface
 {
-    const CODE = 'paynow_gateway';
+    const CODE = 'paynow_blik_gateway';
 
-    const LOGO_PATH = 'Paynow_PaymentGateway::images/logo-paynow.png';
-
-    /**
-     * @var Repository
-     */
-    private $repository;
+    const LOGO_PATH = 'https://static.paynow.pl/payment-method-icons/2007.png';
 
     /**
      * @var UrlInterface
@@ -42,12 +37,10 @@ class ConfigProvider implements ConfigProviderInterface
     protected $paymentHelper;
 
     public function __construct(
-        Repository $repository,
         UrlInterface $urlBuilder,
         RequestInterface $request,
         PaymentHelper $paymentHelper
     ) {
-        $this->repository = $repository;
         $this->urlBuilder = $urlBuilder;
         $this->request = $request;
         $this->paymentHelper = $paymentHelper;
@@ -77,7 +70,7 @@ class ConfigProvider implements ConfigProviderInterface
      */
     protected function getLogoPath()
     {
-        return $this->repository->getUrl(self::LOGO_PATH);
+        return self::LOGO_PATH;
     }
 
     /**

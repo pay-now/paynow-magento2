@@ -29,6 +29,18 @@
                                                                         </item>
                                                                     </item>
                                                                 </item>
+                                                                <item name="paynow_blik_gateway" xsi:type="array">
+                                                                    <item name="component" xsi:type="string">
+                                                                        Paynow_PaymentGateway/js/view/payment/paynow_blik_gateway
+                                                                    </item>
+                                                                    <item name="methods" xsi:type="array">
+                                                                        <item name="paynow_blik_gateway" xsi:type="array">
+                                                                            <item name="isBillingAddressRequired"
+                                                                                  xsi:type="boolean">true
+                                                                            </item>
+                                                                        </item>
+                                                                    </item>
+                                                                </item>
                                                             </item>
                                                         </item>
                                                     </item>
