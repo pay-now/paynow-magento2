@@ -25,7 +25,7 @@ class BlikConfigProvider extends ConfigProvider implements ConfigProviderInterfa
         return [
             'payment' => [
                 self::CODE => [
-                    'iActive'     => $this->paymentHelper->isActive(),
+                    'isActive'     => $this->paymentHelper->isActive() && $this->paymentHelper->isBlikActive(),
                     'logoPath'    => 'https://static.paynow.pl/payment-method-icons/' . self::METHOD_ID . '.png',
                     'redirectUrl' => $this->getRedirectUrl()
                 ]

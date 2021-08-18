@@ -10,11 +10,6 @@ use Paynow\PaymentGateway\Helper\PaymentHelper;
 class ConfigProvider
 {
     /**
-     * @var Repository
-     */
-    private $repository;
-
-    /**
      * @var UrlInterface
      */
     private $urlBuilder;
@@ -32,12 +27,10 @@ class ConfigProvider
     protected $paymentHelper;
 
     public function __construct(
-        Repository $repository,
         UrlInterface $urlBuilder,
         RequestInterface $request,
         PaymentHelper $paymentHelper
     ) {
-        $this->repository    = $repository;
         $this->urlBuilder    = $urlBuilder;
         $this->request       = $request;
         $this->paymentHelper = $paymentHelper;
