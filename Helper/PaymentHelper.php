@@ -196,6 +196,21 @@ class PaymentHelper extends AbstractHelper
     }
 
     /**
+     * Returns are visible payments methods
+     *
+     * @param int|null $storeId
+     * @return bool
+     */
+    public function isActiveShowPaymentMethods($storeId = null)
+    {
+        if ($storeId === null) {
+            $storeId = $this->storeManager->getStore()->getId();
+        }
+
+        return $this->getConfigData('show_payment_methods', DefaultConfigProvider::CODE, $storeId, true);
+    }
+
+    /**
      * Returns is module retry payment enabled
      *
      * @param null $storeId

@@ -21,6 +21,7 @@
                 <payment_validity_time>86400</payment_validity_time>
                 <show_payment_methods>0</show_payment_methods>
                 <show_separated_blik>0</show_separated_blik>
+                <show_separated_pbls>0</show_separated_pbls>
                 <model>PaynowPaymentGatewayFacade</model>
                 <payment_action>authorize</payment_action>
                 <sort_order>1</sort_order>
@@ -31,18 +32,8 @@
                 <active>1</active>
                 <debug>1</debug>
                 <order_status_change>1</order_status_change>
-                <can_authorize>1</can_authorize>
-                <can_capture>1</can_capture>
-                <can_void>0</can_void>
-                <can_refund>1</can_refund>
-                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
-                <can_use_checkout>1</can_use_checkout>
-                <can_use_internal>0</can_use_internal>
                 <currency>PLN</currency>
                 <is_gateway>1</is_gateway>
-                <send_order_items>0</send_order_items>
-                <use_payment_validity_time>0</use_payment_validity_time>
-                <payment_validity_time>86400</payment_validity_time>
                 <model>PaynowBlikPaymentGatewayFacade</model>
                 <payment_action>authorize</payment_action>
                 <sort_order>1</sort_order>
