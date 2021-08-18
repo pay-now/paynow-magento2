@@ -6,6 +6,8 @@ use Magento\Payment\Gateway\Request\BuilderInterface;
 use Paynow\PaymentGateway\Gateway\Request\AbstractRequest;
 use Paynow\PaymentGateway\Helper\PaymentField;
 use Paynow\PaymentGateway\Helper\PaymentHelper;
+use Paynow\PaymentGateway\Model\Ui\BlikConfigProvider;
+use Paynow\PaymentGateway\Model\Ui\DefaultConfigProvider;
 
 /**
  * Class PaymentAuthorizationRequest
@@ -50,6 +52,10 @@ class AuthorizeRequest extends AbstractRequest implements BuilderInterface
             ],
             PaymentField::CONTINUE_URL_FIELD_NAME => $this->paymentHelper->getContinueUrl($isRetry)
         ];
+
+        if ($this->payment->getMethod() === BlikConfigProvider::CODE) {
+            $request['body'][PaymentField::PAYMENT_METHOD_ID] = BlikConfigProvider::METHOD_ID;
+        }
 
         if ($this->paymentHelper->isSendOrderItemsActive()) {
             $orderItems = $this->paymentHelper->getOrderItems($this->order);

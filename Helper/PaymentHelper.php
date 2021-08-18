@@ -22,7 +22,7 @@ use Magento\Store\Model\StoreManagerInterface;
 use Paynow\Client;
 use Paynow\Environment;
 use Paynow\Model\Payment\Status;
-use Paynow\PaymentGateway\Model\Ui\ConfigProvider;
+use Paynow\PaymentGateway\Model\Ui\DefaultConfigProvider;
 
 /**
  * Class Data
@@ -162,7 +162,7 @@ class PaymentHelper extends AbstractHelper
      */
     public function isTestMode($storeId): bool
     {
-        return $this->getConfigData('test_mode', ConfigProvider::CODE, $storeId, true);
+        return $this->getConfigData('test_mode', DefaultConfigProvider::CODE, $storeId, true);
     }
 
     /**
@@ -177,7 +177,7 @@ class PaymentHelper extends AbstractHelper
             $storeId = $this->storeManager->getStore()->getId();
         }
 
-        return $this->getConfigData('active', ConfigProvider::CODE, $storeId, true);
+        return $this->getConfigData('active', DefaultConfigProvider::CODE, $storeId, true);
     }
 
     /**
@@ -192,7 +192,7 @@ class PaymentHelper extends AbstractHelper
             $storeId = $this->storeManager->getStore()->getId();
         }
 
-        return $this->getConfigData('show_separated_blik', ConfigProvider::CODE, $storeId, true);
+        return $this->getConfigData('show_separated_blik', DefaultConfigProvider::CODE, $storeId, true);
     }
 
     /**
@@ -207,7 +207,7 @@ class PaymentHelper extends AbstractHelper
             $storeId = $this->storeManager->getStore()->getId();
         }
 
-        return $this->getConfigData('retry_payment', ConfigProvider::CODE, $storeId, true);
+        return $this->getConfigData('retry_payment', DefaultConfigProvider::CODE, $storeId, true);
     }
 
     /**
@@ -222,7 +222,7 @@ class PaymentHelper extends AbstractHelper
             $storeId = $this->storeManager->getStore()->getId();
         }
 
-        return $this->getConfigData('order_status_change', ConfigProvider::CODE, $storeId, true);
+        return $this->getConfigData('order_status_change', DefaultConfigProvider::CODE, $storeId, true);
     }
 
     /**
@@ -262,7 +262,7 @@ class PaymentHelper extends AbstractHelper
             $storeId = $this->storeManager->getStore()->getId();
         }
 
-        return $this->getConfigData('send_order_items', ConfigProvider::CODE, $storeId, true);
+        return $this->getConfigData('send_order_items', DefaultConfigProvider::CODE, $storeId, true);
     }
 
     /**
@@ -323,7 +323,7 @@ class PaymentHelper extends AbstractHelper
             $storeId = $this->storeManager->getStore()->getId();
         }
 
-        return $this->getConfigData('use_payment_validity', ConfigProvider::CODE, $storeId, true);
+        return $this->getConfigData('use_payment_validity', DefaultConfigProvider::CODE, $storeId, true);
     }
 
     /**
@@ -340,7 +340,7 @@ class PaymentHelper extends AbstractHelper
             $storeId = $this->storeManager->getStore()->getId();
         }
 
-        return (int)$this->getConfigData('payment_validity_time', ConfigProvider::CODE, $storeId, false);
+        return (int)$this->getConfigData('payment_validity_time', DefaultConfigProvider::CODE, $storeId, false);
     }
 
     /**
@@ -384,7 +384,7 @@ class PaymentHelper extends AbstractHelper
      */
     private function getDecryptedApiKey($keyName, $storeId): string
     {
-        return $this->encryptor->decrypt($this->getConfigData($keyName, ConfigProvider::CODE, $storeId));
+        return $this->encryptor->decrypt($this->getConfigData($keyName, DefaultConfigProvider::CODE, $storeId));
     }
 
     /**
@@ -400,8 +400,6 @@ class PaymentHelper extends AbstractHelper
     {
         $path = 'payment/' . $paymentMethodCode . '/' . $field;
 
-        var_dump($path);
-        var_dump($flag);
         if ($flag) {
             return $this->scopeConfig->isSetFlag($path, ScopeInterface::SCOPE_STORE, $storeId);
         } else {

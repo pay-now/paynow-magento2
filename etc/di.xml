@@ -4,7 +4,7 @@
     <!-- Payment Method Facade configuration -->
     <virtualType name="PaynowPaymentGatewayFacade" type="Magento\Payment\Model\Method\Adapter">
         <arguments>
-            <argument name="code" xsi:type="const">Paynow\PaymentGateway\Model\Ui\ConfigProvider::CODE</argument>
+            <argument name="code" xsi:type="const">Paynow\PaymentGateway\Model\Ui\DefaultConfigProvider::CODE</argument>
             <argument name="valueHandlerPool" xsi:type="object">PaynowPaymentGatewayValueHandlerPool</argument>
             <argument name="commandPool" xsi:type="object">PaynowPaymentGatewayCommandPool</argument>
             <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
@@ -25,7 +25,7 @@
     <!-- Configuration reader -->
     <virtualType name="PaynowPaymentGatewayConfig" type="Magento\Payment\Gateway\Config\Config">
         <arguments>
-            <argument name="methodCode" xsi:type="const">Paynow\PaymentGateway\Model\Ui\ConfigProvider::CODE</argument>
+            <argument name="methodCode" xsi:type="const">Paynow\PaymentGateway\Model\Ui\DefaultConfigProvider::CODE</argument>
         </arguments>
     </virtualType>
 
