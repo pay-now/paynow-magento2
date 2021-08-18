@@ -24,8 +24,7 @@ define(
 
         return Component.extend({
             defaults: {
-                template: 'Paynow_PaymentGateway/payment/paynow_gateway',
-                paymentMethods: JSON.parse(window.checkoutConfig.payment.paynow_gateway.paymentMethods)
+                template: 'Paynow_PaymentGateway/payment/paynow_gateway'
             },
             getCode: function() {
                 return 'paynow_gateway';
@@ -67,9 +66,6 @@ define(
             isButtonActive: function () {
                 return this.getCode() === this.isChecked();
             },
-            // getPaymentMethods: function() {
-            //     return window.checkoutConfig.payment.paynow_gateway.paymentMethods;
-            // }
         });
     }
 );

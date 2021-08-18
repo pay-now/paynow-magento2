@@ -181,6 +181,21 @@ class PaymentHelper extends AbstractHelper
     }
 
     /**
+     * Returns is Blik payments enabled
+     *
+     * @param int|null $storeId
+     * @return bool
+     */
+    public function isBlikActive($storeId = null)
+    {
+        if ($storeId === null) {
+            $storeId = $this->storeManager->getStore()->getId();
+        }
+
+        return $this->getConfigData('show_separated_blik', ConfigProvider::CODE, $storeId, true);
+    }
+
+    /**
      * Returns is module retry payment enabled
      *
      * @param null $storeId
@@ -385,6 +400,8 @@ class PaymentHelper extends AbstractHelper
     {
         $path = 'payment/' . $paymentMethodCode . '/' . $field;
 
+        var_dump($path);
+        var_dump($flag);
         if ($flag) {
             return $this->scopeConfig->isSetFlag($path, ScopeInterface::SCOPE_STORE, $storeId);
         } else {
