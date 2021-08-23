@@ -73,9 +73,6 @@ define(
                     this.paymentMethodId = paymentMethod.id;
                 }
             },
-            /**
-             * @return {Object}
-             */
             getData: function () {
                 return {
                     'method': this.item.method,

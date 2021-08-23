@@ -54,10 +54,6 @@ class AuthorizeRequest extends AbstractRequest implements BuilderInterface
             PaymentField::CONTINUE_URL_FIELD_NAME => $this->paymentHelper->getContinueUrl($isRetry)
         ];
 
-        if ($this->payment->getMethod() === BlikConfigProvider::CODE) {
-            $request['body'][PaymentField::PAYMENT_METHOD_ID] = BlikConfigProvider::METHOD_ID;
-        }
-
         if ($this->payment->hasAdditionalInformation(PaymentDataAssignObserver::PAYMENT_METHOD_ID)
             && ! empty($this->payment->getAdditionalInformation(PaymentDataAssignObserver::PAYMENT_METHOD_ID))) {
             $request['body'][PaymentField::PAYMENT_METHOD_ID] = $this->payment->getAdditionalInformation(PaymentDataAssignObserver::PAYMENT_METHOD_ID);

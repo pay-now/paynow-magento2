@@ -24,7 +24,8 @@ define(
 
         return Component.extend({
             defaults: {
-                template: 'Paynow_PaymentGateway/payment/paynow_blik_gateway'
+                template: 'Paynow_PaymentGateway/payment/paynow_blik_gateway',
+                paymentMethodId: null
             },
             getCode: function() {
                 return 'paynow_blik_gateway';
@@ -55,6 +56,7 @@ define(
             selectPaymentMethod: function () {
                 selectPaymentMethodAction(this.getData());
                 checkoutData.setSelectedPaymentMethod(this.item.method);
+                this.paymentMethodId = window.checkoutConfig.payment.paynow_blik_gateway.paymentMethodId
                 return true;
             },
             afterPlaceOrder: function () {
@@ -66,6 +68,14 @@ define(
             isButtonActive: function () {
                 return this.getCode() === this.isChecked();
             },
+            getData: function () {
+                return {
+                    'method': this.item.method,
+                    'additional_data': {
+                        'payment_method_id': this.paymentMethodId
+                    }
+                };
+            }
         });
     }
 );

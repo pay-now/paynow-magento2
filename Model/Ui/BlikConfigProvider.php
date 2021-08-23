@@ -13,8 +13,6 @@ class BlikConfigProvider extends ConfigProvider implements ConfigProviderInterfa
 {
     const CODE = 'paynow_blik_gateway';
 
-    const METHOD_ID = 2007;
-
     /**
      * Returns configuration
      *
@@ -22,14 +20,29 @@ class BlikConfigProvider extends ConfigProvider implements ConfigProviderInterfa
      */
     public function getConfig()
     {
+        $blikPaymentMethod = $this->paymentMethodsHelper->getBlikPaymentMethod();
+
         return [
             'payment' => [
                 self::CODE => [
-                    'isActive'     => $this->paymentHelper->isActive() && $this->paymentHelper->isBlikActive(),
-                    'logoPath'    => 'https://static.paynow.pl/payment-method-icons/' . self::METHOD_ID . '.png',
-                    'redirectUrl' => $this->getRedirectUrl()
+                    'isActive'        => $this->isActive($blikPaymentMethod),
+                    'logoPath'        => $blikPaymentMethod->getImage() ?: null,
+                    'redirectUrl'     => $this->getRedirectUrl(),
+                    'paymentMethodId' => $blikPaymentMethod->getId()
                 ]
             ]
         ];
+    }
+
+    /**
+     * @param $blikPaymentMethod
+     *
+     * @return bool
+     */
+    private function isActive($blikPaymentMethod)
+    {
+        return $this->paymentHelper->isActive()
+               && $this->paymentHelper->isBlikActive()
+               && $blikPaymentMethod->isEnabled();
     }
 }

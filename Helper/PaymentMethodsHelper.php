@@ -3,6 +3,7 @@
 namespace Paynow\PaymentGateway\Helper;
 
 use Paynow\Exception\PaynowException;
+use Paynow\Model\PaymentMethods\PaymentMethod;
 use Paynow\Model\PaymentMethods\Type;
 use Paynow\PaymentGateway\Model\Logger\Logger;
 use Paynow\Service\Payment;
@@ -10,13 +11,13 @@ use Paynow\Service\Payment;
 class PaymentMethodsHelper
 {
     /**
-     *      * @var PaymentHelper
-     *           */
+     * @var PaymentHelper
+     */
     private $paymentHelper;
 
     /**
-     *      * @var Logger
-     *           */
+     * @var Logger
+     */
     private $logger;
 
     public function __construct(PaymentHelper $paymentHelper, Logger $logger)
@@ -25,6 +26,10 @@ class PaymentMethodsHelper
         $this->logger        = $logger;
     }
 
+    /**
+     * Returns payment methods array
+     * @return array
+     */
     public function getAvailable()
     {
         $paymentMethodsArray = [];
@@ -39,7 +44,7 @@ class PaymentMethodsHelper
                         'name'        => $paymentMethod->getName(),
                         'description' => $paymentMethod->getDescription(),
                         'image'       => $paymentMethod->getImage(),
-                        'enabled'   => $paymentMethod->isEnabled()
+                        'enabled'     => $paymentMethod->isEnabled()
                     ];
                 }
             }
@@ -48,5 +53,25 @@ class PaymentMethodsHelper
         }
 
         return $paymentMethodsArray;
+    }
+
+    /**
+     * Returns payment methods array
+     * @return PaymentMethod
+     */
+    public function getBlikPaymentMethod()
+    {
+        try {
+            $payment        = new Payment($this->paymentHelper->initializePaynowClient());
+            $paymentMethods = $payment->getPaymentMethods()->getOnlyBlik();
+
+            if (!empty($paymentMethods)) {
+                return $paymentMethods[0];
+            }
+        } catch (PaynowException $exception) {
+            $this->logger->error($exception->getMessage());
+        }
+
+        return null;
     }
 }
