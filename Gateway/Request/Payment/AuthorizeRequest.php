@@ -37,15 +37,14 @@ class AuthorizeRequest extends AbstractRequest implements BuilderInterface
 
         $referenceId        = $this->order->getOrderIncrementId();
         $paymentDescription = __('Order No: ') . $referenceId;
-
         $isRetry = $this->payment->hasAdditionalInformation(PaymentField::IS_PAYMENT_RETRY_FIELD_NAME);
 
         $request['body'] = [
-            PaymentField::AMOUNT_FIELD_NAME       => $this->paymentHelper->formatAmount($this->order->getGrandTotalAmount()),
-            PaymentField::CURRENCY_FIELD_NAME     => $this->order->getCurrencyCode(),
-            PaymentField::EXTERNAL_ID_FIELD_NAME  => $referenceId,
-            PaymentField::DESCRIPTION_FIELD_NAME  => $paymentDescription,
-            PaymentField::BUYER_FIELD_NAME        => [
+            PaymentField::AMOUNT_FIELD_NAME      => $this->paymentHelper->formatAmount($this->order->getGrandTotalAmount()),
+            PaymentField::CURRENCY_FIELD_NAME    => $this->order->getCurrencyCode(),
+            PaymentField::EXTERNAL_ID_FIELD_NAME => $referenceId,
+            PaymentField::DESCRIPTION_FIELD_NAME => $paymentDescription,
+            PaymentField::BUYER_FIELD_NAME       => [
                 PaymentField::BUYER_EMAIL_FIELD_NAME     => $this->order->getShippingAddress()->getEmail(),
                 PaymentField::BUYER_FIRSTNAME_FIELD_NAME => $this->order->getShippingAddress()->getFirstname(),
                 PaymentField::BUYER_LASTNAME_FIELD_NAME  => $this->order->getShippingAddress()->getLastname(),
@@ -58,8 +57,8 @@ class AuthorizeRequest extends AbstractRequest implements BuilderInterface
             $request['body'][PaymentField::PAYMENT_METHOD_ID] = BlikConfigProvider::METHOD_ID;
         }
 
-        if ($this->payment->hasAdditionalInformation('payment_method_id') && !empty($this->payment->getAdditionalInformation('payment_method_id'))) {
-            $request['body'][PaymentField::PAYMENT_METHOD_ID] = $this->payment->getAdditionalInformation('payment_method_id');
+        if ($this->payment->hasAdditionalInformation(PaymentDataRequest::PAYMENT_METHOD_ID) && ! empty($this->payment->getAdditionalInformation(PaymentDataRequest::PAYMENT_METHOD_ID))) {
+            $request['body'][PaymentField::PAYMENT_METHOD_ID] = $this->payment->getAdditionalInformation(PaymentDataRequest::PAYMENT_METHOD_ID);
         }
 
         if ($this->paymentHelper->isSendOrderItemsActive()) {
