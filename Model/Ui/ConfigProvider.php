@@ -35,7 +35,7 @@ class ConfigProvider
         UrlInterface $urlBuilder,
         RequestInterface $request,
         PaymentHelper $paymentHelper,
-        PaymentMethodsHelper $paymentMethodsHelper,
+        PaymentMethodsHelper $paymentMethodsHelper
     ) {
         $this->urlBuilder           = $urlBuilder;
         $this->request              = $request;
