@@ -7,7 +7,6 @@ use Paynow\PaymentGateway\Gateway\Request\AbstractRequest;
 use Paynow\PaymentGateway\Helper\PaymentField;
 use Paynow\PaymentGateway\Helper\PaymentHelper;
 use Paynow\PaymentGateway\Model\Ui\BlikConfigProvider;
-use Paynow\PaymentGateway\Model\Ui\DefaultConfigProvider;
 
 /**
  * Class PaymentAuthorizationRequest
@@ -28,33 +27,39 @@ class AuthorizeRequest extends AbstractRequest implements BuilderInterface
 
     /**
      * @param array $buildSubject
+     *
      * @return array
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
     public function build(array $buildSubject)
     {
         parent::build($buildSubject);
 
-        $referenceId = $this->order->getOrderIncrementId();
+        $referenceId        = $this->order->getOrderIncrementId();
         $paymentDescription = __('Order No: ') . $referenceId;
 
         $isRetry = $this->payment->hasAdditionalInformation(PaymentField::IS_PAYMENT_RETRY_FIELD_NAME);
 
         $request['body'] = [
-            PaymentField::AMOUNT_FIELD_NAME => $this->paymentHelper->formatAmount($this->order->getGrandTotalAmount()),
-            PaymentField::CURRENCY_FIELD_NAME => $this->order->getCurrencyCode(),
-            PaymentField::EXTERNAL_ID_FIELD_NAME => $referenceId,
-            PaymentField::DESCRIPTION_FIELD_NAME => $paymentDescription,
-            PaymentField::BUYER_FIELD_NAME => [
-                PaymentField::BUYER_EMAIL_FIELD_NAME => $this->order->getShippingAddress()->getEmail(),
+            PaymentField::AMOUNT_FIELD_NAME       => $this->paymentHelper->formatAmount($this->order->getGrandTotalAmount()),
+            PaymentField::CURRENCY_FIELD_NAME     => $this->order->getCurrencyCode(),
+            PaymentField::EXTERNAL_ID_FIELD_NAME  => $referenceId,
+            PaymentField::DESCRIPTION_FIELD_NAME  => $paymentDescription,
+            PaymentField::BUYER_FIELD_NAME        => [
+                PaymentField::BUYER_EMAIL_FIELD_NAME     => $this->order->getShippingAddress()->getEmail(),
                 PaymentField::BUYER_FIRSTNAME_FIELD_NAME => $this->order->getShippingAddress()->getFirstname(),
-                PaymentField::BUYER_LASTNAME_FIELD_NAME => $this->order->getShippingAddress()->getLastname(),
-                PaymentField::BUYER_LOCALE => $this->paymentHelper->getStoreLocale(),
+                PaymentField::BUYER_LASTNAME_FIELD_NAME  => $this->order->getShippingAddress()->getLastname(),
+                PaymentField::BUYER_LOCALE               => $this->paymentHelper->getStoreLocale(),
             ],
-            PaymentField::CONTINUE_URL_FIELD_NAME => $this->paymentHelper->getContinueUrl($isRetry)
+//            PaymentField::CONTINUE_URL_FIELD_NAME => $this->paymentHelper->getContinueUrl($isRetry)
         ];
 
         if ($this->payment->getMethod() === BlikConfigProvider::CODE) {
             $request['body'][PaymentField::PAYMENT_METHOD_ID] = BlikConfigProvider::METHOD_ID;
+        }
+
+        if ($this->payment->hasAdditionalInformation('payment_method_id') && !empty($this->payment->getAdditionalInformation('payment_method_id'))) {
+            $request['body'][PaymentField::PAYMENT_METHOD_ID] = $this->payment->getAdditionalInformation('payment_method_id');
         }
 
         if ($this->paymentHelper->isSendOrderItemsActive()) {

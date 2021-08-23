@@ -8,7 +8,7 @@ define(
         'Magento_Customer/js/model/customer',
         'Magento_Checkout/js/checkout-data',
         'Magento_Checkout/js/model/payment/additional-validators',
-        'mage/url',
+        'mage/url'
     ],
     function (
         $,
@@ -18,15 +18,17 @@ define(
         selectPaymentMethodAction,
         customer,
         checkoutData,
-        additionalValidators
+        additionalValidators,
     ) {
         'use strict';
 
         return Component.extend({
             defaults: {
-                template: 'Paynow_PaymentGateway/payment/paynow_gateway'
+                template: 'Paynow_PaymentGateway/payment/paynow_gateway',
+                methods: window.checkoutConfig.payment.paynow_gateway.paymentMethods,
+                paymentMethodId: null
             },
-            getCode: function() {
+            getCode: function () {
                 return 'paynow_gateway';
             },
             placeOrder: function (data, event) {
@@ -66,6 +68,22 @@ define(
             isButtonActive: function () {
                 return this.getCode() === this.isChecked();
             },
+            setPaymentMethod: function (paymentMethod) {
+                if (paymentMethod.enabled) {
+                    this.paymentMethodId = paymentMethod.id;
+                }
+            },
+            /**
+             * @return {Object}
+             */
+            getData: function () {
+                return {
+                    'method': this.item.method,
+                    'additional_data': {
+                        'payment_method_id': this.paymentMethodId
+                    }
+                };
+            }
         });
     }
 );

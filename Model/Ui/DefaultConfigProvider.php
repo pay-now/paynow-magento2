@@ -3,10 +3,6 @@
 namespace Paynow\PaymentGateway\Model\Ui;
 
 use Magento\Checkout\Model\ConfigProviderInterface;
-use Magento\Framework\App\RequestInterface;
-use Magento\Framework\UrlInterface;
-use Magento\Framework\View\Asset\Repository;
-use Paynow\PaymentGateway\Helper\PaymentHelper;
 
 /**
  * Class ConfigProvider
@@ -27,10 +23,10 @@ class DefaultConfigProvider extends ConfigProvider implements ConfigProviderInte
         return [
             'payment' => [
                 self::CODE => [
-                    'isActive'     => $this->paymentHelper->isActive(),
-                    'logoPath'    => 'https://static.paynow.pl/brand/paynow_logo_black.png',
-                    'redirectUrl' => $this->getRedirectUrl(),
-                    'paymentMethods' => $this->paymentHelper->isActiveShowPaymentMethods()
+                    'isActive'       => $this->paymentHelper->isActive(),
+                    'logoPath'       => 'https://static.paynow.pl/brand/paynow_logo_black.png',
+                    'redirectUrl'    => $this->getRedirectUrl(),
+                    'paymentMethods' => $this->paymentMethodsHelper->getAvailable()
                 ]
             ]
         ];
