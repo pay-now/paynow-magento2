@@ -5,11 +5,23 @@ namespace Paynow\PaymentGateway\Observer;
 use Magento\Framework\Event\Observer;
 use Magento\Payment\Observer\AbstractDataAssignObserver;
 use Magento\Quote\Api\Data\PaymentInterface;
-use Paynow\PaymentGateway\Gateway\Request\Payment\PaymentDataRequest;
-use Paynow\PaymentGateway\Helper\PaymentField;
 
 class PaymentDataAssignObserver extends AbstractDataAssignObserver
 {
+    const PAYMENT_METHOD_ID = 'payment_method_id';
+
+    /**
+     * @var array
+     */
+    protected $additionalInformationList = [
+        self::PAYMENT_METHOD_ID
+    ];
+
+    /**
+     * @param Observer $observer
+     *
+     * @return void
+     */
     public function execute(Observer $observer)
     {
         $data = $this->readDataArgument($observer);
@@ -19,14 +31,15 @@ class PaymentDataAssignObserver extends AbstractDataAssignObserver
             return;
         }
 
-        if (empty($additionalData[PaymentDataRequest::PAYMENT_METHOD_ID])) {
-            return;
-        }
-
         $paymentInfo = $this->readPaymentModelArgument($observer);
-        $paymentInfo->setAdditionalInformation(
-            PaymentField::PAYMENT_METHOD_ID,
-            $additionalData[PaymentDataRequest::PAYMENT_METHOD_ID]
-        );
+
+        foreach ($this->additionalInformationList as $additionalInformationKey) {
+            if (isset($additionalData[$additionalInformationKey])) {
+                $paymentInfo->setAdditionalInformation(
+                    $additionalInformationKey,
+                    $additionalData[$additionalInformationKey]
+                );
+            }
+        }
     }
 }

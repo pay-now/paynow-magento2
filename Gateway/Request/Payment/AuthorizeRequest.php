@@ -7,6 +7,7 @@ use Paynow\PaymentGateway\Gateway\Request\AbstractRequest;
 use Paynow\PaymentGateway\Helper\PaymentField;
 use Paynow\PaymentGateway\Helper\PaymentHelper;
 use Paynow\PaymentGateway\Model\Ui\BlikConfigProvider;
+use Paynow\PaymentGateway\Observer\PaymentDataAssignObserver;
 
 /**
  * Class PaymentAuthorizationRequest
@@ -50,15 +51,16 @@ class AuthorizeRequest extends AbstractRequest implements BuilderInterface
                 PaymentField::BUYER_LASTNAME_FIELD_NAME  => $this->order->getShippingAddress()->getLastname(),
                 PaymentField::BUYER_LOCALE               => $this->paymentHelper->getStoreLocale(),
             ],
-//            PaymentField::CONTINUE_URL_FIELD_NAME => $this->paymentHelper->getContinueUrl($isRetry)
+            PaymentField::CONTINUE_URL_FIELD_NAME => $this->paymentHelper->getContinueUrl($isRetry)
         ];
 
         if ($this->payment->getMethod() === BlikConfigProvider::CODE) {
             $request['body'][PaymentField::PAYMENT_METHOD_ID] = BlikConfigProvider::METHOD_ID;
         }
 
-        if ($this->payment->hasAdditionalInformation(PaymentDataRequest::PAYMENT_METHOD_ID) && ! empty($this->payment->getAdditionalInformation(PaymentDataRequest::PAYMENT_METHOD_ID))) {
-            $request['body'][PaymentField::PAYMENT_METHOD_ID] = $this->payment->getAdditionalInformation(PaymentDataRequest::PAYMENT_METHOD_ID);
+        if ($this->payment->hasAdditionalInformation(PaymentDataAssignObserver::PAYMENT_METHOD_ID)
+            && ! empty($this->payment->getAdditionalInformation(PaymentDataAssignObserver::PAYMENT_METHOD_ID))) {
+            $request['body'][PaymentField::PAYMENT_METHOD_ID] = $this->payment->getAdditionalInformation(PaymentDataAssignObserver::PAYMENT_METHOD_ID);
         }
 
         if ($this->paymentHelper->isSendOrderItemsActive()) {
