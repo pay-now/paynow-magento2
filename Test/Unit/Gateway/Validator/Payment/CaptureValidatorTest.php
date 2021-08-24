@@ -78,8 +78,7 @@ class CaptureValidatorTest extends TestCase
             ->with(
                 [
                     'isValid' => $isValid,
-                    'failsDescription' => $messages,
-                    'errorCodes' => []
+                    'failsDescription' => $messages
                 ]
             )
             ->willReturn($result);
