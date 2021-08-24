@@ -8,6 +8,11 @@ use Paynow\Model\PaymentMethods\Type;
 use Paynow\PaymentGateway\Model\Logger\Logger;
 use Paynow\Service\Payment;
 
+/**
+ * Class PaymentMethodsHelper
+ *
+ * @package Paynow\PaymentGateway\Helper
+ */
 class PaymentMethodsHelper
 {
     /**

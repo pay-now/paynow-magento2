@@ -7,6 +7,11 @@ use Magento\Framework\UrlInterface;
 use Paynow\PaymentGateway\Helper\PaymentHelper;
 use Paynow\PaymentGateway\Helper\PaymentMethodsHelper;
 
+/**
+ * Class ConfigProvider
+ *
+ * @package Paynow\PaymentGateway\Model\Ui
+ */
 class ConfigProvider
 {
     /**

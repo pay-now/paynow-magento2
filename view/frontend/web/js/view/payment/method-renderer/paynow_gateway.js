@@ -72,10 +72,9 @@ define(
             setPaymentMethod: function (paymentMethod) {
                 if (paymentMethod.enabled) {
                     this.paymentMethodId = paymentMethod.id;
+                    $('.paynow-payment-option').removeClass('active');
+                    $('#payment_method_' + paymentMethod.id).addClass('active');
                 }
-            },
-            getPaymentMethodId: function () {
-                return this.paymentMethodId;
             },
             getData: function () {
                 return {

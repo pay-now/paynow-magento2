@@ -19,11 +19,11 @@ class AuthorizeRequest extends AbstractRequest implements BuilderInterface
     /**
      * @var PaymentHelper
      */
-    private $paymentHelper;
+    private $helper;
 
     public function __construct(PaymentHelper $paymentHelper)
     {
-        $this->paymentHelper = $paymentHelper;
+        $this->helper = $paymentHelper;
     }
 
     /**
@@ -41,7 +41,7 @@ class AuthorizeRequest extends AbstractRequest implements BuilderInterface
         $isRetry = $this->payment->hasAdditionalInformation(PaymentField::IS_PAYMENT_RETRY_FIELD_NAME);
 
         $request['body'] = [
-            PaymentField::AMOUNT_FIELD_NAME      => $this->paymentHelper->formatAmount($this->order->getGrandTotalAmount()),
+            PaymentField::AMOUNT_FIELD_NAME      => $this->helper->formatAmount($this->order->getGrandTotalAmount()),
             PaymentField::CURRENCY_FIELD_NAME    => $this->order->getCurrencyCode(),
             PaymentField::EXTERNAL_ID_FIELD_NAME => $referenceId,
             PaymentField::DESCRIPTION_FIELD_NAME => $paymentDescription,
@@ -49,27 +49,28 @@ class AuthorizeRequest extends AbstractRequest implements BuilderInterface
                 PaymentField::BUYER_EMAIL_FIELD_NAME     => $this->order->getShippingAddress()->getEmail(),
                 PaymentField::BUYER_FIRSTNAME_FIELD_NAME => $this->order->getShippingAddress()->getFirstname(),
                 PaymentField::BUYER_LASTNAME_FIELD_NAME  => $this->order->getShippingAddress()->getLastname(),
-                PaymentField::BUYER_LOCALE               => $this->paymentHelper->getStoreLocale(),
+                PaymentField::BUYER_LOCALE               => $this->helper->getStoreLocale(),
             ],
-            PaymentField::CONTINUE_URL_FIELD_NAME => $this->paymentHelper->getContinueUrl($isRetry)
+            PaymentField::CONTINUE_URL_FIELD_NAME => $this->helper->getContinueUrl($isRetry)
         ];
 
         if ($this->payment->hasAdditionalInformation(PaymentDataAssignObserver::PAYMENT_METHOD_ID)
             && ! empty($this->payment->getAdditionalInformation(PaymentDataAssignObserver::PAYMENT_METHOD_ID))) {
-            $request['body'][PaymentField::PAYMENT_METHOD_ID] = $this->payment->getAdditionalInformation(PaymentDataAssignObserver::PAYMENT_METHOD_ID);
+            $request['body'][PaymentField::PAYMENT_METHOD_ID] = $this->payment
+                ->getAdditionalInformation(PaymentDataAssignObserver::PAYMENT_METHOD_ID);
         }
 
-        if ($this->paymentHelper->isSendOrderItemsActive()) {
-            $orderItems = $this->paymentHelper->getOrderItems($this->order);
+        if ($this->helper->isSendOrderItemsActive()) {
+            $orderItems = $this->helper->getOrderItems($this->order);
             if (! empty($orderItems)) {
                 $request['body'][PaymentField::ORDER_ITEMS] = $orderItems;
             }
         }
 
-        if ($this->paymentHelper->isPaymentValidityActive()) {
-            $validityTime = $this->paymentHelper->getPaymentValidityTime();
+        if ($this->helper->isPaymentValidityActive()) {
+            $validityTime = $this->helper->getPaymentValidityTime();
             if (! empty($validityTime)) {
-                $request['body'][PaymentField::VALIDITY_TIME] = $this->paymentHelper->getPaymentValidityTime();
+                $request['body'][PaymentField::VALIDITY_TIME] = $this->helper->getPaymentValidityTime();
             }
         }
 

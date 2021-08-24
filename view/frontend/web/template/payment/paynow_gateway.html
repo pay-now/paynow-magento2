@@ -27,7 +27,7 @@
         </div>
 
         <div class="paynow-payment-options" data-bind="visible: isButtonActive(), foreach: methods">
-            <div class="paynow-payment-option" data-bind="css: {'disabled': $data.enabled !== true, 'active': $data.id === $parent.getPaymentMethodId() }, click: $parent.setPaymentMethod.bind($parent)">
+            <div class="paynow-payment-option" data-bind="css: {'disabled': $data.enabled !== true}, attr: {'id': 'payment_method_' + $data.id }, click: $parent.setPaymentMethod.bind($parent)">
                 <div>
                     <img data-bind="attr: {src: $data.image, alt: $data.description}"/>
                 </div>
@@ -46,6 +46,14 @@
                     <span data-bind="i18n: 'Place Order'"></span>
                 </button>
             </div>
+        </div>
+    </div>
+</div>
+
+<div class="paynow-payment-options" data-bind="visible: isButtonActive(), foreach: methods">
+    <div class="paynow-payment-option" data-bind="css: {'disabled': $data.enabled !== true, 'active': $data.id === $parent.getPaymentMethodId() }, click: $parent.setPaymentMethod.bind($parent)">
+        <div>
+            <img data-bind="attr: {src: $data.image, alt: $data.description}"/>
         </div>
     </div>
 </div>

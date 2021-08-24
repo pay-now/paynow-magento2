@@ -6,6 +6,11 @@ use Magento\Framework\Event\Observer;
 use Magento\Payment\Observer\AbstractDataAssignObserver;
 use Magento\Quote\Api\Data\PaymentInterface;
 
+/**
+ * Class PaymentDataAssignObserver
+ *
+ * @package Paynow\PaymentGateway\Observer
+ */
 class PaymentDataAssignObserver extends AbstractDataAssignObserver
 {
     const PAYMENT_METHOD_ID = 'payment_method_id';
