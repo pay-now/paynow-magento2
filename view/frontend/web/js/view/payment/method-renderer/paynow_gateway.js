@@ -8,7 +8,7 @@ define(
         'Magento_Customer/js/model/customer',
         'Magento_Checkout/js/checkout-data',
         'Magento_Checkout/js/model/payment/additional-validators',
-        'mage/url'
+        'ko',
     ],
     function (
         $,
@@ -19,6 +19,7 @@ define(
         customer,
         checkoutData,
         additionalValidators,
+        ko
     ) {
         'use strict';
 
@@ -73,6 +74,9 @@ define(
                     this.paymentMethodId = paymentMethod.id;
                 }
             },
+            getPaymentMethodId: function () {
+                return this.paymentMethodId;
+            },
             getData: function () {
                 return {
                     'method': this.item.method,
@@ -80,7 +84,7 @@ define(
                         'payment_method_id': this.paymentMethodId
                     }
                 };
-            }
+            },
         });
     }
 );
