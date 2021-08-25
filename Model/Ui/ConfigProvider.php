@@ -69,7 +69,7 @@ class ConfigProvider
      * Retrieve request object
      * @return RequestInterface
      */
-    protected function getRequest()
+    protected function getRequest(): RequestInterface
     {
         return $this->request;
     }

@@ -49,11 +49,3 @@
         </div>
     </div>
 </div>
-
-<div class="paynow-payment-options" data-bind="visible: isButtonActive(), foreach: methods">
-    <div class="paynow-payment-option" data-bind="css: {'disabled': $data.enabled !== true, 'active': $data.id === $parent.getPaymentMethodId() }, click: $parent.setPaymentMethod.bind($parent)">
-        <div>
-            <img data-bind="attr: {src: $data.image, alt: $data.description}"/>
-        </div>
-    </div>
-</div>

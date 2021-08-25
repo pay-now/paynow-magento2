@@ -12,6 +12,11 @@ use Magento\Store\Model\StoreManagerInterface;
 use Paynow\Model\Payment\Status;
 use Paynow\PaymentGateway\Model\Ui\DefaultConfigProvider;
 
+/**
+ * Class ConfigHelper
+ *
+ * @package Paynow\PaymentGateway\Helper
+ */
 class ConfigHelper extends AbstractHelper
 {
     /**
@@ -272,6 +277,6 @@ class ConfigHelper extends AbstractHelper
      */
     private function getDecryptedApiKey($keyName, $storeId): string
     {
-        return $this->encryptor->decrypt($this->getConfigData($keyName, DefaultConfigProvider::CODE, $storeId));
+        return $this->encryptor->decrypt($this->getConfigData($keyName, DefaultConfigProvider::CODE, $storeId, false));
     }
 }

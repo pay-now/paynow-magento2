@@ -21,7 +21,7 @@ class BlikConfigProvider extends ConfigProvider implements ConfigProviderInterfa
     public function getConfig()
     {
         $blikPaymentMethod = $this->paymentMethodsHelper->getBlikPaymentMethod();
-        $isActive          = $this->helper->isActive() && $this->helper->isBlikActive()
+        $isActive          = $this->configHelper->isActive() && $this->configHelper->isBlikActive()
                              && $blikPaymentMethod->isEnabled();
 
         return [

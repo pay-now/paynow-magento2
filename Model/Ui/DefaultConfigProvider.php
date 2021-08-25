@@ -22,7 +22,7 @@ class DefaultConfigProvider extends ConfigProvider implements ConfigProviderInte
      */
     public function getConfig(): array
     {
-        $methods = $this->configHelper->isPaymentMethodsActive() ? $this->paymentMethodsHelper->getAvailable() : null;
+        $methods = $this->configHelper->isPaymentMethodsActive() ? $this->paymentMethodsHelper->getAvailable() : [];
 
         return [
             'payment' => [
