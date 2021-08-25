@@ -2,28 +2,19 @@
 
 namespace Paynow\PaymentGateway\Model\Ui;
 
-use Magento\Checkout\Model\ConfigProviderInterface;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\UrlInterface;
-use Magento\Framework\View\Asset\Repository;
+use Paynow\PaymentGateway\Helper\ConfigHelper;
 use Paynow\PaymentGateway\Helper\PaymentHelper;
+use Paynow\PaymentGateway\Helper\PaymentMethodsHelper;
 
 /**
  * Class ConfigProvider
  *
  * @package Paynow\PaymentGateway\Model\Ui
  */
-class ConfigProvider implements ConfigProviderInterface
+class ConfigProvider
 {
-    const CODE = 'paynow_gateway';
-
-    const LOGO_PATH = 'Paynow_PaymentGateway::images/logo-paynow.png';
-
-    /**
-     * @var Repository
-     */
-    private $repository;
-
     /**
      * @var UrlInterface
      */
@@ -39,52 +30,37 @@ class ConfigProvider implements ConfigProviderInterface
     /**
      * @var PaymentHelper
      */
-    private $paymentHelper;
+    protected $helper;
+
+    /**
+     * @var ConfigHelper
+     */
+    protected $configHelper;
+
+    /**
+     * @var PaymentMethodsHelper
+     */
+    protected $paymentMethodsHelper;
 
     public function __construct(
-        Repository $repository,
         UrlInterface $urlBuilder,
         RequestInterface $request,
-        PaymentHelper $paymentHelper
+        PaymentHelper $paymentHelper,
+        PaymentMethodsHelper $paymentMethodsHelper,
+        ConfigHelper $configHelper
     ) {
-        $this->repository = $repository;
-        $this->urlBuilder = $urlBuilder;
-        $this->request = $request;
-        $this->paymentHelper = $paymentHelper;
-    }
-
-    /**
-     * Returns configuration
-     *
-     * @return array
-     */
-    public function getConfig()
-    {
-        return [
-            'payment' => [
-                self::CODE => [
-                    'iActive' => $this->paymentHelper->isActive(),
-                    'logoPath' => $this->getLogoPath(),
-                    'redirectUrl' => $this->getRedirectUrl()
-                ]
-            ]
-        ];
-    }
-
-    /**
-     * Returns payment method logo path
-     * @return string
-     */
-    private function getLogoPath()
-    {
-        return $this->repository->getUrl(self::LOGO_PATH);
+        $this->urlBuilder           = $urlBuilder;
+        $this->request              = $request;
+        $this->helper               = $paymentHelper;
+        $this->paymentMethodsHelper = $paymentMethodsHelper;
+        $this->configHelper = $configHelper;
     }
 
     /**
      * Return url for checkout redirect
      * @return mixed
      */
-    private function getRedirectUrl()
+    protected function getRedirectUrl()
     {
         return $this->urlBuilder->getUrl('paynow/checkout/redirect', ['_secure' => $this->getRequest()->isSecure()]);
     }
@@ -93,7 +69,7 @@ class ConfigProvider implements ConfigProviderInterface
      * Retrieve request object
      * @return RequestInterface
      */
-    protected function getRequest()
+    protected function getRequest(): RequestInterface
     {
         return $this->request;
     }

@@ -3,13 +3,14 @@
     <system>
         <section id="payment" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
             <group id="paynow" translate="label" type="text" sortOrder="5" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Paynow</label>
-                <comment>Accepts payments by Paynow</comment>
+                <label>Pay by paynow.pl</label>
+                <comment>Accepts payments by paynow.pl</comment>
                 <attribute type="expanded">1</attribute>
                 <include path="Paynow_PaymentGateway::system/paynow_getting_started.xml"/>
                 <include path="Paynow_PaymentGateway::system/paynow_general_settings.xml"/>
                 <include path="Paynow_PaymentGateway::system/paynow_sandbox_settings.xml"/>
                 <include path="Paynow_PaymentGateway::system/paynow_production_settings.xml"/>
+                <include path="Paynow_PaymentGateway::system/paynow_payment_methods_settings.xml"/>
             </group>
         </section>
     </system>

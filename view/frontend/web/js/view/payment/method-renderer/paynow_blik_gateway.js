@@ -8,7 +8,7 @@ define(
         'Magento_Customer/js/model/customer',
         'Magento_Checkout/js/checkout-data',
         'Magento_Checkout/js/model/payment/additional-validators',
-        'ko',
+        'mage/url',
     ],
     function (
         $,
@@ -18,19 +18,17 @@ define(
         selectPaymentMethodAction,
         customer,
         checkoutData,
-        additionalValidators,
-        ko
+        additionalValidators
     ) {
         'use strict';
 
         return Component.extend({
             defaults: {
-                template: 'Paynow_PaymentGateway/payment/paynow_gateway',
-                methods: window.checkoutConfig.payment.paynow_gateway.paymentMethods,
+                template: 'Paynow_PaymentGateway/payment/paynow_blik_gateway',
                 paymentMethodId: null
             },
-            getCode: function () {
-                return 'paynow_gateway';
+            getCode: function() {
+                return 'paynow_blik_gateway';
             },
             placeOrder: function (data, event) {
                 if (event) {
@@ -58,23 +56,17 @@ define(
             selectPaymentMethod: function () {
                 selectPaymentMethodAction(this.getData());
                 checkoutData.setSelectedPaymentMethod(this.item.method);
+                this.paymentMethodId = window.checkoutConfig.payment.paynow_blik_gateway.paymentMethodId
                 return true;
             },
             afterPlaceOrder: function () {
-                window.location.replace(window.checkoutConfig.payment.paynow_gateway.redirectUrl);
+                window.location.replace(window.checkoutConfig.payment.paynow_blik_gateway.redirectUrl);
             },
             getLogoPath: function () {
-                return window.checkoutConfig.payment.paynow_gateway.logoPath;
+                return window.checkoutConfig.payment.paynow_blik_gateway.logoPath;
             },
             isButtonActive: function () {
                 return this.getCode() === this.isChecked();
-            },
-            setPaymentMethod: function (paymentMethod) {
-                if (paymentMethod.enabled) {
-                    this.paymentMethodId = paymentMethod.id;
-                    $('.paynow-payment-option').removeClass('active');
-                    $('#payment_method_' + paymentMethod.id).addClass('active');
-                }
             },
             getData: function () {
                 return {
@@ -83,7 +75,7 @@ define(
                         'payment_method_id': this.paymentMethodId
                     }
                 };
-            },
+            }
         });
     }
 );

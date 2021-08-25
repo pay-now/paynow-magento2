@@ -10,5 +10,8 @@
         <method name="paynow_gateway">
             <allow_multiple_address>1</allow_multiple_address>
         </method>
+        <method name="paynow_blik_gateway">
+            <allow_multiple_address>1</allow_multiple_address>
+        </method>
     </methods>
 </payment>

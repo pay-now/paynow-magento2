@@ -19,12 +19,27 @@
                 <send_order_items>0</send_order_items>
                 <use_payment_validity_time>0</use_payment_validity_time>
                 <payment_validity_time>86400</payment_validity_time>
+                <show_payment_methods>0</show_payment_methods>
+                <show_separated_blik>0</show_separated_blik>
+                <show_separated_pbls>0</show_separated_pbls>
                 <model>PaynowPaymentGatewayFacade</model>
                 <payment_action>authorize</payment_action>
                 <sort_order>1</sort_order>
-                <title>Paynow</title>
+                <title>Pay by paynow.pl</title>
                 <group>paynow_group</group>
             </paynow_gateway>
+            <paynow_blik_gateway>
+                <active>1</active>
+                <debug>1</debug>
+                <order_status_change>1</order_status_change>
+                <currency>PLN</currency>
+                <is_gateway>1</is_gateway>
+                <model>PaynowBlikPaymentGatewayFacade</model>
+                <payment_action>authorize</payment_action>
+                <sort_order>1</sort_order>
+                <title>Blik with paynow.pl</title>
+                <group>paynow_group</group>
+            </paynow_blik_gateway>
         </payment>
     </default>
 </config>

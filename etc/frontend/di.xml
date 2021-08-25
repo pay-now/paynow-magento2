@@ -3,7 +3,10 @@
     <type name="Magento\Checkout\Model\CompositeConfigProvider">
         <arguments>
             <argument name="configProviders" xsi:type="array">
-                <item name="paynow_gateway_config_provider" xsi:type="object">Paynow\PaymentGateway\Model\Ui\ConfigProvider</item>
+                <item name="paynow_gateway_config_provider" xsi:type="object">
+                    Paynow\PaymentGateway\Model\Ui\DefaultConfigProvider
+                </item>
+                <item name="paynow_blik_gateway_config_provider" xsi:type="object">Paynow\PaymentGateway\Model\Ui\BlikConfigProvider</item>
             </argument>
         </arguments>
     </type>

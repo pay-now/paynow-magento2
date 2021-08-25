@@ -38,15 +38,15 @@ class NotificationProcessor
     private $loggerContext;
 
     /**
-     * @var PaymentHelper
+     * @var ConfigHelper
      */
-    private $paymentHelper;
+    private $configHelper;
 
-    public function __construct(OrderFactory $orderFactory, Logger $logger, PaymentHelper $paymentHelper)
+    public function __construct(OrderFactory $orderFactory, Logger $logger, ConfigHelper $configHelper)
     {
         $this->orderFactory = $orderFactory;
         $this->logger = $logger;
-        $this->paymentHelper = $paymentHelper;
+        $this->configHelper = $configHelper;
     }
 
     /**
@@ -108,7 +108,7 @@ class NotificationProcessor
     private function paymentPending()
     {
         $message = __('Awaiting payment confirmation from Paynow.');
-        if ($this->paymentHelper->isOrderStatusChangeActive()) {
+        if ($this->configHelper->isOrderStatusChangeActive()) {
             $this->order
                 ->setState(Order::STATE_PENDING_PAYMENT)
                 ->addStatusToHistory(Order::STATE_PENDING_PAYMENT, $message);
@@ -131,8 +131,8 @@ class NotificationProcessor
     private function paymentRejected()
     {
         $message = __('Payment has not been authorized by the buyer.');
-        if ($this->order->canCancel() && !$this->paymentHelper->isRetryPaymentActive()) {
-            if ($this->paymentHelper->isOrderStatusChangeActive()) {
+        if ($this->order->canCancel() && !$this->configHelper->isRetryPaymentActive()) {
+            if ($this->configHelper->isOrderStatusChangeActive()) {
                 $this->order
                     ->setState(Order::STATE_CANCELED)
                     ->addStatusToHistory(Order::STATE_CANCELED, $message);
@@ -142,7 +142,7 @@ class NotificationProcessor
                 $this->order->addCommentToStatusHistory($message);
             }
         } else {
-            if ($this->paymentHelper->isOrderStatusChangeActive()) {
+            if ($this->configHelper->isOrderStatusChangeActive()) {
                 $this->order
                     ->setState(Order::STATE_PAYMENT_REVIEW)
                     ->addStatusToHistory(Order::STATE_PAYMENT_REVIEW, $message);
@@ -156,11 +156,14 @@ class NotificationProcessor
         }
     }
 
+    /**
+     * Sets payment errored
+     */
     private function paymentError()
     {
         $message = __('Payment has been ended with an error.');
-        if (!$this->paymentHelper->isRetryPaymentActive()) {
-            if ($this->paymentHelper->isOrderStatusChangeActive()) {
+        if (!$this->configHelper->isRetryPaymentActive()) {
+            if ($this->configHelper->isOrderStatusChangeActive()) {
                 $this->order
                     ->setState(Order::STATE_PAYMENT_REVIEW)
                     ->addStatusToHistory(Order::STATE_PAYMENT_REVIEW, $message);
@@ -170,10 +173,13 @@ class NotificationProcessor
         }
     }
 
+    /**
+     * Sets payment as expired
+     */
     private function paymentExpired()
     {
         $message = __('Payment has been expired.');
-        if ($this->paymentHelper->isOrderStatusChangeActive()) {
+        if ($this->configHelper->isOrderStatusChangeActive()) {
             $this->order
                 ->setState(Order::STATE_PAYMENT_REVIEW)
                 ->addStatusToHistory(Order::STATE_PAYMENT_REVIEW, $message);
@@ -183,7 +189,13 @@ class NotificationProcessor
         $this->order->getPayment()->setIsClosed(true);
     }
 
-    private function isCorrectStatus($previousStatus, $nextStatus)
+    /**
+     * @param $previousStatus
+     * @param $nextStatus
+     *
+     * @return bool
+     */
+    private function isCorrectStatus($previousStatus, $nextStatus): bool
     {
         $paymentStatusFlow = [
             Status::STATUS_NEW => [

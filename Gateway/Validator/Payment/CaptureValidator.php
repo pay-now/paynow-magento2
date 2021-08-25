@@ -44,7 +44,14 @@ class CaptureValidator extends AbstractValidator
             array_key_exists(PaymentField::STATUS_FIELD_NAME, $response) &&
             $response[PaymentField::STATUS_FIELD_NAME] === Status::STATUS_CONFIRMED;
 
-        $this->logger->debug("Validating capture response", ['valid' => $isResponseValid]);
+        $this->logger->debug(
+            "Validating capture response",
+            [
+                'valid' => $isResponseValid,
+                'paymentId' => $response[PaymentField::PAYMENT_ID_FIELD_NAME],
+                'status' => $response[PaymentField::STATUS_FIELD_NAME]
+            ]
+        );
 
         return $this->createResult(
             $isResponseValid,
