@@ -25,7 +25,7 @@
                 <model>PaynowPaymentGatewayFacade</model>
                 <payment_action>authorize</payment_action>
                 <sort_order>1</sort_order>
-                <title>Paynow</title>
+                <title>Pay by paynow.pl</title>
                 <group>paynow_group</group>
             </paynow_gateway>
             <paynow_blik_gateway>
@@ -37,7 +37,7 @@
                 <model>PaynowBlikPaymentGatewayFacade</model>
                 <payment_action>authorize</payment_action>
                 <sort_order>1</sort_order>
-                <title>Paynow - Blik</title>
+                <title>Blik with paynow.pl</title>
                 <group>paynow_group</group>
             </paynow_blik_gateway>
         </payment>
