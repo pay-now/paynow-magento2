@@ -25,10 +25,16 @@ class PaymentMethodsHelper
      */
     private $logger;
 
-    public function __construct(PaymentHelper $paymentHelper, Logger $logger)
+    /**
+     * @var ConfigHelper
+     */
+    private $configHelper;
+
+    public function __construct(PaymentHelper $paymentHelper, Logger $logger, ConfigHelper $configHelper)
     {
         $this->paymentHelper = $paymentHelper;
         $this->logger        = $logger;
+        $this->configHelper  = $configHelper;
     }
 
     /**
@@ -41,9 +47,10 @@ class PaymentMethodsHelper
         try {
             $payment        = new Payment($this->paymentHelper->initializePaynowClient());
             $paymentMethods = $payment->getPaymentMethods()->getAll();
+            $isBlikActive   = $this->configHelper->isBlikActive();
 
             foreach ($paymentMethods as $key => $paymentMethod) {
-                if (! (Type::BLIK === $paymentMethod->getType() && $this->paymentHelper->isBlikActive())) {
+                if (! (Type::BLIK === $paymentMethod->getType() && $isBlikActive)) {
                     $paymentMethodsArray[] = [
                         'id'          => $paymentMethod->getId(),
                         'name'        => $paymentMethod->getName(),
@@ -70,7 +77,7 @@ class PaymentMethodsHelper
             $payment        = new Payment($this->paymentHelper->initializePaynowClient());
             $paymentMethods = $payment->getPaymentMethods()->getOnlyBlik();
 
-            if (!empty($paymentMethods)) {
+            if (! empty($paymentMethods)) {
                 return $paymentMethods[0];
             }
         } catch (PaynowException $exception) {

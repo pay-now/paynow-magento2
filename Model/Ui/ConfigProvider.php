@@ -4,6 +4,7 @@ namespace Paynow\PaymentGateway\Model\Ui;
 
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\UrlInterface;
+use Paynow\PaymentGateway\Helper\ConfigHelper;
 use Paynow\PaymentGateway\Helper\PaymentHelper;
 use Paynow\PaymentGateway\Helper\PaymentMethodsHelper;
 
@@ -29,7 +30,12 @@ class ConfigProvider
     /**
      * @var PaymentHelper
      */
-    protected $paymentHelper;
+    protected $helper;
+
+    /**
+     * @var ConfigHelper
+     */
+    protected $configHelper;
 
     /**
      * @var PaymentMethodsHelper
@@ -40,12 +46,14 @@ class ConfigProvider
         UrlInterface $urlBuilder,
         RequestInterface $request,
         PaymentHelper $paymentHelper,
-        PaymentMethodsHelper $paymentMethodsHelper
+        PaymentMethodsHelper $paymentMethodsHelper,
+        ConfigHelper $configHelper
     ) {
         $this->urlBuilder           = $urlBuilder;
         $this->request              = $request;
-        $this->paymentHelper        = $paymentHelper;
+        $this->helper               = $paymentHelper;
         $this->paymentMethodsHelper = $paymentMethodsHelper;
+        $this->configHelper = $configHelper;
     }
 
     /**

@@ -21,28 +21,18 @@ class BlikConfigProvider extends ConfigProvider implements ConfigProviderInterfa
     public function getConfig()
     {
         $blikPaymentMethod = $this->paymentMethodsHelper->getBlikPaymentMethod();
+        $isActive          = $this->helper->isActive() && $this->helper->isBlikActive()
+                             && $blikPaymentMethod->isEnabled();
 
         return [
             'payment' => [
                 self::CODE => [
-                    'isActive'        => $this->isActive($blikPaymentMethod),
+                    'isActive'        => $isActive,
                     'logoPath'        => $blikPaymentMethod->getImage() ?: null,
                     'redirectUrl'     => $this->getRedirectUrl(),
                     'paymentMethodId' => $blikPaymentMethod->getId()
                 ]
             ]
         ];
-    }
-
-    /**
-     * @param $blikPaymentMethod
-     *
-     * @return bool
-     */
-    private function isActive($blikPaymentMethod)
-    {
-        return $this->paymentHelper->isActive()
-               && $this->paymentHelper->isBlikActive()
-               && $blikPaymentMethod->isEnabled();
     }
 }
