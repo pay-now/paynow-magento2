@@ -22,7 +22,13 @@ class DefaultConfigProvider extends ConfigProvider implements ConfigProviderInte
      */
     public function getConfig(): array
     {
-        $methods = $this->configHelper->isPaymentMethodsActive() ? $this->paymentMethodsHelper->getAvailable() : [];
+        $grandTotal   = $this->checkoutSession->getQuote()->getGrandTotal();
+        $currencyCode = $this->checkoutSession->getQuote()->getCurrency()->getQuoteCurrencyCode();
+
+        $paymentMethods = [];
+        if ($this->configHelper->isPaymentMethodsActive()) {
+            $paymentMethods = $this->paymentMethodsHelper->getAvailable($currencyCode, $grandTotal);
+        }
 
         return [
             'payment' => [
@@ -30,7 +36,7 @@ class DefaultConfigProvider extends ConfigProvider implements ConfigProviderInte
                     'isActive'       => $this->configHelper->isActive(),
                     'logoPath'       => 'https://static.paynow.pl/brand/paynow_logo_black.png',
                     'redirectUrl'    => $this->getRedirectUrl(),
-                    'paymentMethods' => $methods
+                    'paymentMethods' => $paymentMethods
                 ]
             ]
         ];

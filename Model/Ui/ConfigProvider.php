@@ -2,6 +2,7 @@
 
 namespace Paynow\PaymentGateway\Model\Ui;
 
+use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\UrlInterface;
 use Paynow\PaymentGateway\Helper\ConfigHelper;
@@ -42,18 +43,25 @@ class ConfigProvider
      */
     protected $paymentMethodsHelper;
 
+    /**
+     * @var CheckoutSession
+     */
+    protected $checkoutSession;
+
     public function __construct(
         UrlInterface $urlBuilder,
         RequestInterface $request,
         PaymentHelper $paymentHelper,
         PaymentMethodsHelper $paymentMethodsHelper,
-        ConfigHelper $configHelper
+        ConfigHelper $configHelper,
+        CheckoutSession $checkoutSession
     ) {
         $this->urlBuilder           = $urlBuilder;
         $this->request              = $request;
         $this->helper               = $paymentHelper;
         $this->paymentMethodsHelper = $paymentMethodsHelper;
-        $this->configHelper = $configHelper;
+        $this->configHelper         = $configHelper;
+        $this->checkoutSession      = $checkoutSession;
     }
 
     /**
