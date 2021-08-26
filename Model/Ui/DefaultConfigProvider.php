@@ -3,6 +3,7 @@
 namespace Paynow\PaymentGateway\Model\Ui;
 
 use Magento\Checkout\Model\ConfigProviderInterface;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 
 /**
@@ -18,7 +19,7 @@ class DefaultConfigProvider extends ConfigProvider implements ConfigProviderInte
      * Returns configuration
      *
      * @return array
-     * @throws NoSuchEntityException
+     * @throws NoSuchEntityException|LocalizedException
      */
     public function getConfig(): array
     {
@@ -26,14 +27,14 @@ class DefaultConfigProvider extends ConfigProvider implements ConfigProviderInte
         $currencyCode = $this->checkoutSession->getQuote()->getCurrency()->getQuoteCurrencyCode();
 
         $paymentMethods = [];
-        if ($this->configHelper->isPaymentMethodsActive()) {
+        if ($this->configHelper->isConfigured() && $this->configHelper->isPaymentMethodsActive()) {
             $paymentMethods = $this->paymentMethodsHelper->getAvailable($currencyCode, $grandTotal);
         }
 
         return [
             'payment' => [
                 self::CODE => [
-                    'isActive'       => $this->configHelper->isActive(),
+                    'isActive'       => $this->configHelper->isActive() && $this->configHelper->isConfigured(),
                     'logoPath'       => 'https://static.paynow.pl/brand/paynow_logo_black.png',
                     'redirectUrl'    => $this->getRedirectUrl(),
                     'paymentMethods' => $paymentMethods

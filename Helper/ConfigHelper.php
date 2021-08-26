@@ -236,6 +236,26 @@ class ConfigHelper extends AbstractHelper
     }
 
     /**
+     * Returns that is configured
+     *
+     * @param $storeId
+     *
+     * @return bool
+     * @throws NoSuchEntityException
+     */
+    public function isConfigured($storeId = null): bool
+    {
+        if ($storeId === null) {
+            $storeId = $this->storeManager->getStore()->getId();
+        }
+
+        $isTestMode = $this->isTestMode($storeId);
+
+        return ! empty($this->getApiKey($storeId, $isTestMode))
+               && ! empty($this->getSignatureKey($storeId, $isTestMode));
+    }
+
+    /**
      * Returns Api Key for Paynow API
      *
      * @param $storeId

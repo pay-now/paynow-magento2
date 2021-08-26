@@ -2,11 +2,12 @@
 
 namespace Paynow\PaymentGateway\Gateway\Request\Payment;
 
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 use Paynow\PaymentGateway\Gateway\Request\AbstractRequest;
+use Paynow\PaymentGateway\Helper\ConfigHelper;
 use Paynow\PaymentGateway\Helper\PaymentField;
 use Paynow\PaymentGateway\Helper\PaymentHelper;
-use Paynow\PaymentGateway\Model\Ui\BlikConfigProvider;
 use Paynow\PaymentGateway\Observer\PaymentDataAssignObserver;
 
 /**
@@ -21,16 +22,22 @@ class AuthorizeRequest extends AbstractRequest implements BuilderInterface
      */
     private $helper;
 
-    public function __construct(PaymentHelper $paymentHelper)
+    /**
+     * @var ConfigHelper
+     */
+    private $config;
+
+    public function __construct(PaymentHelper $paymentHelper, ConfigHelper $configHelper)
     {
         $this->helper = $paymentHelper;
+        $this->config = $configHelper;
     }
 
     /**
      * @param array $buildSubject
      *
      * @return array
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @throws NoSuchEntityException
      */
     public function build(array $buildSubject)
     {
@@ -60,17 +67,17 @@ class AuthorizeRequest extends AbstractRequest implements BuilderInterface
                 ->getAdditionalInformation(PaymentDataAssignObserver::PAYMENT_METHOD_ID);
         }
 
-        if ($this->helper->isSendOrderItemsActive()) {
+        if ($this->config->isSendOrderItemsActive()) {
             $orderItems = $this->helper->getOrderItems($this->order);
             if (! empty($orderItems)) {
                 $request['body'][PaymentField::ORDER_ITEMS] = $orderItems;
             }
         }
 
-        if ($this->helper->isPaymentValidityActive()) {
-            $validityTime = $this->helper->getPaymentValidityTime();
+        if ($this->config->isPaymentValidityActive()) {
+            $validityTime = $this->config->getPaymentValidityTime();
             if (! empty($validityTime)) {
-                $request['body'][PaymentField::VALIDITY_TIME] = $this->helper->getPaymentValidityTime();
+                $request['body'][PaymentField::VALIDITY_TIME] = $this->config->getPaymentValidityTime();
             }
         }
 

@@ -50,6 +50,10 @@ class PaymentMethodsHelper
     public function getAvailable(?string $currency = null, ?float $amount = null): array
     {
         $paymentMethodsArray = [];
+        if (!$this->configHelper->isConfigured()) {
+            return $paymentMethodsArray;
+        }
+
         try {
             $payment      = new Payment($this->paymentHelper->initializePaynowClient());
             $amount       = $this->paymentHelper->formatAmount($amount);
@@ -85,6 +89,10 @@ class PaymentMethodsHelper
      */
     public function getBlikPaymentMethod(?string $currency = null, ?float $amount = null)
     {
+        if (!$this->configHelper->isConfigured()) {
+            return null;
+        }
+
         try {
             $payment        = new Payment($this->paymentHelper->initializePaynowClient());
             $amount         = $this->paymentHelper->formatAmount($amount);
