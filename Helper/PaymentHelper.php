@@ -188,9 +188,9 @@ class PaymentHelper extends AbstractHelper
      *
      * @param Product $product
      *
-     * @return string array
+     * @return string|null
      */
-    private function getCategoriesNames(Product $product): string
+    private function getCategoriesNames(Product $product): ?string
     {
         try {
             $categoriesCollection = $product->getCategoryCollection()->addAttributeToSelect('name');
@@ -207,6 +207,8 @@ class PaymentHelper extends AbstractHelper
         } catch (LocalizedException $exception) {
             $this->logger->error('An error occurred during checkout: ' . $exception->getMessage());
         }
+
+        return null;
     }
 
     /**

@@ -27,7 +27,7 @@ define(
                 template: 'Paynow_PaymentGateway/payment/paynow_blik_gateway',
                 paymentMethodId: null
             },
-            getCode: function() {
+            getCode: function () {
                 return 'paynow_blik_gateway';
             },
             placeOrder: function (data, event) {
