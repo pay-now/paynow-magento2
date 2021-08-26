@@ -2,6 +2,7 @@
 
 namespace Paynow\PaymentGateway\Helper;
 
+use Magento\Framework\Exception\NoSuchEntityException;
 use Paynow\Exception\PaynowException;
 use Paynow\Model\PaymentMethods\PaymentMethod;
 use Paynow\Model\PaymentMethods\Type;
@@ -44,7 +45,7 @@ class PaymentMethodsHelper
      * @param float|null $amount
      *
      * @return array
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @throws NoSuchEntityException
      */
     public function getAvailable(?string $currency = null, ?float $amount = null): array
     {
@@ -80,12 +81,13 @@ class PaymentMethodsHelper
      * @param float|null $amount
      *
      * @return PaymentMethod
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @throws NoSuchEntityException
      */
     public function getBlikPaymentMethod(?string $currency = null, ?float $amount = null)
     {
         try {
             $payment        = new Payment($this->paymentHelper->initializePaynowClient());
+            $amount         = $this->paymentHelper->formatAmount($amount);
             $paymentMethods = $payment->getPaymentMethods($currency, $amount)->getOnlyBlik();
 
             if (! empty($paymentMethods)) {
