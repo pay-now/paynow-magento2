@@ -8,6 +8,7 @@ use Magento\Framework\App\Request\Http;
 use Magento\Store\Model\StoreManagerInterface;
 use Paynow\Exception\SignatureVerificationException;
 use Paynow\Notification;
+use Paynow\PaymentGateway\Helper\ConfigHelper;
 use Paynow\PaymentGateway\Helper\NotificationProcessor;
 use Paynow\PaymentGateway\Helper\PaymentField;
 use Paynow\PaymentGateway\Helper\PaymentHelper;
@@ -39,6 +40,11 @@ class Notifications extends Action
     private $paymentHelper;
 
     /**
+     * @var ConfigHelper
+     */
+    private $configHelper;
+
+    /**
      * @var Logger
      */
     private $logger;
@@ -51,19 +57,22 @@ class Notifications extends Action
      * @param NotificationProcessor $notificationProcessor
      * @param Logger $logger
      * @param PaymentHelper $paymentHelper
+     * @param ConfigHelper $configHelper
      */
     public function __construct(
         Context $context,
         StoreManagerInterface $storeManager,
         NotificationProcessor $notificationProcessor,
         Logger $logger,
-        PaymentHelper $paymentHelper
+        PaymentHelper $paymentHelper,
+        ConfigHelper $configHelper
     ) {
         parent::__construct($context);
         $this->storeManager          = $storeManager;
         $this->notificationProcessor = $notificationProcessor;
         $this->logger                = $logger;
         $this->paymentHelper         = $paymentHelper;
+        $this->configHelper          = $configHelper;
         if (interface_exists(\Magento\Framework\App\CsrfAwareActionInterface::class)) {
             $request = $this->getRequest();
             if ($request instanceof Http && $request->isPost()) {
@@ -82,7 +91,7 @@ class Notifications extends Action
         $notificationData = json_decode($payload, true);
         $this->logger->debug("Received payment status notification", $notificationData);
         $storeId      = $this->storeManager->getStore()->getId();
-        $signatureKey = $this->paymentHelper->getSignatureKey($storeId, $this->paymentHelper->isTestMode($storeId));
+        $signatureKey = $this->configHelper->getSignatureKey($storeId, $this->configHelper->isTestMode($storeId));
 
         try {
             new Notification(
