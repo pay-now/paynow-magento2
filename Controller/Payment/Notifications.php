@@ -13,6 +13,7 @@ use Paynow\PaymentGateway\Helper\NotificationProcessor;
 use Paynow\PaymentGateway\Helper\PaymentField;
 use Paynow\PaymentGateway\Helper\PaymentHelper;
 use Paynow\PaymentGateway\Model\Exception\OrderHasBeenAlreadyPaidException;
+use Paynow\PaymentGateway\Model\Exception\OrderNotFound;
 use Paynow\PaymentGateway\Model\Exception\OrderPaymentStatusTransitionException;
 use Paynow\PaymentGateway\Model\Logger\Logger;
 use Zend\Http\Headers;
@@ -97,7 +98,7 @@ class Notifications extends Action
             new Notification(
                 $signatureKey,
                 $payload,
-                $this->getSignaturesFromHeaders($this->getRequest()->getHeaders())
+                apache_request_headers()
             );
             $this->notificationProcessor->process(
                 $notificationData[PaymentField::PAYMENT_ID_FIELD_NAME],
@@ -110,7 +111,7 @@ class Notifications extends Action
                 $notificationData
             );
             $this->getResponse()->setHttpResponseCode(400);
-        } catch (OrderPaymentStatusTransitionException $exception) {
+        } catch (OrderPaymentStatusTransitionException | OrderNotFound $exception) {
             $this->logger->warning(
                 $exception->getMessage(),
                 $notificationData
@@ -120,23 +121,5 @@ class Notifications extends Action
             $this->logger->info($exception->getMessage() . ' Skip processing the notification.');
             $this->getResponse()->setHttpResponseCode(200);
         }
-    }
-
-    /**
-     * @param Headers $headers
-     *
-     * @return array
-     */
-    private function getSignaturesFromHeaders(Headers $headers)
-    {
-        if ($headers->has('Signature')) {
-            $signature = $headers->get('Signature')->getFieldValue();
-        } else {
-            $signature = $headers->get('signature')->getFieldValue();
-        }
-
-        return [
-            'Signature' => $signature
-        ];
     }
 }
