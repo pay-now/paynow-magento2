@@ -11,7 +11,7 @@ use Exception;
  */
 class OrderPaymentStatusTransitionException extends Exception
 {
-    const EXCEPTION_MESSAGE = 'Order status transition is incorrect %s - %s';
+    const EXCEPTION_MESSAGE = 'Order status transition from %s to %s is incorrect';
 
     public function __construct($orderPaymentStatus, $paymentStatus)
     {
