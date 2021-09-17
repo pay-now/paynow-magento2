@@ -139,31 +139,6 @@ class ConfigHelper extends AbstractHelper
     }
 
     /**
-     * Returns is retry payment is available for order
-     *
-     * @param Order $order
-     *
-     * @return bool
-     * @throws NoSuchEntityException
-     */
-    public function isRetryPaymentActiveForOrder(Order $order): bool
-    {
-        $paymentStatus = $order->getPayment()->getAdditionalInformation(PaymentField::STATUS_FIELD_NAME);
-
-        return $this->isRetryPaymentActive() &&
-               $order->getStatus() === Order::STATE_PAYMENT_REVIEW &&
-               in_array(
-                   $paymentStatus,
-                   [
-                       Status::STATUS_NEW,
-                       Status::STATUS_PENDING,
-                       Status::STATUS_REJECTED,
-                       Status::STATUS_ERROR
-                   ]
-               );
-    }
-
-    /**
      * Returns is send order items enabled
      *
      * @param null $storeId

@@ -10,13 +10,16 @@ use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\Component\ComponentRegistrar;
 use Magento\Framework\Component\ComponentRegistrarInterface;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Filesystem\Driver\File;
 use Magento\Framework\Locale\Resolver;
 use Magento\Framework\UrlInterface;
 use Magento\Payment\Gateway\Data\OrderAdapterInterface;
+use Magento\Sales\Model\Order;
 use Magento\Store\Model\StoreManagerInterface;
 use Paynow\Client;
 use Paynow\Environment;
+use Paynow\Model\Payment\Status;
 use Paynow\PaymentGateway\Model\Logger\Logger;
 
 /**
@@ -271,5 +274,30 @@ class PaymentHelper extends AbstractHelper
     public function getStoreLocale()
     {
         return str_replace('_', '-', $this->localeResolver->getLocale());
+    }
+
+    /**
+     * Returns is retry payment is available for order
+     *
+     * @param Order $order
+     *
+     * @return bool
+     * @throws NoSuchEntityException
+     */
+    public function isRetryPaymentActiveForOrder(Order $order): bool
+    {
+        $paymentStatus = $order->getPayment()->getAdditionalInformation(PaymentField::STATUS_FIELD_NAME);
+
+        return $this->configHelper->isRetryPaymentActive() &&
+               $order->getStatus() === Order::STATE_PAYMENT_REVIEW &&
+               in_array(
+                   $paymentStatus,
+                   [
+                       Status::STATUS_NEW,
+                       Status::STATUS_PENDING,
+                       Status::STATUS_REJECTED,
+                       Status::STATUS_ERROR
+                   ]
+               );
     }
 }
