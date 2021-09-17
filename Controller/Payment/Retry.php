@@ -9,6 +9,7 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order\Payment;
+use Paynow\PaymentGateway\Helper\ConfigHelper;
 use Paynow\PaymentGateway\Helper\PaymentField;
 use Paynow\PaymentGateway\Helper\PaymentHelper;
 use Paynow\PaymentGateway\Model\Logger\Logger;
@@ -31,6 +32,11 @@ class Retry extends Action
     private $paymentHelper;
 
     /**
+     * @var ConfigHelper
+     */
+    private $configHelper;
+
+    /**
      * @var ResponseRedirect
      */
     private $redirectResult;
@@ -44,17 +50,20 @@ class Retry extends Action
      * Retry constructor.
      * @param Context $context
      * @param OrderRepositoryInterface $orderRepository
+     * @param ConfigHelper $configHelper
      * @param PaymentHelper $paymentHelper
      * @param Logger $logger
      */
     public function __construct(
         Context $context,
         OrderRepositoryInterface $orderRepository,
+        ConfigHelper $configHelper,
         PaymentHelper $paymentHelper,
         Logger $logger
     ) {
         parent::__construct($context);
         $this->orderRepository = $orderRepository;
+        $this->configHelper = $configHelper;
         $this->paymentHelper = $paymentHelper;
         $this->redirectResult = $this->resultRedirectFactory->create();
         $this->logger = $logger;
@@ -65,7 +74,7 @@ class Retry extends Action
      */
     public function execute()
     {
-        if (!$this->paymentHelper->isRetryPaymentActive()) {
+        if (!$this->configHelper->isRetryPaymentActive()) {
             $this->messageManager->addErrorMessage(__('Retry payment is not active.'));
             $this->redirectResult->setPath('sales/order/history', ['_secure' => $this->getRequest()->isSecure()]);
         }
