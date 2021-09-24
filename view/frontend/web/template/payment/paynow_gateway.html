@@ -12,7 +12,7 @@
     <div class="payment-method-content">
 
         <div class="paynow-payment-options" data-bind="visible: isButtonActive()">
-            <p data-bind="i18n: 'Choose payment method:'"></p>
+            <span data-bind="i18n: 'Choose payment method:'"></span>
             <div data-bind="visible: isButtonActive(), foreach: methods">
                 <div class="paynow-payment-option" data-bind="css: {'disabled': $data.enabled !== true}, attr: {'id': 'payment_method_' + $data.id }, click: $parent.setPaymentMethod.bind($parent)">
                     <div>
