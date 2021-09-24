@@ -2,6 +2,7 @@
 
 namespace Paynow\PaymentGateway\Block\Order\History;
 
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
 use Magento\Sales\Api\Data\OrderInterfaceFactory;
@@ -46,7 +47,9 @@ class Action extends Template
 
     /**
      * @param $orderId
+     *
      * @return string
+     * @throws NoSuchEntityException
      */
     public function canRetryPayment($orderId): string
     {
