@@ -1,4 +1,4 @@
-.paynow-payment-options {
+.paynow-payment-options div {
     flex-wrap: wrap;
     display: flex;
 }
