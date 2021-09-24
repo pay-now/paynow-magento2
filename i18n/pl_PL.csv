@@ -46,5 +46,5 @@ Information,Informacje
 "Select Yes if you want to allow change order status on during processing notifications.","Włącz zmianę statusu zamówienia podczas przetwarzania powiadomień."
 "Select Yes if you want to allow retry payments for your customers.","Włącz możliwość ponawiania płatności przez kupującego."
 "Select Yes if you are using test shop environment.", "Włącz jeżeli chcesz skorzystać ze środowiska testowego."
-"Select Yes if you want show separated Blik payment method.", "Włącz jeśli chcesz wyodrębnić płatnosć Blikiem."
+"Select Yes if you want show separated BLIK payment method.", "Włącz jeśli chcesz wyodrębnić płatnosć Blikiem."
 "Select Yes if you want show available payment methods.", "Włącz jeśli chcesz udostępnić wybór metody płatności."
