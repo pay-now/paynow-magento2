@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="1column" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceContainer name="content">
+            <container name="successinfo" before="checkout.success">
+                <block class="Paynow\PaymentGateway\Block\Onepage\Success" name="success.repayment" template="Paynow_PaymentGateway::onepage/success_message_button.phtml"/>
+            </container>
+        </referenceContainer>
+    </body>
+</page>
