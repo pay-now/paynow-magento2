@@ -19,11 +19,6 @@ use Paynow\PaymentGateway\Helper\PaymentHelper;
 class Success extends MagentoSuccess
 {
     /**
-     * @var OrderInterfaceFactory
-     */
-    private $orderFactory;
-
-    /**
      * @var PaymentHelper
      */
     private $paymentHelper;
@@ -40,29 +35,28 @@ class Success extends MagentoSuccess
         $this->paymentHelper = $paymentHelper;
     }
 
+    public function  getOrder()
+    {
+        return $this->_orderFactory->create()->load($this->getLastOrderId());
+    }
+
     /**
-     * @param $orderId
      *
      * @return string
      * @throws NoSuchEntityException
      */
-    public function canRetryPayment($orderId): string
+    public function canRetryPayment(): string
     {
-        /** @var Order */
-        $order = $this->orderFactory->create()->load($orderId);
-
-        return $this->paymentHelper->isRetryPaymentActiveForOrder($order);
+        return $this->paymentHelper->isRetryPaymentActiveForOrder($this->getOrder());
     }
 
     /**
      * Returns retry payment url
      *
-     * @param $orderId
-     *
      * @return string
      */
-    public function getRetryPaymentUrl($orderId): string
+    public function getRetryPaymentUrl(): string
     {
-        return $this->paymentHelper->getRetryPaymentUrl($orderId);
+        return $this->paymentHelper->getRetryPaymentUrl($this->getLastOrderId());
     }
 }
