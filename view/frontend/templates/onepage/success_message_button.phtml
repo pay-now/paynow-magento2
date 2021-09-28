@@ -3,6 +3,9 @@
 /** @var Magento\Sales\Model\Order $order */
 $order = $block->getData('order');
 $block->escapeHtml(__('Payment for your order has been rejected. Use the button below to retry payment'));
+?>
+"test test test"
+<?php
 if ($order !== null) :
     if ($block->canRetryPayment($order->getEntityId())) : ?>
         <a href="<?= $block->escapeUrl($block->getRetryPaymentUrl($order->getEntityId())); ?>">
