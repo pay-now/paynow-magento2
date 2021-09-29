@@ -1,14 +1,13 @@
 <?php
 /** @var Paynow\PaymentGateway\Block\Onepage\Success $block */
 /** @var Magento\Sales\Model\Order $order */
-$order = $block->getOrder();
+$order = $block->getData('order_id');
 $block->escapeHtml(__('Payment for your order has been rejected. Use the button below to retry payment'));
 ?>
-"test test test 2"
 <?php
 if ($order !== null) :
-    if ($block->canRetryPayment($order->getEntityId())) : ?>
-        <a href="<?= $block->escapeUrl($block->getRetryPaymentUrl($order->getEntityId())); ?>">
+    if ($block->canRetryPayment()) : ?>
+        <a href="<?= $block->escapeUrl($block->getRetryPaymentUrl()); ?>">
             <span><?= $block->escapeHtml(__('Retry payment')); ?></span>
         </a>
     <?php

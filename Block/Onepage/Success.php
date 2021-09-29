@@ -19,6 +19,11 @@ use Paynow\PaymentGateway\Helper\PaymentHelper;
 class Success extends MagentoSuccess
 {
     /**
+     * @var OrderInterfaceFactory
+     */
+    private $orderFactory;
+
+    /**
      * @var PaymentHelper
      */
     private $paymentHelper;
@@ -29,15 +34,17 @@ class Success extends MagentoSuccess
         Config $orderConfig,
         AppContext $httpContext,
         PaymentHelper $paymentHelper,
+        OrderInterfaceFactory $orderFactory,
         array $data = []
     ) {
         parent::__construct($context, $checkoutSession, $orderConfig, $httpContext, $data);
         $this->paymentHelper = $paymentHelper;
+        $this->orderFactory = $orderFactory;
     }
 
     public function  getOrder()
     {
-        return $this->_orderFactory->create()->load($this->getLastOrderId());
+        return $this->orderFactory->create()->load($this->getLastOrderId());
     }
 
     /**
