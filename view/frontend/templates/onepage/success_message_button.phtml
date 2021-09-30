@@ -1,12 +1,8 @@
 <?php
 /** @var Paynow\PaymentGateway\Block\Onepage\Success $block */
 /** @var Magento\Sales\Model\Order $order */
-$order = $block->getOrder();
-$status = $block->getPaymentStatus($order);
-?>
-<?php
 if ($order !== null) : ?>
-        <p><?= $block->escapeHtml($block->getPaymentStatusPhrase()); ?></p>
+    <p><?= $block->escapeHtml($block->getPaymentStatusPhrase()); ?></p>
     <?php if ($block->canRetryPayment()) : ?>
         <p><?=$block->escapeHtml(__('Use the button below to retry payment')); ?></p>
         <div class="primary">
@@ -16,5 +12,5 @@ if ($order !== null) : ?>
         </div>
         <br/>
         <?php
-        endif;
+    endif;
 endif;
