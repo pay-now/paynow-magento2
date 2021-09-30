@@ -13,7 +13,7 @@
             <label>Show Blik method</label>
             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
             <config_path>payment/paynow_gateway/show_separated_blik</config_path>
-            <comment>Select Yes if you want show separated Blik payment method.</comment>
+            <comment>Select Yes if you want show separated BLIK payment method.</comment>
         </field>
     </group>
 </include>

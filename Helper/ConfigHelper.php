@@ -71,7 +71,7 @@ class ConfigHelper extends AbstractHelper
     }
 
     /**
-     * Returns is Blik payments enabled
+     * Returns is BLIK payments enabled
      *
      * @param int|null $storeId
      *
