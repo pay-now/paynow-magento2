@@ -71,7 +71,7 @@ class Success extends MagentoSuccess
         $this->notificationProcessor = $notificationProcessor;
         $this->order = $this->_checkoutSession->getLastRealOrder();
 
-        if($this->shouldRender()) {
+        if ($this->shouldRender()) {
             $this->retrievePaymentStatusAndUpdateOrder();
         }
     }
@@ -87,20 +87,13 @@ class Success extends MagentoSuccess
     }
 
     /**
-     * @return Order
-     */
-    public function getOrder()
-    {
-        return $this->orderFactory->create()->loadByIncrementId($this->getData('order_id'));
-    }
-
-    /**
      * @return bool
      * @throws NoSuchEntityException
      */
     public function canRetryPayment(): bool
     {
-        $order = $this->getOrder();
+        $order = $this->orderFactory->create()->loadByIncrementId($this->getData('order_id'));
+
         return $this->paymentHelper->isRetryPaymentActiveForOrder($order);
     }
 
