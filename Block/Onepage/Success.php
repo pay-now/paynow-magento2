@@ -70,7 +70,10 @@ class Success extends MagentoSuccess
         $this->logger = $logger;
         $this->notificationProcessor = $notificationProcessor;
         $this->order = $this->_checkoutSession->getLastRealOrder();
-        $this->retrievePaymentStatusAndUpdateOrder();
+
+        if($this->getRequest()->getParam('paymentId') && $this->getRequest()->getParam('paymentStatus')) {
+            $this->retrievePaymentStatusAndUpdateOrder();
+        }
     }
 
     /**
@@ -111,6 +114,8 @@ class Success extends MagentoSuccess
                 return __('Your payment has been rejected.');
             case Status::STATUS_ERROR:
                 return __('An error occurred during your payment process.');
+            case Status::STATUS_EXPIRED:
+                return __('Your payment has been expired.');
             case Status::STATUS_NEW:
             case Status::STATUS_PENDING:
                 return __('Your payment process has not been completed.');
@@ -125,8 +130,8 @@ class Success extends MagentoSuccess
         $loggerContext = [PaymentField::PAYMENT_ID_FIELD_NAME => $paymentId];
         try {
             $service = new Payment($this->paymentHelper->initializePaynowClient());
-            $apiResponseObject = $service->status($paymentId);
-            $this->status = $apiResponseObject->getStatus();
+            $paymentStatusObject  = $service->status($paymentId);
+            $this->status = $paymentStatusObject ->getStatus();
             $this->logger->debug(
                 "Retrieved status response",
                 array_merge($loggerContext, [$this->status])
