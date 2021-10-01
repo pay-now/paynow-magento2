@@ -81,7 +81,6 @@ class Success extends MagentoSuccess
         return $this->orderFactory->create()->loadByIncrementId($this->getData('order_id'));
     }
 
-
     /**
      * @return bool
      * @throws NoSuchEntityException
