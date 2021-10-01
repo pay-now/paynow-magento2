@@ -71,9 +71,19 @@ class Success extends MagentoSuccess
         $this->notificationProcessor = $notificationProcessor;
         $this->order = $this->_checkoutSession->getLastRealOrder();
 
-        if($this->getRequest()->getParam('paymentId') && $this->getRequest()->getParam('paymentStatus')) {
+        if($this->shouldRender()) {
             $this->retrievePaymentStatusAndUpdateOrder();
         }
+    }
+
+    /**
+     * @return bool
+     */
+    public function shouldRender()
+    {
+        return $this->getRequest()->getParam('paymentStatus') &&
+            $this->getRequest()->getParam('paymentId') &&
+            $this->order;
     }
 
     /**

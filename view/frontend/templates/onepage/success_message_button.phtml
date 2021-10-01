@@ -1,13 +1,13 @@
 <?php
 /** @var Paynow\PaymentGateway\Block\Onepage\Success $block */
-/** @var Magento\Sales\Model\Order $order */
-if ($order !== null) : ?>
+
+if ($block->shouldRender()) : ?>
     <div class="checkout-success-paynow"></div>
     <p><?= $block->escapeHtml($block->getPaymentStatusPhrase()); ?></p>
     <?php if ($block->canRetryPayment()) : ?>
         <p><?=$block->escapeHtml(__('Use the button below to retry payment')); ?></p>
         <div class="primary">
-            <a class="action primary continue" href="<?= $block->escapeUrl($block->getRetryPaymentUrl($order)); ?>">
+            <a class="action primary continue" href="<?= $block->escapeUrl($block->getRetryPaymentUrl()); ?>">
                 <span><?= $block->escapeHtml(__('Retry payment')); ?></span>
             </a>
         </div>
