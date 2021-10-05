@@ -2,15 +2,16 @@
 /** @var Paynow\PaymentGateway\Block\Onepage\Success $block */
 
 if ($block->shouldRetrieveStatus()) : ?>
-    <div class="checkout-success-paynow"></div>
-    <p><?= $block->escapeHtml($block->getPaymentStatusPhrase()); ?></p>
-    <?php if ($block->canRetryPayment()) : ?>
-        <p><?=$block->escapeHtml(__('Use the button below to retry payment')); ?></p>
-        <div class="primary">
-            <a class="action primary continue" href="<?= $block->escapeUrl($block->getRetryPaymentUrl()); ?>">
-                <span><?= $block->escapeHtml(__('Retry payment')); ?></span>
-            </a>
-        </div>
-        <?php
-    endif;
+    <div class="checkout-success-paynow">
+        <p><strong><?= $block->escapeHtml($block->getPaymentStatusPhrase()); ?></strong></p>
+        <?php if ($block->canRetryPayment()) : ?>
+            <p><?=$block->escapeHtml(__('Use the button below to retry payment')); ?></p>
+            <div class="primary">
+                <a class="action primary continue" href="<?= $block->escapeUrl($block->getRetryPaymentUrl()); ?>">
+                    <span><?= $block->escapeHtml(__('Retry payment')); ?></span>
+                </a>
+            </div>
+    </div>
+            <?php
+        endif;
 endif;
