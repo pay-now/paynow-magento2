@@ -20,7 +20,6 @@ class PaymentField
     const DESCRIPTION_FIELD_NAME = 'description';
     const EXTERNAL_ID_FIELD_NAME = 'externalId';
     const IDEMPOTENCY_KEY_FIELD_NAME = 'Idempotency-Key';
-    const IS_PAYMENT_RETRY_FIELD_NAME = 'isRetry';
     const PAYMENT_ID_FIELD_NAME = 'paymentId';
     const PAYMENT_METHOD_ID = 'paymentMethodId';
     const REDIRECT_URL_FIELD_NAME = 'redirectUrl';

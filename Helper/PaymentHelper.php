@@ -231,16 +231,10 @@ class PaymentHelper extends AbstractHelper
     /**
      * Returns return url
      *
-     * @param bool $forRetryPayment
-     *
      * @return string
      */
-    public function getContinueUrl(bool $forRetryPayment): string
+    public function getContinueUrl(): string
     {
-        if ($forRetryPayment) {
-            return $this->urlBuilder->getUrl('sales/order/history');
-        }
-
         return $this->urlBuilder->getUrl('checkout/onepage/success');
     }
 

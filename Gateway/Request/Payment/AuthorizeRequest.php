@@ -45,7 +45,6 @@ class AuthorizeRequest extends AbstractRequest implements BuilderInterface
 
         $referenceId        = $this->order->getOrderIncrementId();
         $paymentDescription = __('Order No: ') . $referenceId;
-        $isRetry = $this->payment->hasAdditionalInformation(PaymentField::IS_PAYMENT_RETRY_FIELD_NAME);
 
         $request['body'] = [
             PaymentField::AMOUNT_FIELD_NAME      => $this->helper->formatAmount($this->order->getGrandTotalAmount()),
@@ -58,7 +57,7 @@ class AuthorizeRequest extends AbstractRequest implements BuilderInterface
                 PaymentField::BUYER_LASTNAME_FIELD_NAME  => $this->order->getShippingAddress()->getLastname(),
                 PaymentField::BUYER_LOCALE               => $this->helper->getStoreLocale(),
             ],
-            PaymentField::CONTINUE_URL_FIELD_NAME => $this->helper->getContinueUrl($isRetry)
+            PaymentField::CONTINUE_URL_FIELD_NAME => $this->helper->getContinueUrl()
         ];
 
         if ($this->payment->hasAdditionalInformation(PaymentDataAssignObserver::PAYMENT_METHOD_ID)

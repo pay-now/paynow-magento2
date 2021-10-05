@@ -100,9 +100,7 @@ class Retry extends Action
      */
     private function authorizeNewPayment(OrderInterface $order)
     {
-        $paymentAuthorization = $order->getPayment()
-            ->setAdditionalInformation(PaymentField::IS_PAYMENT_RETRY_FIELD_NAME, true)
-            ->authorize(true, $order->getBaseTotalDue());
+        $paymentAuthorization = $order->getPayment()->authorize(true, $order->getBaseTotalDue());
         $redirectUrl = $paymentAuthorization->getAdditionalInformation(PaymentField::REDIRECT_URL_FIELD_NAME);
         $paymentId = $paymentAuthorization->getAdditionalInformation(PaymentField::PAYMENT_ID_FIELD_NAME);
 
