@@ -1,3 +1,6 @@
 .checkout-success-paynow{
     margin-bottom: 1.25rem;
 }
+.checkout-success-paynow--caption{
+    font-weight: bold;
+}
