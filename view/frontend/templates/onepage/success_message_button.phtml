@@ -3,7 +3,7 @@
 
 if ($block->shouldRetrieveStatus()) : ?>
     <div class="checkout-success-paynow">
-        <p class="checkout-success-paynow--caption"><?= $block->escapeHtml($block->getPaymentStatusPhrase()); ?></p>
+        <p><strong><?= $block->escapeHtml($block->getPaymentStatusPhrase()); ?></strong></p>
         <?php if ($block->canRetryPayment()) : ?>
             <p><?=$block->escapeHtml(__('Use the button below to retry payment')); ?></p>
             <div class="primary">
