@@ -69,21 +69,7 @@ class Success extends MagentoSuccess
         $this->paymentHelper = $paymentHelper;
         $this->logger = $logger;
         $this->notificationProcessor = $notificationProcessor;
-        $this->order = $this->_checkoutSession->getLastRealOrder();
-
-        if ($this->shouldRetrieveStatus()) {
-            $this->retrievePaymentStatusAndUpdateOrder();
-        }
-    }
-
-    /**
-     * @return bool
-     */
-    public function shouldRetrieveStatus()
-    {
-        return $this->getRequest()->getParam('paymentStatus') &&
-            $this->getRequest()->getParam('paymentId') &&
-            $this->order;
+        $this->order = $this->orderFactory->create()->loadByIncrementId($this->getData('order_id'));
     }
 
     /**
@@ -92,9 +78,7 @@ class Success extends MagentoSuccess
      */
     public function canRetryPayment(): bool
     {
-        $order = $this->orderFactory->create()->loadByIncrementId($this->getData('order_id'));
-
-        return $this->paymentHelper->isRetryPaymentActiveForOrder($order);
+        return $this->paymentHelper->isRetryPaymentActiveForOrder($this->order);
     }
 
     /**
@@ -112,7 +96,8 @@ class Success extends MagentoSuccess
      */
     public function getPaymentStatusPhrase()
     {
-        switch ($this->status) {
+        $status = $this->order->getPayment()->getAdditionalInformation(PaymentField::STATUS_FIELD_NAME);
+        switch ($status) {
             case Status::STATUS_REJECTED:
                 return __('Your payment has been rejected.');
             case Status::STATUS_ERROR:
@@ -124,25 +109,6 @@ class Success extends MagentoSuccess
                 return __('Your payment process has not been completed.');
             case Status::STATUS_CONFIRMED:
                 return __('Your payment has been completed.');
-        }
-    }
-
-    private function retrievePaymentStatusAndUpdateOrder()
-    {
-        $paymentId = $this->order->getPayment()->getAdditionalInformation(PaymentField::PAYMENT_ID_FIELD_NAME);
-        $loggerContext = [PaymentField::PAYMENT_ID_FIELD_NAME => $paymentId];
-        try {
-            $service = new Payment($this->paymentHelper->initializePaynowClient());
-            $paymentStatusObject  = $service->status($paymentId);
-            $this->status = $paymentStatusObject ->getStatus();
-            $this->logger->debug(
-                "Retrieved status response",
-                array_merge($loggerContext, [$this->status])
-            );
-            $this->notificationProcessor->process($paymentId, $this->status, $this->order->getIncrementId());
-
-        } catch (\Exception $exception) {
-            $this->logger->error($exception->getMessage(), $loggerContext);
         }
     }
 }
