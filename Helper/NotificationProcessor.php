@@ -179,14 +179,8 @@ class NotificationProcessor
     private function paymentExpired()
     {
         $message = __('Payment has been expired.');
-        if ($this->configHelper->isOrderStatusChangeActive()) {
-            $this->order
-                ->setState(Order::STATE_PAYMENT_REVIEW)
-                ->addStatusToHistory(Order::STATE_PAYMENT_REVIEW, $message);
-        } else {
-            $this->order->addCommentToStatusHistory($message);
-        }
-        $this->order->getPayment()->setIsClosed(true);
+        $this->order->addCommentToStatusHistory($message);
+        $this->order->getPayment()->deny();
     }
 
     /**
