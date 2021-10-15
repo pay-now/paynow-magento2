@@ -10,7 +10,6 @@ use Paynow\PaymentGateway\Model\Exception\OrderNotFound;
 use Paynow\PaymentGateway\Model\Exception\OrderPaymentStatusTransitionException;
 use Paynow\PaymentGateway\Model\Logger\Logger;
 
-
 /**
  * Class NotificationProcessor
  *
