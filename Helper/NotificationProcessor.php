@@ -108,7 +108,7 @@ class NotificationProcessor
 
     private function paymentPending()
     {
-        $message = __('Awaiting payment confirmation from Paynow.') . ' Transaction ID: ' . $this->order->getPayment()->getAdditionalInformation(PaymentField::PAYMENT_ID_FIELD_NAME);
+        $message = __('Awaiting payment confirmation from Paynow. Transaction ID: ') . $this->order->getPayment()->getAdditionalInformation(PaymentField::PAYMENT_ID_FIELD_NAME);
         if ($this->configHelper->isOrderStatusChangeActive()) {
             $this->order
                 ->setState(Order::STATE_PENDING_PAYMENT)
@@ -131,7 +131,7 @@ class NotificationProcessor
 
     private function paymentRejected()
     {
-        $message = __('Payment has not been authorized by the buyer.') . ' Transaction ID: ' . (string)$this->order->getPayment()->getAdditionalInformation(PaymentField::PAYMENT_ID_FIELD_NAME);
+        $message = __('Payment has not been authorized by the buyer. Transaction ID: ') . (string)$this->order->getPayment()->getAdditionalInformation(PaymentField::PAYMENT_ID_FIELD_NAME);
         if ($this->order->canCancel() && !$this->configHelper->isRetryPaymentActive()) {
             if ($this->configHelper->isOrderStatusChangeActive()) {
                 $this->order
@@ -162,7 +162,7 @@ class NotificationProcessor
      */
     private function paymentError()
     {
-        $message = __('Payment has been ended with an error.') . ' Transaction ID: ' . $this->order->getPayment()->getAdditionalInformation(PaymentField::PAYMENT_ID_FIELD_NAME);
+        $message = __('Payment has been ended with an error. Transaction ID: ') . $this->order->getPayment()->getAdditionalInformation(PaymentField::PAYMENT_ID_FIELD_NAME);
         if (!$this->configHelper->isRetryPaymentActive()) {
             if ($this->configHelper->isOrderStatusChangeActive()) {
                 $this->order
@@ -179,7 +179,7 @@ class NotificationProcessor
      */
     private function paymentExpired()
     {
-        $message = __('Payment has been expired.') . ' Transaction ID: ' . $this->order->getPayment()->getAdditionalInformation(PaymentField::PAYMENT_ID_FIELD_NAME);
+        $message = __('Payment has been expired. Transaction ID: ') . $this->order->getPayment()->getAdditionalInformation(PaymentField::PAYMENT_ID_FIELD_NAME);
         $this->order->addCommentToStatusHistory($message);
         $this->order->getPayment()->deny();
     }
