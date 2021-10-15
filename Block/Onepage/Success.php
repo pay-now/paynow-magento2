@@ -7,6 +7,7 @@ use Magento\Checkout\Model\Session;
 use Magento\Framework\App\Http\Context as AppContext;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Phrase;
+use Magento\Framework\UrlInterface;
 use Magento\Framework\View\Element\Template\Context;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Config;
@@ -48,10 +49,6 @@ class Success extends MagentoSuccess
      * @var Order
      */
     private $order;
-    /**
-     * @var string
-     */
-    private $status;
 
     public function __construct(
         Context $context,

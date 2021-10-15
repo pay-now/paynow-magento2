@@ -1,7 +1,7 @@
 <?php
 /** @var Paynow\PaymentGateway\Block\Onepage\Success $block */
 
-if ($block->shouldRetrieveStatus()) : ?>
+if ($block->getPaymentStatusPhrase()) : ?>
     <div class="checkout-success-paynow">
         <p><strong><?= $block->escapeHtml($block->getPaymentStatusPhrase()); ?></strong></p>
         <?php if ($block->canRetryPayment()) : ?>

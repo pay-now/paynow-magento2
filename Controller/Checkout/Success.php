@@ -11,8 +11,11 @@ use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Controller\Result\Redirect as ResponseRedirect;
 use Magento\Framework\Controller\ResultInterface;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\UrlInterface;
 use Magento\Sales\Model\Order;
+use Paynow\PaymentGateway\Helper\NotificationProcessor;
 use Paynow\PaymentGateway\Helper\PaymentField;
+use Paynow\PaymentGateway\Helper\PaymentHelper;
 use Paynow\PaymentGateway\Model\Logger\Logger;
 use Paynow\Service\Payment;
 
@@ -48,22 +51,45 @@ class Success extends Action
     private $request;
 
     /**
+     * @var UrlInterface
+     */
+    protected $urlBuilder;
+
+    /**
+     * @var PaymentHelper
+     */
+    private $paymentHelper;
+
+    /**
+     * @var NotificationProcessor
+     */
+    private $notificationProcessor;
+
+    /**
      * Redirect constructor.
      * @param Context $context
      * @param CheckoutSession $checkoutSession
      * @param Logger $logger
+     * @param UrlInterface $urlBuilder
+     * @param NotificationProcessor $notificationProcessor
+     * @param PaymentHelper $paymentHelper
      */
     public function __construct(
         Context $context,
         CheckoutSession $checkoutSession,
-        Logger $logger
+        Logger $logger,
+        UrlInterface $urlBuilder,
+        NotificationProcessor $notificationProcessor,
+        PaymentHelper $paymentHelper
     ) {
         parent::__construct($context);
         $this->checkoutSession = $checkoutSession;
         $this->logger = $logger;
         $this->redirectResult = $this->resultRedirectFactory->create();
         $this->request = $this->getRequest();
-
+        $this->urlBuilder = $urlBuilder;
+        $this->notificationProcessor = $notificationProcessor;
+        $this->paymentHelper = $paymentHelper;
         $this->order = $this->checkoutSession->getLastRealOrder();
     }
 
@@ -75,8 +101,8 @@ class Success extends Action
         if ($this->shouldRetrieveStatus()) {
             $this->retrievePaymentStatusAndUpdateOrder();
         }
-        $isRetry = $this->payment->hasAdditionalInformation(PaymentField::IS_PAYMENT_RETRY_FIELD_NAME);
-        $this->redirectResult->setUrl(getRedirectUrl($isRetry));
+        $isRetry = $this->order->getPayment()->hasAdditionalInformation(PaymentField::IS_PAYMENT_RETRY_FIELD_NAME);
+        $this->redirectResult->setUrl($this->getRedirectUrl($isRetry));
 
         return $this->redirectResult;
     }
