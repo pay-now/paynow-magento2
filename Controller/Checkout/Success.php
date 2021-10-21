@@ -98,10 +98,11 @@ class Success extends Action
      */
     public function execute()
     {
-        if ($this->shouldRetrieveStatus()) {
+        $isRetry = $this->order->getPayment()->hasAdditionalInformation(PaymentField::IS_PAYMENT_RETRY_FIELD_NAME);
+
+        if ($this->shouldRetrieveStatus() && ! $isRetry ) {
             $this->retrievePaymentStatusAndUpdateOrder();
         }
-        $isRetry = $this->order->getPayment()->hasAdditionalInformation(PaymentField::IS_PAYMENT_RETRY_FIELD_NAME);
         $this->redirectResult->setUrl($this->getRedirectUrl($isRetry));
 
         return $this->redirectResult;
@@ -118,17 +119,19 @@ class Success extends Action
 
     private function retrievePaymentStatusAndUpdateOrder()
     {
-        $paymentId = $this->order->getPayment()->getAdditionalInformation(PaymentField::PAYMENT_ID_FIELD_NAME);
-        $loggerContext = [PaymentField::PAYMENT_ID_FIELD_NAME => $paymentId];
+        $allPayments = $this->order->getAllPayments();
+        $lastPaymentId = end($allPayments)->getAdditionalInformation(PaymentField::PAYMENT_ID_FIELD_NAME);
+
+        $loggerContext = [PaymentField::PAYMENT_ID_FIELD_NAME => $lastPaymentId];
         try {
             $service = new Payment($this->paymentHelper->initializePaynowClient());
-            $paymentStatusObject  = $service->status($paymentId);
+            $paymentStatusObject  = $service->status($lastPaymentId);
             $status = $paymentStatusObject ->getStatus();
             $this->logger->debug(
                 "Retrieved status response",
                 array_merge($loggerContext, [$status])
             );
-            $this->notificationProcessor->process($paymentId, $status, $this->order->getIncrementId());
+            $this->notificationProcessor->process($lastPaymentId, $status, $this->order->getIncrementId());
 
         } catch (\Exception $exception) {
             $this->logger->error($exception->getMessage(), $loggerContext);

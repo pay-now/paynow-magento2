@@ -7,17 +7,15 @@ use Magento\Checkout\Model\Session;
 use Magento\Framework\App\Http\Context as AppContext;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Phrase;
-use Magento\Framework\UrlInterface;
 use Magento\Framework\View\Element\Template\Context;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Config;
-use Magento\Sales\Model\OrderFactory;
+use Magento\Sales\Api\Data\OrderInterfaceFactory;
 use Paynow\Model\Payment\Status;
 use Paynow\PaymentGateway\Helper\NotificationProcessor;
 use Paynow\PaymentGateway\Helper\PaymentField;
 use Paynow\PaymentGateway\Helper\PaymentHelper;
 use Paynow\PaymentGateway\Model\Logger\Logger;
-use Paynow\Service\Payment;
 
 /**
  * Class Success
@@ -26,11 +24,6 @@ use Paynow\Service\Payment;
  */
 class Success extends MagentoSuccess
 {
-    /**
-     * @var Magento\Sales\Model\OrderFactory
-     */
-    private $orderFactory;
-
     /**
      * @var PaymentHelper
      */
@@ -55,18 +48,16 @@ class Success extends MagentoSuccess
         Session $checkoutSession,
         Config $orderConfig,
         AppContext $httpContext,
-        OrderFactory  $orderFactory,
         PaymentHelper $paymentHelper,
         Logger $logger,
         NotificationProcessor $notificationProcessor,
         array $data = []
     ) {
         parent::__construct($context, $checkoutSession, $orderConfig, $httpContext, $data);
-        $this->orderFactory = $orderFactory;
         $this->paymentHelper = $paymentHelper;
         $this->logger = $logger;
         $this->notificationProcessor = $notificationProcessor;
-        $this->order = $this->orderFactory->create()->loadByIncrementId($this->getData('order_id'));
+        $this->order = $this->_checkoutSession->getLastRealOrder();
     }
 
     /**
@@ -93,7 +84,8 @@ class Success extends MagentoSuccess
      */
     public function getPaymentStatusPhrase()
     {
-        $status = $this->order->getPayment()->getAdditionalInformation(PaymentField::STATUS_FIELD_NAME);
+        $allPayments = $this->order->getAllPayments();
+        $status = end($allPayments)->getAdditionalInformation(PaymentField::STATUS_FIELD_NAME);
         switch ($status) {
             case Status::STATUS_REJECTED:
                 return __('Your payment has been rejected.');
