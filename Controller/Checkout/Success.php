@@ -100,7 +100,7 @@ class Success extends Action
     {
         $isRetry = $this->order->getPayment()->hasAdditionalInformation(PaymentField::IS_PAYMENT_RETRY_FIELD_NAME);
 
-        if ($this->shouldRetrieveStatus() && ! $isRetry ) {
+        if ($this->shouldRetrieveStatus() && ! $isRetry) {
             $this->retrievePaymentStatusAndUpdateOrder();
         }
         $this->redirectResult->setUrl($this->getRedirectUrl($isRetry));
@@ -147,5 +147,4 @@ class Success extends Action
             $this->getRequest()->getParam('paymentId') &&
             $this->order;
     }
-
 }
