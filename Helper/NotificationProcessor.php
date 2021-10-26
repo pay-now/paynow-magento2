@@ -2,6 +2,7 @@
 
 namespace Paynow\PaymentGateway\Helper;
 
+use Magento\Sales\Api\OrderManagementInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\OrderFactory;
 use Paynow\Model\Payment\Status;
@@ -42,11 +43,17 @@ class NotificationProcessor
      */
     private $configHelper;
 
-    public function __construct(OrderFactory $orderFactory, Logger $logger, ConfigHelper $configHelper)
+    /**
+     * @var OrderManagementInterface
+     */
+    private $orderManagement;
+
+    public function __construct(OrderFactory $orderFactory, Logger $logger, ConfigHelper $configHelper, OrderManagementInterface $orderManagement)
     {
         $this->orderFactory = $orderFactory;
         $this->logger = $logger;
         $this->configHelper = $configHelper;
+        $this->orderManagement = $orderManagement;
     }
 
     /**
@@ -127,15 +134,18 @@ class NotificationProcessor
             )
             ->setIsTransactionClosed(false);
 
-        $message = __('Awaiting new payment confirmation from Paynow. Transaction ID: ') . $paymentId;
-
-
-        $this->order
-            ->setState(Order::STATE_PENDING_PAYMENT)
-            ->addStatusToHistory(Order::STATE_PENDING_PAYMENT, $message);
-
         $this->order->setPayment($payment);
-        $this->orderRepository->save($this->order);
+        $this->order->save();
+
+        $message = __('New payment created for order. Transaction ID: ') . $paymentId;
+
+        if ($this->configHelper->isOrderStatusChangeActive()) {
+            $this->order
+                ->setState(Order::STATE_PENDING_PAYMENT)
+                ->addStatusToHistory(Order::STATE_PENDING_PAYMENT, $message);
+        } else {
+            $this->order->addCommentToStatusHistory($message);
+        }
     }
 
     private function paymentPending()
@@ -182,7 +192,7 @@ class NotificationProcessor
                 $this->order
                     ->setState(Order::STATE_CANCELED)
                     ->addStatusToHistory(Order::STATE_CANCELED, $message);
-                $this->order->cancel();
+                $this->orderManagement->cancel($this->order->getEntityId());
                 $this->logger->info('Order has been canceled', $this->loggerContext);
             } else {
                 $this->order->addCommentToStatusHistory($message);
@@ -239,7 +249,6 @@ class NotificationProcessor
     {
         $paymentStatusFlow = [
             Status::STATUS_NEW => [
-                Status::STATUS_NEW,
                 Status::STATUS_PENDING,
                 Status::STATUS_ERROR,
                 Status::STATUS_EXPIRED,
@@ -263,7 +272,8 @@ class NotificationProcessor
                 Status::STATUS_REJECTED,
                 Status::STATUS_ABANDONED
             ],
-            Status::STATUS_EXPIRED => []
+            Status::STATUS_EXPIRED => [],
+            Status::STATUS_ABANDONED => [Status::STATUS_NEW]
         ];
 
         $previousStatusExists = isset($paymentStatusFlow[$previousStatus]);
