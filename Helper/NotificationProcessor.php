@@ -86,6 +86,9 @@ class NotificationProcessor
         $this->order->getPayment()->setAdditionalInformation(PaymentField::STATUS_FIELD_NAME, $status);
 
         switch ($status) {
+            case Status::STATUS_NEW:
+                $this->paymentNew($paymentId);
+                break;
             case Status::STATUS_PENDING:
                 $this->paymentPending();
                 break;
@@ -101,8 +104,38 @@ class NotificationProcessor
             case Status::STATUS_EXPIRED:
                 $this->paymentExpired();
                 break;
+            case Status::STATUS_ABANDONED:
+                $this->paymentAbandoned();
+                break;
         }
         $this->order->save();
+    }
+
+    private function paymentNew($paymentId)
+    {
+        $payment = $this->order->getPayment();
+
+        $payment->setIsTransactionPending(true)
+            ->setTransactionId($paymentId)
+            ->setAdditionalInformation(
+                PaymentField::PAYMENT_ID_FIELD_NAME,
+                $paymentId
+            )
+            ->setAdditionalInformation(
+                PaymentField::STATUS_FIELD_NAME,
+                Status::STATUS_NEW
+            )
+            ->setIsTransactionClosed(false);
+
+        $message = __('Awaiting new payment confirmation from Paynow. Transaction ID: ') . $paymentId;
+
+
+        $this->order
+            ->setState(Order::STATE_PENDING_PAYMENT)
+            ->addStatusToHistory(Order::STATE_PENDING_PAYMENT, $message);
+
+        $this->order->setPayment($payment);
+        $this->orderRepository->save($this->order);
     }
 
     private function paymentPending()
@@ -116,6 +149,19 @@ class NotificationProcessor
             $this->order->addCommentToStatusHistory($message);
         }
         $this->order->getPayment()->setIsClosed(false);
+    }
+
+    private function paymentAbandoned()
+    {
+        $message = __('Payment has been abandoned. Transaction ID: ') . $this->order->getPayment()->getAdditionalInformation(PaymentField::PAYMENT_ID_FIELD_NAME);
+        if ($this->configHelper->isOrderStatusChangeActive()) {
+            $this->order
+                ->setState(Order::STATE_PENDING_PAYMENT)
+                ->addStatusToHistory(Order::STATE_PENDING_PAYMENT, $message);
+        } else {
+            $this->order->addCommentToStatusHistory($message);
+        }
+        $this->order->getPayment()->setIsClosed(true);
     }
 
     private function paymentConfirmed()
@@ -203,13 +249,19 @@ class NotificationProcessor
             Status::STATUS_PENDING => [
                 Status::STATUS_CONFIRMED,
                 Status::STATUS_REJECTED,
-                Status::STATUS_EXPIRED
+                Status::STATUS_EXPIRED,
+                Status::STATUS_ABANDONED
             ],
-            Status::STATUS_REJECTED => [Status::STATUS_PENDING, Status::STATUS_CONFIRMED],
+            Status::STATUS_REJECTED => [
+                Status::STATUS_PENDING,
+                Status::STATUS_CONFIRMED,
+                Status::STATUS_ABANDONED
+            ],
             Status::STATUS_CONFIRMED => [],
             Status::STATUS_ERROR => [
                 Status::STATUS_CONFIRMED,
-                Status::STATUS_REJECTED
+                Status::STATUS_REJECTED,
+                Status::STATUS_ABANDONED
             ],
             Status::STATUS_EXPIRED => []
         ];
