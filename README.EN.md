@@ -7,7 +7,7 @@
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg)](LICENSE)
 [![Total Downloads](https://img.shields.io/packagist/dt/pay-now/paynow-magento2)](https://packagist.org/packages/pay-now/paynow-magento2)
 
-The Paynow plugin adds quick bank transfers and BLIK payments to a WooCommerce shop.
+The Paynow plugin adds quick bank transfers and BLIK payments to a Magento shop.
 
 ## Table of Contents
 
