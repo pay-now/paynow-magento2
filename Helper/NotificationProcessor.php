@@ -2,7 +2,6 @@
 
 namespace Paynow\PaymentGateway\Helper;
 
-use Magento\Sales\Api\OrderManagementInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\OrderFactory;
 use Paynow\Model\Payment\Status;
@@ -43,17 +42,11 @@ class NotificationProcessor
      */
     private $configHelper;
 
-    /**
-     * @var OrderManagementInterface
-     */
-    private $orderManagement;
-
-    public function __construct(OrderFactory $orderFactory, Logger $logger, ConfigHelper $configHelper, OrderManagementInterface $orderManagement)
+    public function __construct(OrderFactory $orderFactory, Logger $logger, ConfigHelper $configHelper)
     {
         $this->orderFactory = $orderFactory;
         $this->logger = $logger;
         $this->configHelper = $configHelper;
-        $this->orderManagement = $orderManagement;
     }
 
     /**
@@ -187,29 +180,16 @@ class NotificationProcessor
     private function paymentRejected()
     {
         $message = __('Payment has not been authorized by the buyer. Transaction ID: ') . (string)$this->order->getPayment()->getAdditionalInformation(PaymentField::PAYMENT_ID_FIELD_NAME);
-        if ($this->order->canCancel() && !$this->configHelper->isRetryPaymentActive()) {
-            if ($this->configHelper->isOrderStatusChangeActive()) {
-                $this->order
-                    ->setState(Order::STATE_CANCELED)
-                    ->addStatusToHistory(Order::STATE_CANCELED, $message);
-                $this->orderManagement->cancel($this->order->getEntityId());
-                $this->logger->info('Order has been canceled', $this->loggerContext);
-            } else {
-                $this->order->addCommentToStatusHistory($message);
-            }
+        if ($this->configHelper->isOrderStatusChangeActive()) {
+            $this->order
+                ->setState(Order::STATE_PAYMENT_REVIEW)
+                ->addStatusToHistory(Order::STATE_PAYMENT_REVIEW, $message);
+            $this->logger->info('Order has been canceled', $this->loggerContext);
         } else {
-            if ($this->configHelper->isOrderStatusChangeActive()) {
-                $this->order
-                    ->setState(Order::STATE_PAYMENT_REVIEW)
-                    ->addStatusToHistory(Order::STATE_PAYMENT_REVIEW, $message);
-                $this->logger->warning(
-                    'Order has not been canceled because retry payment is active',
-                    $this->loggerContext
-                );
-            } else {
-                $this->order->addCommentToStatusHistory($message);
-            }
+            $this->order->addCommentToStatusHistory($message);
         }
+
+            $this->order->getPayment()->setIsClosed(true);
     }
 
     /**
@@ -218,14 +198,12 @@ class NotificationProcessor
     private function paymentError()
     {
         $message = __('Payment has been ended with an error. Transaction ID: ') . $this->order->getPayment()->getAdditionalInformation(PaymentField::PAYMENT_ID_FIELD_NAME);
-        if (!$this->configHelper->isRetryPaymentActive()) {
-            if ($this->configHelper->isOrderStatusChangeActive()) {
-                $this->order
-                    ->setState(Order::STATE_PAYMENT_REVIEW)
-                    ->addStatusToHistory(Order::STATE_PAYMENT_REVIEW, $message);
-            } else {
-                $this->order->addCommentToStatusHistory($message);
-            }
+        if ($this->configHelper->isOrderStatusChangeActive()) {
+            $this->order
+                ->setState(Order::STATE_PAYMENT_REVIEW)
+                ->addStatusToHistory(Order::STATE_PAYMENT_REVIEW, $message);
+
+            $this->order->getPayment()->setIsClosed(true);
         }
     }
 
@@ -264,13 +242,15 @@ class NotificationProcessor
             Status::STATUS_REJECTED => [
                 Status::STATUS_PENDING,
                 Status::STATUS_CONFIRMED,
-                Status::STATUS_ABANDONED
+                Status::STATUS_ABANDONED,
+                Status::STATUS_NEW
             ],
             Status::STATUS_CONFIRMED => [],
             Status::STATUS_ERROR => [
                 Status::STATUS_CONFIRMED,
                 Status::STATUS_REJECTED,
-                Status::STATUS_ABANDONED
+                Status::STATUS_ABANDONED,
+                Status::STATUS_NEW
             ],
             Status::STATUS_EXPIRED => [],
             Status::STATUS_ABANDONED => [Status::STATUS_NEW]
