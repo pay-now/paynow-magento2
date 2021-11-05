@@ -2,7 +2,9 @@
 
 namespace Paynow\PaymentGateway\Helper;
 
+use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Payment\Transaction;
 use Magento\Sales\Model\OrderFactory;
 use Paynow\Model\Payment\Status;
 use Paynow\PaymentGateway\Model\Exception\OrderHasBeenAlreadyPaidException;
@@ -42,11 +44,17 @@ class NotificationProcessor
      */
     private $configHelper;
 
-    public function __construct(OrderFactory $orderFactory, Logger $logger, ConfigHelper $configHelper)
+    /**
+     * @var OrderRepositoryInterface
+     */
+    private $orderRepository;
+
+    public function __construct(OrderFactory $orderFactory, Logger $logger, ConfigHelper $configHelper, OrderRepositoryInterface $orderRepository)
     {
         $this->orderFactory = $orderFactory;
         $this->logger = $logger;
         $this->configHelper = $configHelper;
+        $this->orderRepository = $orderRepository;
     }
 
     /**
@@ -108,15 +116,18 @@ class NotificationProcessor
                 $this->paymentAbandoned();
                 break;
         }
-        $this->order->save();
+        $this->orderRepository->save($this->order);
     }
 
     private function paymentNew($paymentId)
     {
         $payment = $this->order->getPayment();
 
-        $payment->setIsTransactionPending(true)
+        $payment
+            ->setIsTransactionPending(true)
             ->setTransactionId($paymentId)
+            ->setLastTransId($paymentId)
+            ->setIsTransactionClosed(false)
             ->setAdditionalInformation(
                 PaymentField::PAYMENT_ID_FIELD_NAME,
                 $paymentId
@@ -124,11 +135,10 @@ class NotificationProcessor
             ->setAdditionalInformation(
                 PaymentField::STATUS_FIELD_NAME,
                 Status::STATUS_NEW
-            )
-            ->setIsTransactionClosed(false);
-
+            );
+        $payment->addTransaction(Transaction::TYPE_AUTH);
         $this->order->setPayment($payment);
-        $this->order->save();
+        $this->orderRepository->save($this->order);
 
         $message = __('New payment created for order. Transaction ID: ') . $paymentId;
 
