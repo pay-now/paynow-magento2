@@ -49,8 +49,12 @@ class NotificationProcessor
      */
     private $orderRepository;
 
-    public function __construct(OrderFactory $orderFactory, Logger $logger, ConfigHelper $configHelper, OrderRepositoryInterface $orderRepository)
-    {
+    public function __construct(
+        OrderFactory $orderFactory,
+        Logger $logger,
+        ConfigHelper $configHelper,
+        OrderRepositoryInterface $orderRepository
+    ) {
         $this->orderFactory = $orderFactory;
         $this->logger = $logger;
         $this->configHelper = $configHelper;
