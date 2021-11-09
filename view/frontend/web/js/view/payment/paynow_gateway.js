@@ -27,7 +27,7 @@ define(
             rendererList.push(
                 {
                     type: 'paynow_blik_gateway',
-                    component: 'Paynow_PaymentGateway/js/view/payment/method-renderer/paynow_blik_gateway'
+                    component: 'Paynow_PaymentGateway/js/view/payment/paynow_blik_gateway'
                 }
             );
         }
