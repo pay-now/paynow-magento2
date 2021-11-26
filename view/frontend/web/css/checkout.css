@@ -47,3 +47,34 @@
 .paynow-payment-option.disabled div {
     cursor: not-allowed;
 }
+
+.paynow-payment-option-blik {
+    padding: 1rem;
+}
+
+.paynow-payment-option-blik .paynow-data-processing-info {
+    margin-top: 1rem;
+}
+
+.paynow-payment-option-blik label {
+    display: inline-block;
+    text-align: left;
+}
+
+.paynow-payment-option-blik input[type=text] {
+    letter-spacing: 3px;
+}
+
+.paynow-data-processing-info {
+    color: #797979;
+    text-align: justify;
+}
+
+.payment-form .paynow-data-processing-info {
+    font-size: 0.7rem;
+}
+
+.paynow-data-processing-info ul {
+    list-style-type: lower-alpha;
+    margin: 0 1rem;
+}

@@ -24,7 +24,7 @@
     "magento/module-payment": ">=100.2",
     "magento/module-sales": ">=101",
     "nyholm/psr7": "^1.2",
-    "pay-now/paynow-php-sdk": "^2.1.3",
+    "pay-now/paynow-php-sdk": "^2.2",
     "php": ">=7.1",
     "php-http/curl-client": "^2.1",
     "ext-json": "*"

@@ -1,0 +1,13 @@
+<div class="paynow-data-processing-info">
+    <!-- ko foreach: getDataProcessingNotices() -->
+    <div class="paynow-data-processing-info" data-bind="mageInit: {'collapsible':{'openedState': '_active'}}">
+        <span data-bind="text: title"> </span>
+        <!-- ko if: content -->
+        <a data-role="title" data-role="title" data-bind="i18n: ' Read more'"></a>
+        <div data-role="content">
+            <p data-bind="text: content" data-role="content" ></p>
+        </div>
+        <!-- /ko -->
+    </div>
+    <!-- /ko -->
+</div>

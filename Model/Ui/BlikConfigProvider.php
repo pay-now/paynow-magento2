@@ -28,6 +28,7 @@ class BlikConfigProvider extends ConfigProvider implements ConfigProviderInterfa
                              && $this->configHelper->isBlikActive()
                              && $blikPaymentMethod
                              && $blikPaymentMethod->isEnabled();
+        $dataProcessingNotices = $this->dataProcessingNotesHelper->getNotes();
 
         return [
             'payment' => [
@@ -35,7 +36,8 @@ class BlikConfigProvider extends ConfigProvider implements ConfigProviderInterfa
                     'isActive'        => $isActive,
                     'logoPath'        => $blikPaymentMethod ? $blikPaymentMethod->getImage() : null,
                     'redirectUrl'     => $this->getRedirectUrl(),
-                    'paymentMethodId' => $blikPaymentMethod ? $blikPaymentMethod->getId(): null
+                    'paymentMethodId' => $blikPaymentMethod ? $blikPaymentMethod->getId(): null,
+                    'dataProcessingNotices' => $dataProcessingNotices
                 ]
             ]
         ];

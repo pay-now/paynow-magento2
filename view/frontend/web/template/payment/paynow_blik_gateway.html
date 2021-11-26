@@ -10,6 +10,19 @@
         </label>
     </div>
     <div class="payment-method-content">
+
+        <div class="paynow-payment-option-blik">
+            <label for="paynow_blik_code">
+                <span data-bind="i18n: 'Enter the BLIK code'"></span>
+            </label>
+            <div>
+                <input autocomplete="off" inputmode="numeric" pattern="[0-9]*" minlength="6" maxlength="6" size="6" id="paynow_blik_code" name="blikCode" type="text" placeholder="___ ___" value="" class="required form-control">
+            </div>
+            <!-- ko if: getDataProcessingNotices() -->
+            <div data-bind="template: 'Paynow_PaymentGateway/payment/data_processing_info'"></div>
+            <!--/ko-->
+        </div>
+
         <!-- ko foreach: getRegion('messages') -->
         <!-- ko template: getTemplate() --><!-- /ko -->
         <!--/ko-->

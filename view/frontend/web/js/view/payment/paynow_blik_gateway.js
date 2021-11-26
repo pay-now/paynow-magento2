@@ -68,6 +68,10 @@ define(
             isButtonActive: function () {
                 return this.getCode() === this.isChecked();
             },
+            getDataProcessingNotices: function () {
+                console.log(window.checkoutConfig.payment.paynow_blik_gateway.dataProcessingNotices);
+                return window.checkoutConfig.payment.paynow_blik_gateway.dataProcessingNotices;
+            },
             getData: function () {
                 return {
                     'method': this.item.method,

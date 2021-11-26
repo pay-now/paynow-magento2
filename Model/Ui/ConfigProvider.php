@@ -6,6 +6,7 @@ use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\UrlInterface;
 use Paynow\PaymentGateway\Helper\ConfigHelper;
+use Paynow\PaymentGateway\Helper\DataProcessingNotesHelper;
 use Paynow\PaymentGateway\Helper\PaymentHelper;
 use Paynow\PaymentGateway\Helper\PaymentMethodsHelper;
 
@@ -44,6 +45,11 @@ class ConfigProvider
     protected $paymentMethodsHelper;
 
     /**
+     * @var DataProcessingNotesHelper
+     */
+    protected $dataProcessingNotesHelper;
+
+    /**
      * @var CheckoutSession
      */
     protected $checkoutSession;
@@ -53,6 +59,7 @@ class ConfigProvider
         RequestInterface $request,
         PaymentHelper $paymentHelper,
         PaymentMethodsHelper $paymentMethodsHelper,
+        DataProcessingNotesHelper $dataProcessingNotesHelper,
         ConfigHelper $configHelper,
         CheckoutSession $checkoutSession
     ) {
@@ -62,6 +69,7 @@ class ConfigProvider
         $this->paymentMethodsHelper = $paymentMethodsHelper;
         $this->configHelper         = $configHelper;
         $this->checkoutSession      = $checkoutSession;
+        $this->dataProcessingNotesHelper = $dataProcessingNotesHelper;
     }
 
     /**
