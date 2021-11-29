@@ -2,13 +2,10 @@
 
 namespace Paynow\PaymentGateway\Helper;
 
-use Magento\Framework\Exception\NoSuchEntityException;
+use Paynow\Client;
 use Paynow\Exception\PaynowException;
-use Paynow\Model\PaymentMethods\PaymentMethod;
-use Paynow\Model\PaymentMethods\Type;
 use Paynow\PaymentGateway\Model\Logger\Logger;
 use Paynow\Service\DataProcessing;
-use Paynow\Service\Payment;
 
 /**
  * Class DataProcessingNotesHelper
@@ -17,6 +14,11 @@ use Paynow\Service\Payment;
  */
 class DataProcessingNotesHelper
 {
+    /**
+     * @var Client
+     */
+    private $client;
+
     /**
      * @var PaymentHelper
      */
@@ -37,17 +39,34 @@ class DataProcessingNotesHelper
         $this->paymentHelper = $paymentHelper;
         $this->logger        = $logger;
         $this->configHelper  = $configHelper;
+        $this->client = $this->paymentHelper->initializePaynowClient();
     }
 
-    public function getNotes()
+    public function getNotices()
     {
-        $notes = [];
+            $gdpr_notices = $this->retrieve();
+            $notices      = [];
+        if ($gdpr_notices) {
+            foreach ($gdpr_notices as $notice) {
+                array_push($notices, [
+                    'title'   => $notice->getTitle(),
+                    'content' => $notice->getContent()
+                ]);
+            }
+        }
+
+        return $notices;
+    }
+
+    public function retrieve()
+    {
         try {
-            $notes  = new DataProcessing($this->paymentHelper->getStoreLocale());
+            $this->logger->info("Retrieving GDPR notices");
+            return (new DataProcessing($this->client))->getNotices($this->paymentHelper->getStoreLocale())->getAll();
         } catch (PaynowException $exception) {
             $this->logger->error($exception->getMessage());
         }
 
-        return $notes;
+        return null;
     }
 }

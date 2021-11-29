@@ -59,10 +59,17 @@
 .paynow-payment-option-blik label {
     display: inline-block;
     text-align: left;
+    font-weight: 700;
+    margin-right: 2rem;
 }
 
 .paynow-payment-option-blik input[type=text] {
-    letter-spacing: 3px;
+    letter-spacing: 10px;
+    display: inline-block;
+    width: 150px;
+    text-align: center;
+    padding: 1.75rem;
+    background: #f6f6f6;
 }
 
 .paynow-data-processing-info {

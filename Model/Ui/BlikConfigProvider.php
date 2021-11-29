@@ -28,7 +28,7 @@ class BlikConfigProvider extends ConfigProvider implements ConfigProviderInterfa
                              && $this->configHelper->isBlikActive()
                              && $blikPaymentMethod
                              && $blikPaymentMethod->isEnabled();
-        $dataProcessingNotices = $this->dataProcessingNotesHelper->getNotes();
+        $dataProcessingNotices = $this->dataProcessingNotesHelper->getNotices();
 
         return [
             'payment' => [
