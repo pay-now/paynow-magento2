@@ -68,9 +68,9 @@ define(
             isButtonActive: function () {
                 return this.getCode() === this.isChecked();
             },
-            getDataProcessingNotices: function () {
-                console.log(window.checkoutConfig.payment.paynow_blik_gateway.dataProcessingNotices);
-                return window.checkoutConfig.payment.paynow_blik_gateway.dataProcessingNotices;
+            getGDPRNotices: function () {
+                console.log(window.checkoutConfig.payment.paynow_blik_gateway.GDPRNotices);
+                return window.checkoutConfig.payment.paynow_blik_gateway.GDPRNotices;
             },
             getData: function () {
                 return {

@@ -11,11 +11,11 @@ use Paynow\PaymentGateway\Model\Logger\Logger;
 use Paynow\Service\DataProcessing;
 
 /**
- * Class DataProcessingNotesHelper
+ * Class GDPRHelper
  *
  * @package Paynow\PaymentGateway\Helper
  */
-class DataProcessingNotesHelper
+class GDPRHelper
 {
     /**
      * @var Client
@@ -86,7 +86,6 @@ class DataProcessingNotesHelper
             $unserialized = $this->serializer->unserialize($gdpr_notices);
             if ($unserialized) {
                 foreach ($unserialized as $notice) {
-
                     array_push($notices, [
                         'title' => $notice["title"],
                         'content' => $notice["content"]
