@@ -97,7 +97,7 @@ class GDPRHelper
         return $notices;
     }
 
-    public function retrieve()
+    private function retrieve()
     {
         try {
             $this->logger->info("Retrieving GDPR notices");
