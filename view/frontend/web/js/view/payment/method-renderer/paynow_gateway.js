@@ -46,7 +46,24 @@ define(
                 }
                 if (emailValidationResult && this.validate() && additionalValidators.validate()) {
                     this.isPlaceOrderActionAllowed(false);
-                    placeOrder = placeOrderAction(this.getData(), false, this.messageContainer);
+                    placeOrder = function () {
+                        $.ajax({
+                            url: 'chargeblik' + window.location.search,
+                            dataType: 'json',
+                            type: 'get',
+                            success: function (message) {
+                                status.text(message.order_status);
+                                if (message.payment_status === "CONFIRMED") {
+                                    clearInterval(pollPaymentStatus);
+                                    redirectToReturn();
+                                }
+                            },
+                            error: function () {
+                                redirectToReturn();
+                            }
+                        });
+                    };
+
 
                     $.when(placeOrder).fail(function () {
                         self.isPlaceOrderActionAllowed(true);
