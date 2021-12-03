@@ -11,6 +11,7 @@
     </div>
     <div class="payment-method-content">
 
+        <!-- ko if: isWhiteLabelEnabled() -->
         <div class="paynow-payment-option-blik">
             <label for="paynow_blik_code">
                 <span data-bind="i18n: 'Enter the BLIK code'"></span>
@@ -20,6 +21,7 @@
             <div data-bind="template: 'Paynow_PaymentGateway/payment/data_processing_info'"></div>
             <!--/ko-->
         </div>
+        <!--/ko-->
 
         <!-- ko foreach: getRegion('messages') -->
         <!-- ko template: getTemplate() --><!-- /ko -->

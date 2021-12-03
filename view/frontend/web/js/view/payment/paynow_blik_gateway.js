@@ -69,8 +69,10 @@ define(
                 return this.getCode() === this.isChecked();
             },
             getGDPRNotices: function () {
-                console.log(window.checkoutConfig.payment.paynow_blik_gateway.GDPRNotices);
                 return window.checkoutConfig.payment.paynow_blik_gateway.GDPRNotices;
+            },
+            isWhiteLabelEnabled: function () {
+                return window.checkoutConfig.payment.paynow_blik_gateway.whiteLabel
             },
             getData: function () {
                 return {
