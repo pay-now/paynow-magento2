@@ -83,7 +83,7 @@ class NotificationProcessor
         }
 
         $paymentAdditionalInformation = $this->order->getPayment()->getAdditionalInformation();
-        $orderPaymentStatus = $paymentAdditionalInformation[PaymentField::STATUS_FIELD_NAME];
+        $orderPaymentStatus = $paymentAdditionalInformation[PaymentField::STATUS_FIELD_NAME] ?? null;
         $finalPaymentStatus = $orderPaymentStatus == Status::STATUS_CONFIRMED;
 
         if ($finalPaymentStatus) {

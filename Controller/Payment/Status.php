@@ -2,52 +2,55 @@
 
 namespace Paynow\PaymentGateway\Controller\Payment;
 
+use Magento\Framework\App\Action\Action;
+use Magento\Framework\App\Action\Context;
+use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\OrderFactory;
-use Magento\Framework\Controller\Result\JsonFactory;
 use Paynow\PaymentGateway\Helper\PaymentField;
 
+/**
+ * Class Status
+ *
+ * @package Paynow\PaymentGateway\Controller\Payment
+ */
 class Status extends Action
 {
-    /**
-     * @var Magento\Sales\Model\OrderFactory
-     */
-    private $orderFactory;
-
     /**
      * @var JsonFactory
      */
     private $resultJsonFactory;
 
-    public function __construct(Context $context, OrderFactory $orderFactory, JsonFactory $resultJsonFactory)
+    /**
+     * @var OrderFactory
+     */
+    private $orderFactory;
+
+    public function __construct(OrderFactory $orderFactory, JsonFactory $resultJsonFactory, Context $context)
     {
+        parent::__construct($context);
         $this->orderFactory = $orderFactory;
         $this->resultJsonFactory = $resultJsonFactory;
-        parent::__construct($context);
     }
 
     public function execute()
     {
-        $result = $this->resultJsonFactory->create();
-        $orderId = (int)$this->getRequest()->getParams()['order_id'];
-        /** @var Order */
-        $order = $this->orderFactory->create()->loadByIncrementId($orderId);
+        $resultJson = $this->resultJsonFactory->create();
+        $id_order = $this->getRequest()->getParam('id_order');
 
+        /** @var Order */
+        $order = $this->orderFactory->create()->loadByIncrementId($id_order);
         if (!$order->getId()) {
-            return $result->setStatusHeader(404);
+            return $resultJson->setStatusHeader(404, null, 'Not Found');
         }
 
         $paymentAdditionalInformation = $order->getPayment()->getAdditionalInformation();
-        $orderPaymentStatus = $paymentAdditionalInformation[PaymentField::STATUS_FIELD_NAME];
+        $paymentStatus = $paymentAdditionalInformation[PaymentField::STATUS_FIELD_NAME] ?? null;
 
-//        if ($this->getRequest()->isAjax()) {
-            $data = [
-                'order_status'   => $order->getStatus(), //getStatusLabel()
-                'payment_status' => $orderPaymentStatus
-            ];
-            return $result->setData($data);
-//        }
-
-//        return null;
+        return $resultJson->setData([
+            'order_status'   => $order->getStatus(),
+            'order_status_label'   => $order->getStatusLabel(),
+            'payment_status' => $paymentStatus
+        ]);
     }
 }
