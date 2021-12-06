@@ -85,3 +85,7 @@
     list-style-type: lower-alpha;
     margin: 0 1rem;
 }
+
+.paynow-data-processing-info .expand {
+    cursor: pointer;
+}
