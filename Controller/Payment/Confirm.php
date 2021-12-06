@@ -1,13 +1,13 @@
 <?php
 
-namespace Paynow\PaymentGateway\Controller\Checkout;
+namespace Paynow\PaymentGateway\Controller\Payment;
 
 use Magento\Framework\App\Action\Action;
 
 /**
  * Class Confirm
  *
- * @package Paynow\PaymentGateway\Controller\Checkout
+ * @package Paynow\PaymentGateway\Controller\Payment
  */
 class Confirm extends Action
 {
@@ -23,6 +23,8 @@ class Confirm extends Action
 
     public function execute()
     {
-        return $this->pageFactory->create();
+        $resultPage = $this->pageFactory->create();
+        $resultPage->addHandle('paynow_payment_confirm');
+        return $resultPage;
     }
 }
