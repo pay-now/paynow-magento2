@@ -2,22 +2,28 @@
 
 namespace Paynow\PaymentGateway\Controller\Payment;
 
-use Magento\Framework\App\Action\Action;
+use Magento\Framework\View\Result\PageFactory;
 
 /**
  * Class Confirm
  *
  * @package Paynow\PaymentGateway\Controller\Payment
  */
-class Confirm extends Action
+class Confirm extends \Magento\Framework\App\Action\Action
 {
+
+    /**
+     * @var PageFactory
+     */
     protected $pageFactory;
 
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
-        \Magento\Framework\View\Result\PageFactory $pageFactory
+        PageFactory $pageFactory
     ) {
+
         $this->pageFactory = $pageFactory;
+
         return parent::__construct($context);
     }
 
