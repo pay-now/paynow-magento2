@@ -1,14 +1,22 @@
 <?php
+namespace Paynow\PaymentGateway\Controller\Checkout;
 
+use Magento\Checkout\Model\Session;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
+use Magento\Framework\App\Request\Http;
 use Magento\Framework\Controller\Result\JsonFactory;
+use Magento\Quote\Api\CartManagementInterface;
+use Paynow\PaymentGateway\Helper\NotificationProcessor;
+use Paynow\PaymentGateway\Helper\PaymentDataBuilder;
 use Paynow\Client;
 use Paynow\Exception\PaynowException;
 use Paynow\PaymentGateway\Helper\PaymentHelper;
+use Paynow\PaymentGateway\Model\Logger\Logger;
 use Paynow\Service\Payment;
+use Paynow\Model\Payment\Status;
 
-class PaynowChargeBlikModuleFrontController extends Action
+class ChargeBlik extends Action
 {
     /**
      * @var Client
@@ -35,19 +43,52 @@ class PaynowChargeBlikModuleFrontController extends Action
      */
     private $paymentHelper;
 
-    public function __construct(JsonFactory $resultJsonFactory, Context $context, Session $checkoutSession, PaymentDataBuilder $paymentDataBuilder, PaymentHelper $paymentHelper)
-    {
+    /**
+     * @var Http
+     */
+    protected $request;
+
+    /**
+     * @var Logger
+     */
+    private $logger;
+
+    /**
+     * @var CartManagementInterface
+     */
+    protected $quoteManagement;
+
+    /**
+     * @var NotificationProcessor
+     */
+    private $notificationProcessor;
+
+    public function __construct(
+        JsonFactory $resultJsonFactory,
+        Context $context,
+        Session $checkoutSession,
+        PaymentDataBuilder $paymentDataBuilder,
+        PaymentHelper $paymentHelper,
+        Http $request,
+        Logger $logger,
+        CartManagementInterface $quoteManagement,
+        NotificationProcessor $notificationProcessor
+    ) {
         parent::__construct($context);
         $this->resultJsonFactory = $resultJsonFactory;
         $this->checkoutSession = $checkoutSession;
         $this->paymentDataBuilder = $paymentDataBuilder;
         $this->paymentHelper = $paymentHelper;
         $this->client = $paymentHelper->initializePaynowClient();
+        $this->request = $request;
+        $this->logger = $logger;
+        $this->quoteManagement = $quoteManagement;
+        $this->notificationProcessor = $notificationProcessor;
     }
 
     public function execute()
     {
-        $this->executePayment();
+        return $this->executePayment();
     }
 
     private function executePayment()
@@ -58,42 +99,35 @@ class PaynowChargeBlikModuleFrontController extends Action
             'success' => false
         ];
 
-            $cart = $this->checkoutSession->getQuote();
-        if (empty($cart) || ! $cart->getId()) {
-            return $resultJson->setData($response);
+            $quote = $this->checkoutSession->getQuote();
+        if (empty($quote) || ! $quote->getId()) {
+            $resultJson->setData($response);
+            return $resultJson;
         }
 
         try {
-            $external_id          = $cart->getId();
+            $external_id          = $quote->getId();
             $idempotency_key      = uniqid($external_id . '_');
-            $payment_request_data = $this->paymentDataBuilder->fromCart();
+            $blikCode = $this->request->getParam('blikCode');
+            $payment_request_data = $this->paymentDataBuilder->fromCart($blikCode);
              $service = new Payment($this->client);
             $payment              = $service->authorize($payment_request_data, $idempotency_key);
 
             if ($payment && in_array($payment->getStatus(), [
-                    Paynow\Model\Payment\Status::STATUS_NEW,
-                    Paynow\Model\Payment\Status::STATUS_PENDING
+                    Status::STATUS_NEW,
+                    Status::STATUS_PENDING
                 ])) {
-//                $order    = new Order($this->createOrder($cart));
+
+                $order = $this->createOrder($quote);
+
                 $response = array_merge($response, [
                     'success'      => true,
                     'payment_id'   => $payment->getPaymentId()
                 ]);
 
-//                if ($order->id) {
-//                    PaynowPaymentData::create(
-//                        $payment->getPaymentId(),
-//                        Paynow\Model\Payment\Status::STATUS_NEW,
-//                        $order->id,
-//                        $order->id_cart,
-//                        $order->reference,
-//                        $payment_request_data['externalId']
-//                    );
-//                }
-                PaynowLogger::info(
-                    'Payment has been successfully created {orderReference={}, paymentId={}, status={}}',
+                $this->logger->info(
+                    'Payment has been successfully created { paymentId={}, status={}}',
                     [
-//                        $order->reference,
                         $payment->getPaymentId(),
                         $payment->getStatus()
                     ]
@@ -117,26 +151,22 @@ class PaynowChargeBlikModuleFrontController extends Action
             }
         }
 
-        return $resultJson->setData($response);
+         $resultJson->setData($response);
+        return $resultJson;
     }
 
-    private function createOrder($cart)
+    /**
+     * @param $quote
+     * @return mixed
+     */
+    private function createOrder($quote)
     {
-        $currency = $this->context->currency;
-        $customer = new Customer($cart->id_customer);
+        $order = $this->quoteManagement->submit($quote);
 
-        $this->module->validateOrder(
-            (int)$cart->id,
-            Configuration::get('PAYNOW_ORDER_INITIAL_STATE'),
-            (float)$cart->getOrderTotal(),
-            $this->module->displayName,
-            null,
-            null,
-            (int)$currency->id,
-            false,
-            $customer->secure_key
-        );
+        $this->checkoutSession
+            ->setLastOrderId($order->getId())
+            ->setLastRealOrderId($order->getIncrementId());
 
-        return $this->module->currentOrder;
+        return $order;
     }
 }

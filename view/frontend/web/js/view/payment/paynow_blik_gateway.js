@@ -1,6 +1,7 @@
 define(
     [
         'jquery',
+        'ko',
         'Magento_Checkout/js/view/payment/default',
         'Magento_Checkout/js/model/url-builder',
         'Magento_Checkout/js/action/place-order',
@@ -8,10 +9,11 @@ define(
         'Magento_Customer/js/model/customer',
         'Magento_Checkout/js/checkout-data',
         'Magento_Checkout/js/model/payment/additional-validators',
-        'mage/url',
+        'mage/url'
     ],
     function (
         $,
+        ko,
         Component,
         urlBuilder,
         placeOrderAction,
@@ -27,6 +29,7 @@ define(
                 template: 'Paynow_PaymentGateway/payment/paynow_blik_gateway',
                 paymentMethodId: null
             },
+            blikCodeValue: ko.observable(''),
             getCode: function () {
                 return 'paynow_blik_gateway';
             },
@@ -45,9 +48,9 @@ define(
                 if (emailValidationResult && this.validate() && additionalValidators.validate()) {
                     this.isPlaceOrderActionAllowed(false);
                     placeOrder = placeOrderAction(this.getData(), false, this.messageContainer);
-
                     $.when(placeOrder).fail(function () {
                         self.isPlaceOrderActionAllowed(true);
+                        self.blikCodeValue('');
                     }).done(this.afterPlaceOrder.bind(this));
                     return true;
                 }
@@ -60,23 +63,30 @@ define(
                 return true;
             },
             afterPlaceOrder: function () {
-                window.location.replace(window.checkoutConfig.payment.paynow_blik_gateway.redirectUrl);
+                if(window.checkoutConfig.payment.paynow_blik_gateway.isWhiteLabel){
+                    window.location.replace('confirmBlik' + window.location.search)
+                } else {
+                    window.location.replace(window.checkoutConfig.payment.paynow_blik_gateway.redirectUrl);
+                }
             },
             getLogoPath: function () {
                 return window.checkoutConfig.payment.paynow_blik_gateway.logoPath;
             },
-            isButtonActive: function () {
+            isPaymentMethodActive:function () {
                 return this.getCode() === this.isChecked();
-            },
+                },
+            isButtonActive: function () {
+                return window.checkoutConfig.payment.paynow_blik_gateway.isWhiteLabel ? this.blikCodeValue().length === 6 && !isNaN(this.blikCodeValue()) && parseInt(this.blikCodeValue()) : true},
             getGDPRNotices: function () {
-                console.log(window.checkoutConfig.payment.paynow_blik_gateway.GDPRNotices);
                 return window.checkoutConfig.payment.paynow_blik_gateway.GDPRNotices;
             },
             getData: function () {
+                const blikCode = $('#paynow_blik_code').val();
                 return {
                     'method': this.item.method,
                     'additional_data': {
-                        'payment_method_id': this.paymentMethodId
+                        'payment_method_id': this.paymentMethodId,
+                        'blik_code': blikCode
                     }
                 };
             }

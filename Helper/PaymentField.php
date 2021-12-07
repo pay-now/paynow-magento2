@@ -27,4 +27,5 @@ class PaymentField
     const STATUS_FIELD_NAME = 'status';
     const ORDER_ITEMS = 'orderItems';
     const VALIDITY_TIME = 'validityTime';
+    const AUTHORIZATION_CODE = 'authorizationCode';
 }

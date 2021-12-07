@@ -1,8 +1,7 @@
 <?php
 
-use Paynow\PaymentGateway\Helper\ConfigHelper;
-use Paynow\PaymentGateway\Helper\PaymentField;
-use Paynow\PaymentGateway\Helper\PaymentHelper;
+namespace Paynow\PaymentGateway\Helper;
+
 use Magento\Checkout\Model\Session;
 
 class PaymentDataBuilder
@@ -32,17 +31,20 @@ class PaymentDataBuilder
     /**
      * Returns payment request data based on cart
      *
+     * @param $blikCode
      * @return array
-     * @throws Exception
+     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
-    public function fromCart(): array
+    public function fromCart($blikCode): array
     {
         return $this->build(
             $this->checkoutSession->getQuote()->getCurrency()->getQuoteCurrencyCode(),
             $this->checkoutSession->getQuote()->getGrandTotal(),
             $this->checkoutSession->getQuote()->getCustomer(),
             uniqid($this->checkoutSession->getQuote()->getId() . '_'),
-            '2007'
+            '2007',
+            $blikCode
         );
     }
 
@@ -82,12 +84,12 @@ class PaymentDataBuilder
         $total_to_paid,
         $customer,
         $external_id = null,
-        $payment_method_id = null
+        $payment_method_id = null,
+        $blikCode = null
     ): array {
-        $referenceId        = $this->order->getOrderIncrementId();
         $paymentDescription = __('Order No: ') . $external_id;
 
-        $request['body'] = [
+        $request = [
             PaymentField::AMOUNT_FIELD_NAME      => $this->helper->formatAmount($total_to_paid),
             PaymentField::CURRENCY_FIELD_NAME    => $id_currency,
             PaymentField::EXTERNAL_ID_FIELD_NAME => $external_id,
@@ -102,26 +104,19 @@ class PaymentDataBuilder
         ];
 
         if ($payment_method_id) {
-            $request['body'][PaymentField::PAYMENT_METHOD_ID] = $payment_method_id;
+            $request[PaymentField::PAYMENT_METHOD_ID] = $payment_method_id;
         }
 
-//        if ($this->config->isSendOrderItemsActive()) {
-//            $orderItems = $this->helper->getOrderItems($this->order);
-//            if (! empty($orderItems)) {
-//                $request['body'][PaymentField::ORDER_ITEMS] = $orderItems;
-//            }
-//        }
+        if ($blikCode) {
+            $request['authorizationCode'] = (int)preg_replace('/\s+/', '', $blikCode);
+        }
 
         if ($this->config->isPaymentValidityActive()) {
             $validityTime = $this->config->getPaymentValidityTime();
             if (! empty($validityTime)) {
-                $request['body'][PaymentField::VALIDITY_TIME] = $this->config->getPaymentValidityTime();
+                $request[PaymentField::VALIDITY_TIME] = $this->config->getPaymentValidityTime();
             }
         }
-
-        $request['headers'] = [
-            PaymentField::IDEMPOTENCY_KEY_FIELD_NAME => uniqid($referenceId, true)
-        ];
 
         return $request;
     }
