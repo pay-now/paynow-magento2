@@ -1,0 +1,28 @@
+<?php
+/** @var Paynow\PaymentGateway\Block\Payment\Confirm $block */
+echo "dupa";
+?>
+<div data-bind="scope: 'confirm'">
+    <h1 data-bind="text: test">Confirm</h1>
+    <p class="headline">Confirm the payment using the app on your phone.</p>
+    <img src="<?php echo $this->getViewFileUrl('Paynow_PaymentGateway::images/confirm-blik.png'); ?>" ">
+    <div class="order-data clearfix">
+        <p>Your order number:  <span data-bind="text: orderId"></span></p>
+        <p>'Current order status: <span class="status" data-bind="text: orderStatus"></span></p>
+    </div>
+</div>
+
+
+<script type="text/x-magento-init">
+            {
+            "*": {
+            "Magento_Ui/js/core/app": {
+            "components": {
+            "confirm": {
+            "component": "Paynow_PaymentGateway/js/view/payment/paynow_confirm_blik"
+            }
+            }
+            }
+            }
+            }
+</script>
