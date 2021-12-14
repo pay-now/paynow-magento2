@@ -64,7 +64,7 @@ define(
             },
             afterPlaceOrder: function () {
                 if(window.checkoutConfig.payment.paynow_blik_gateway.isWhiteLabel){
-                    window.location.replace('confirmBlik' + window.location.search)
+                    window.location.replace(window.checkoutConfig.payment.paynow_blik_gateway.blikConfirmUrl);
                 } else {
                     window.location.replace(window.checkoutConfig.payment.paynow_blik_gateway.redirectUrl);
                 }

@@ -81,6 +81,11 @@ class ConfigProvider
         return $this->urlBuilder->getUrl('paynow/checkout/redirect', ['_secure' => $this->getRequest()->isSecure()]);
     }
 
+    protected function getConfirmBlikUrl()
+    {
+        return $this->urlBuilder->getUrl('paynow/payment/confirm', ['_secure' => $this->getRequest()->isSecure()]);
+    }
+
     /**
      * Retrieve request object
      * @return RequestInterface

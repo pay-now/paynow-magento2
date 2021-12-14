@@ -30,7 +30,6 @@ class BlikConfigProvider extends ConfigProvider implements ConfigProviderInterfa
                              && $blikPaymentMethod
                              && $blikPaymentMethod->isEnabled();
         $GDPRNotices = $this->GDPRHelper->getNotices();
-        $chargeBlikUrl = $this->helper->getChargeBlikUrl();
         $isWhiteLabel = $blikPaymentMethod && $blikPaymentMethod->getAuthorizationType() === AuthorizationType::CODE;
 
         return [
@@ -41,8 +40,8 @@ class BlikConfigProvider extends ConfigProvider implements ConfigProviderInterfa
                     'redirectUrl'     => $this->getRedirectUrl(),
                     'paymentMethodId' => $blikPaymentMethod ? $blikPaymentMethod->getId(): null,
                     'GDPRNotices' => $GDPRNotices,
-                    'chargeBlikUrl' => $chargeBlikUrl,
-                    'isWhiteLabel' => $isWhiteLabel
+                    'isWhiteLabel' => $isWhiteLabel,
+                    'blikConfirmUrl' => $this->getConfirmBlikUrl()
                 ]
             ]
         ];

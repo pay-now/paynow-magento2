@@ -2,12 +2,17 @@
 
 namespace Paynow\PaymentGateway\Controller\Payment;
 
+use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\OrderFactory;
 use Paynow\PaymentGateway\Helper\PaymentField;
+use Paynow\PaymentGateway\Helper\PaymentHelper;
+use Paynow\PaymentGateway\Helper\PaymentStatusLabel;
+use Paynow\PaymentGateway\Model\Logger\Logger;
+use Paynow\Service\Payment;
 
 /**
  * Class Status
@@ -21,36 +26,67 @@ class Status extends Action
      */
     private $resultJsonFactory;
 
-    /**
-     * @var OrderFactory
-     */
-    private $orderFactory;
 
-    public function __construct(OrderFactory $orderFactory, JsonFactory $resultJsonFactory, Context $context)
-    {
+    /**
+     * @var CheckoutSession
+     */
+    private $checkoutSession;
+
+    /**
+     * @var PaymentHelper
+     */
+    private $paymentHelper;
+
+    /**
+     * @var Logger
+     */
+    private $logger;
+
+    public function __construct(
+        CheckoutSession $checkoutSession,
+        JsonFactory $resultJsonFactory,
+        PaymentHelper $paymentHelper,
+        Logger $logger,
+        Context $context
+    ) {
         parent::__construct($context);
-        $this->orderFactory = $orderFactory;
+        $this->checkoutSession = $checkoutSession;
         $this->resultJsonFactory = $resultJsonFactory;
+        $this->paymentHelper = $paymentHelper;
+        $this->logger = $logger;
     }
 
     public function execute()
     {
         $resultJson = $this->resultJsonFactory->create();
-        $id_order = $this->getRequest()->getParam('id_order');
 
         /** @var Order */
-        $order = $this->orderFactory->create()->loadByIncrementId($id_order);
-        if (!$order->getId()) {
+        $order = $this->checkoutSession->getLastRealOrder();
+        if (!$order) {
             return $resultJson->setStatusHeader(404, null, 'Not Found');
         }
+        $allPayments = $order->getAllPayments();
+        $lastPaymentId = end($allPayments)->getAdditionalInformation(PaymentField::PAYMENT_ID_FIELD_NAME);
+        $loggerContext = [PaymentField::PAYMENT_ID_FIELD_NAME => $lastPaymentId];
+        try {
+            $service = new Payment($this->paymentHelper->initializePaynowClient());
+            $paymentStatusObject  = $service->status($lastPaymentId);
+            $status = $paymentStatusObject ->getStatus();
+            $this->logger->debug(
+                "Retrieved status response",
+                array_merge($loggerContext, [$status])
+            );
 
-        $paymentAdditionalInformation = $order->getPayment()->getAdditionalInformation();
-        $paymentStatus = $paymentAdditionalInformation[PaymentField::STATUS_FIELD_NAME] ?? null;
+            return $resultJson->setData([
+                'paymentId'   => $lastPaymentId,
+                'payment_status' => $status,
+                'payment_status_label' => __(PaymentStatusLabel::${$status})
+            ]);
 
-        return $resultJson->setData([
-            'order_status'   => $order->getStatus(),
-            'order_status_label'   => $order->getStatusLabel(),
-            'payment_status' => $paymentStatus
-        ]);
+        } catch (\Exception $exception) {
+            $this->logger->error($exception->getMessage(), $loggerContext);
+        }
+
+        return $resultJson->setStatusHeader(404, null, 'Not Found');
     }
 }

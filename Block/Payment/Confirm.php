@@ -2,28 +2,39 @@
 
 namespace Paynow\PaymentGateway\Block\Payment;
 
-use Magento\Checkout\Model\Session;
-use Magento\Framework\App\Http\Context as AppContext;
-use Magento\Framework\View\Element\Template\Context;
-use Magento\Sales\Model\Order;
-use Magento\Sales\Model\Order\Config;
-use Paynow\PaymentGateway\Helper\NotificationProcessor;
-use Paynow\PaymentGateway\Helper\PaymentHelper;
-use Paynow\PaymentGateway\Model\Logger\Logger;
+use Magento\Framework\Phrase;
+use Magento\Framework\View\Element\Template;
+use Paynow\PaymentGateway\Helper\PaymentStatusLabel;
 
 /**
  * Class Confirm
  *
  * @package Paynow\PaymentGateway\Block\Payment
  */
-class Confirm extends \Magento\Framework\View\Element\Template
+class Confirm extends Template
 {
+    public function getPaymentId(): ?string
+    {
+        return $this->getData('payment_id');
+    }
 
-    public function __construct(
-        Context $context,
-        array $data = []
-    ) {
-        parent::__construct($context, $data);
+    /**
+     * @return array|mixed|null
+     */
+    public function getPaymentStatus(): ?string
+    {
+        return $this->getData('payment_status');
+    }
 
+    /**
+     * @return Phrase|null
+     */
+    public function getPaymentStatusLabel(): ?Phrase
+    {
+        $paymentStatus = $this->getPaymentStatus();
+        if ($paymentStatus) {
+            return __(PaymentStatusLabel::${$paymentStatus});
+        }
+        return null;
     }
 }

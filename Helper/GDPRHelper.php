@@ -63,17 +63,17 @@ class GDPRHelper
 
     public function getNotices()
     {
-        $cacheKey  = GDPRNoticesCache::TYPE_IDENTIFIER;
+        $cacheKey  = GDPRNoticesCache::TYPE_IDENTIFIER . '-' . $this->paymentHelper->getStoreLocale();
         $cacheTag  = GDPRNoticesCache::CACHE_TAG;
         $notices = [];
         $gdpr_notices = $this->cache->load($cacheKey);
         if (!$gdpr_notices) {
             $gdpr_notices = $this->retrieve();
             foreach ($gdpr_notices as $notice) {
-                array_push($notices, [
-                    'title'   => $notice->getTitle(),
+                $notices[] = [
+                    'title' => $notice->getTitle(),
                     'content' => $notice->getContent()
-                ]);
+                ];
             }
             $this->cache->save(
                 $this->serializer->serialize($notices),
@@ -86,10 +86,10 @@ class GDPRHelper
             $unserialized = $this->serializer->unserialize($gdpr_notices);
             if ($unserialized) {
                 foreach ($unserialized as $notice) {
-                    array_push($notices, [
+                    $notices[] = [
                         'title' => $notice["title"],
                         'content' => $notice["content"]
-                    ]);
+                    ];
                 }
             }
         }

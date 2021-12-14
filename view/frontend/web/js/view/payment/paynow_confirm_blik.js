@@ -1,26 +1,33 @@
 define([
     'jquery',
     'ko',
-    'uiComponent'
-], function ($, ko, Component) {
+    'uiComponent',
+    'mage/url'
+], function ($, ko, Component, url) {
     'use strict';
-
     return Component.extend({
-        initialize: function () {
+        initialize: function (config) {
             this._super();
             self = this;
             this.fetchNewData();
             this.INTERVAL = 5000;
             this.timeout = null;
             this.currentReq = null;
-        },
-        paymentStatus: ko.observable(""),
-        orderId: ko.observable("000164"),
-        orderStatus: ko.observable(""),
+            this.paymentStatus = ko.observable(config.paymentStatus);
+            this.paymentStatusLabel = ko.observable(config.paymentStatusLabel);
+            this.paymentId =  ko.observable(config.paymentId);
 
+            setTimeout(() => {
+                self.redirectToReturn(self.paymentStatus, self.paymentId)
+            }, 60000);
+        },
+        redirectToReturn: function (paymentStatus, paymentId) {
+            const successUrl = url.build('paynow/checkout/success');
+            window.location.replace(successUrl + '?paymentStatus=' + paymentStatus + '&paymentId=' + paymentId);
+        },
         fetchNewData : function () {
             self.currentReq = $.ajax({
-                url: 'status' + window.location.search,
+                url:  url.build('paynow/payment/status'),
                 dataType: 'json',
                 type: 'get'});
 
@@ -28,12 +35,15 @@ define([
                 .done(self.processNewData)
                 .always(self.scheduleNewDataFetch);
         },
-
         processNewData: function (data) {
             self.paymentStatus(data.payment_status);
-            self.orderStatus(data.order_status_label);
-        },
+            self.paymentId(data.paymentId);
+            self.paymentStatusLabel(data.payment_status_label);
 
+            if (["PENDING", "NEW"].includes(data.payment_status)) {
+                self.redirectToReturn(data.payment_status, data.paymentId);
+            }
+        },
         scheduleNewDataFetch: function () {
             if (self.currentReq) {
                 self.currentReq.abort();
@@ -45,7 +55,6 @@ define([
 
             self.currentReq = null;
             self.timeout = setTimeout(self.fetchNewData, self.INTERVAL);
-
         }
     });
 });

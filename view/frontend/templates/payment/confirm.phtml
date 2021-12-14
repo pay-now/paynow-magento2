@@ -1,28 +1,38 @@
 <?php
 /** @var Paynow\PaymentGateway\Block\Payment\Confirm $block */
-echo "dupa";
 ?>
-<div data-bind="scope: 'confirm'">
-    <h1 data-bind="text: test">Confirm</h1>
-    <p class="headline">Confirm the payment using the app on your phone.</p>
-    <img src="<?php echo $this->getViewFileUrl('Paynow_PaymentGateway::images/confirm-blik.png'); ?>" ">
-    <div class="order-data clearfix">
-        <p>Your order number:  <span data-bind="text: orderId"></span></p>
-        <p>'Current order status: <span class="status" data-bind="text: orderStatus"></span></p>
+<div data-bind="scope: 'confirm'" class="paynow-confirm-blik">
+    <p class="headline"><?= $block->escapeHtml(__('Confirm the payment using the app on your phone.')) ?></p>
+    <img src="<?php echo $this->getViewFileUrl('Paynow_PaymentGateway::images/confirm-blik.png'); ?>" alt="">
+    <div>
+        <p>
+            <?= $block->escapeHtml(__('Your payment id: ')) ?>
+            <span data-bind="text: paymentId">
+                <?= $block->escapeHtml($block->getPaymentId()) ?>
+            </span>
+        </p>
+        <p>
+            <?= $block->escapeHtml(__('Current payment status: ')) ?>
+            <span class="status" data-bind="text: paymentStatusLabel">
+                <?= $block->escapeHtml($block->getPaymentStatusLabel()); ?>
+            </span>
+        </p>
     </div>
 </div>
 
-
 <script type="text/x-magento-init">
-            {
-            "*": {
-            "Magento_Ui/js/core/app": {
+{
+    "*": {
+        "Magento_Ui/js/core/app": {
             "components": {
-            "confirm": {
-            "component": "Paynow_PaymentGateway/js/view/payment/paynow_confirm_blik"
+                "confirm": {
+                    "component": "Paynow_PaymentGateway/js/view/payment/paynow_confirm_blik",
+                    "paymentStatus": "<?= /* @noEscape */ $block->getPaymentStatus() ?>",
+                    "paymentStatusLabel": "<?= /* @noEscape */ $block->getPaymentStatusLabel() ?>",
+                    "paymentId": "<?= /* @noEscape */ $block->getPaymentId() ?>"
+                }
             }
-            }
-            }
-            }
-            }
+        }
+    }
+}
 </script>
