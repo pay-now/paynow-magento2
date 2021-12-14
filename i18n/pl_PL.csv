@@ -67,3 +67,7 @@ Information,Informacje
 "abandoned", "porzucona"
 "Enter the BLIK code", "Wprowadź kod BLIK"
 " Read more", " Czytaj więcej"
+"Wrong BLIK code", "Nieprawidłowy kod BLIK"
+"BLIK code has expired", "Kod BLIK jest nieaktualny"
+"BLIK code already used", "Kod BLIK był wcześniej wykorzystany"
+
