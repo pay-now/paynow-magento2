@@ -1,7 +1,14 @@
 <?php
 namespace Paynow\PaymentGateway\Model\Cache;
 
-class GDPRNoticesCache extends \Magento\Framework\Cache\Frontend\Decorator\TagScope
+use Magento\Framework\Cache\Frontend\Decorator\TagScope;
+
+/**
+ * Class GDPRNoticesCache
+ *
+ * @package Paynow\PaymentGateway\Model\Cache
+ */
+class GDPRNoticesCache extends TagScope
 {
     const TYPE_IDENTIFIER = 'paynow';
 

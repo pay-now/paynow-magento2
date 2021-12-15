@@ -3,6 +3,8 @@
 namespace Paynow\PaymentGateway\Controller\Payment;
 
 use Magento\Checkout\Model\Session as CheckoutSession;
+use Magento\Framework\App\Action\Action;
+use Magento\Framework\App\Action\Context;
 use Magento\Framework\View\Result\PageFactory;
 use Magento\Sales\Model\Order;
 use Paynow\PaymentGateway\Helper\PaymentField;
@@ -13,9 +15,9 @@ use Paynow\PaymentGateway\Model\Logger\Logger;
  *
  * @package Paynow\PaymentGateway\Controller\Payment
  */
-class Confirm extends \Magento\Framework\App\Action\Action
+class Confirm extends Action
 {
-    const CONFIRM_BLOCK_NAME = 'paynow_payment_confirm';
+    private const CONFIRM_BLOCK_NAME = 'paynow_payment_confirm';
 
     /**
      * @var PageFactory
@@ -32,10 +34,16 @@ class Confirm extends \Magento\Framework\App\Action\Action
      */
     private $logger;
 
+    /**
+     * @param Logger $logger
+     * @param CheckoutSession $checkoutSession
+     * @param Context $context
+     * @param PageFactory $pageFactory
+     */
     public function __construct(
         Logger $logger,
         CheckoutSession $checkoutSession,
-        \Magento\Framework\App\Action\Context $context,
+        Context $context,
         PageFactory $pageFactory
     ) {
         $this->pageFactory = $pageFactory;
@@ -53,6 +61,10 @@ class Confirm extends \Magento\Framework\App\Action\Action
         return $resultPage;
     }
 
+    /**
+     * @param $resultPage
+     * @return void
+     */
     private function preparePaymentData($resultPage)
     {
         /** @var Order */
@@ -70,6 +82,5 @@ class Confirm extends \Magento\Framework\App\Action\Action
         $block = $resultPage->getLayout()->getBlock(self::CONFIRM_BLOCK_NAME);
         $block->setData('payment_id', $paymentId);
         $block->setData('payment_status', $paymentStatus);
-
     }
 }

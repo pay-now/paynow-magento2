@@ -3,7 +3,7 @@
 ?>
 <div data-bind="scope: 'confirm'" class="paynow-confirm-blik">
     <p class="headline"><?= $block->escapeHtml(__('Confirm the payment using the app on your phone.')) ?></p>
-    <img src="<?php echo $this->getViewFileUrl('Paynow_PaymentGateway::images/confirm-blik.png'); ?>" alt="">
+    <img src="<?= $block->escapeUrl($block->getConfirmBlikImageUrl()); ?>" alt="">
     <div>
         <p>
             <?= $block->escapeHtml(__('Your payment id: ')) ?>

@@ -61,7 +61,10 @@ class GDPRHelper
         $this->client = $this->paymentHelper->initializePaynowClient();
     }
 
-    public function getNotices()
+    /**
+     * @return array
+     */
+    public function getNotices(): array
     {
         $cacheKey  = GDPRNoticesCache::TYPE_IDENTIFIER . '-' . $this->paymentHelper->getStoreLocale();
         $cacheTag  = GDPRNoticesCache::CACHE_TAG;
@@ -97,7 +100,10 @@ class GDPRHelper
         return $notices;
     }
 
-    private function retrieve()
+    /**
+     * @return array|null
+     */
+    private function retrieve(): ?array
     {
         try {
             $this->logger->info("Retrieving GDPR notices");

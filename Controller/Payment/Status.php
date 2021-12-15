@@ -26,7 +26,6 @@ class Status extends Action
      */
     private $resultJsonFactory;
 
-
     /**
      * @var CheckoutSession
      */
@@ -42,6 +41,13 @@ class Status extends Action
      */
     private $logger;
 
+    /**
+     * @param CheckoutSession $checkoutSession
+     * @param JsonFactory $resultJsonFactory
+     * @param PaymentHelper $paymentHelper
+     * @param Logger $logger
+     * @param Context $context
+     */
     public function __construct(
         CheckoutSession $checkoutSession,
         JsonFactory $resultJsonFactory,

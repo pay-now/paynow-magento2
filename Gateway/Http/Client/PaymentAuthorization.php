@@ -48,7 +48,7 @@ class PaymentAuthorization implements ClientInterface
         $loggerContext = [
             PaymentField::EXTERNAL_ID_FIELD_NAME => $transferObject->getBody()[PaymentField::EXTERNAL_ID_FIELD_NAME]
         ];
-        $this->logger->debug('body'. json_encode($transferObject->getBody()));
+
         try {
             $service = new Payment($this->client);
             $apiResponseObject = $service->authorize(

@@ -13,6 +13,17 @@ use Paynow\PaymentGateway\Helper\PaymentStatusLabel;
  */
 class Confirm extends Template
 {
+    /**
+     * @return string
+     */
+    public function getConfirmBlikImageUrl(): string
+    {
+        return $this->getViewFileUrl('Paynow_PaymentGateway::images/confirm-blik.png');
+    }
+
+    /**
+     * @return string|null
+     */
     public function getPaymentId(): ?string
     {
         return $this->getData('payment_id');
