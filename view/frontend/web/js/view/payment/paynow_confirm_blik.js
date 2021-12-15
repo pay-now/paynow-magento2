@@ -9,7 +9,6 @@ define([
         initialize: function (config) {
             this._super();
             self = this;
-            this.fetchNewData();
             this.INTERVAL = 5000;
             this.timeout = null;
             this.currentReq = null;
@@ -17,6 +16,7 @@ define([
             this.paymentStatusLabel = ko.observable(config.paymentStatusLabel);
             this.paymentId =  ko.observable(config.paymentId);
 
+            this.fetchNewData();
             setTimeout(() => {
                 self.redirectToReturn(self.paymentStatus, self.paymentId)
             }, 60000);
@@ -40,7 +40,7 @@ define([
             self.paymentId(data.paymentId);
             self.paymentStatusLabel(data.payment_status_label);
 
-            if (["PENDING", "NEW"].includes(data.payment_status)) {
+            if (!["PENDING", "NEW"].includes(data.payment_status)) {
                 self.redirectToReturn(data.payment_status, data.paymentId);
             }
         },

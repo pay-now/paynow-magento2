@@ -63,7 +63,7 @@ define(
                 return true;
             },
             afterPlaceOrder: function () {
-                if(window.checkoutConfig.payment.paynow_blik_gateway.isWhiteLabel){
+                if(self.isWhiteLabelEnabled()){
                     window.location.replace(window.checkoutConfig.payment.paynow_blik_gateway.blikConfirmUrl);
                 } else {
                     window.location.replace(window.checkoutConfig.payment.paynow_blik_gateway.redirectUrl);
@@ -76,9 +76,12 @@ define(
                 return this.getCode() === this.isChecked();
                 },
             isButtonActive: function () {
-                return window.checkoutConfig.payment.paynow_blik_gateway.isWhiteLabel ? this.blikCodeValue().length === 6 && !isNaN(this.blikCodeValue()) && parseInt(this.blikCodeValue()) : true},
+                return self.isWhiteLabelEnabled() ? this.blikCodeValue().length === 6 && !isNaN(this.blikCodeValue()) && parseInt(this.blikCodeValue()) : true},
             getGDPRNotices: function () {
                 return window.checkoutConfig.payment.paynow_blik_gateway.GDPRNotices;
+            },
+            isWhiteLabelEnabled: function () {
+                return window.checkoutConfig.payment.paynow_blik_gateway.isWhiteLabel
             },
             getData: function () {
                 const blikCode = $('#paynow_blik_code').val();
