@@ -1,6 +1,6 @@
 <?php
 
-namespace Paynow\PaymentGateway\Block\Payment;
+namespace Paynow\PaymentGateway\Block\Payment\Blik;
 
 use Magento\Framework\Phrase;
 use Magento\Framework\View\Element\Template;
@@ -9,7 +9,7 @@ use Paynow\PaymentGateway\Helper\PaymentStatusLabel;
 /**
  * Class Confirm
  *
- * @package Paynow\PaymentGateway\Block\Payment
+ * @package Paynow\PaymentGateway\Block\Payment\Blik
  */
 class Confirm extends Template
 {

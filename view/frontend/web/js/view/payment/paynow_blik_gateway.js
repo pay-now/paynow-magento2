@@ -63,7 +63,7 @@ define(
                 return true;
             },
             afterPlaceOrder: function () {
-                if(self.isWhiteLabelEnabled()){
+                if(this.isWhiteLabelEnabled()){
                     window.location.replace(window.checkoutConfig.payment.paynow_blik_gateway.blikConfirmUrl);
                 } else {
                     window.location.replace(window.checkoutConfig.payment.paynow_blik_gateway.redirectUrl);
@@ -76,7 +76,7 @@ define(
                 return this.getCode() === this.isChecked();
                 },
             isButtonActive: function () {
-                return self.isWhiteLabelEnabled() ? this.blikCodeValue().length === 6 && !isNaN(this.blikCodeValue()) && parseInt(this.blikCodeValue()) : true},
+                return this.isWhiteLabelEnabled() ? this.blikCodeValue().length === 6 && !isNaN(this.blikCodeValue()) && parseInt(this.blikCodeValue()) : true},
             getGDPRNotices: function () {
                 return window.checkoutConfig.payment.paynow_blik_gateway.GDPRNotices;
             },

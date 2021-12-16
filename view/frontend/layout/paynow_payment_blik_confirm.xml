@@ -6,7 +6,7 @@
     </head>
     <body>
         <referenceContainer name="content">
-            <block class="Paynow\PaymentGateway\Block\Payment\Confirm" name="paynow_payment_confirm"
+            <block class="Paynow\PaymentGateway\Block\Payment\Blik\Confirm" name="paynow_payment_blik_confirm"
                    template="Paynow_PaymentGateway::payment/blik/confirm.phtml"/>
         </referenceContainer>
     </body>

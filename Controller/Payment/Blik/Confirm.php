@@ -1,6 +1,6 @@
 <?php
 
-namespace Paynow\PaymentGateway\Controller\Payment;
+namespace Paynow\PaymentGateway\Controller\Payment\Blik;
 
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Framework\App\Action\Action;
@@ -13,11 +13,11 @@ use Paynow\PaymentGateway\Model\Logger\Logger;
 /**
  * Class Confirm
  *
- * @package Paynow\PaymentGateway\Controller\Payment
+ * @package Paynow\PaymentGateway\Controller\Payment\Blik
  */
 class Confirm extends Action
 {
-    private const CONFIRM_BLOCK_NAME = 'paynow_payment_confirm';
+    private const CONFIRM_BLOCK_NAME = 'paynow_payment_blik_confirm';
 
     /**
      * @var PageFactory
