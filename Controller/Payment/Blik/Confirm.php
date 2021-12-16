@@ -56,16 +56,19 @@ class Confirm extends Action
     {
         $resultPage = $this->pageFactory->create();
         $resultPage->addHandle(self::CONFIRM_BLOCK_NAME);
-        $this->preparePaymentData($resultPage);
+        $paymentData = $this->preparePaymentData();
+        $block = $resultPage->getLayout()->getBlock(self::CONFIRM_BLOCK_NAME);
+        $block->setData('payment_id', $paymentData['payment_id']);
+        $block->setData('payment_status', $paymentData['payment_status']);
         $resultPage->setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0', true);
         return $resultPage;
     }
 
+
     /**
-     * @param $resultPage
-     * @return void
+     * @return array
      */
-    private function preparePaymentData($resultPage)
+    private function preparePaymentData(): array
     {
         /** @var Order */
         $order = $this->checkoutSession->getLastRealOrder();
@@ -79,8 +82,6 @@ class Confirm extends Action
             ["paymentId" => $paymentId, "paymentStatus" => $paymentStatus, "orderId" => $order->getIncrementId()]
         );
 
-        $block = $resultPage->getLayout()->getBlock(self::CONFIRM_BLOCK_NAME);
-        $block->setData('payment_id', $paymentId);
-        $block->setData('payment_status', $paymentStatus);
+        return ["payment_id" => $paymentId, "payment_status" => $paymentStatus];
     }
 }

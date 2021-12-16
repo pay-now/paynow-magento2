@@ -11,6 +11,7 @@ use Magento\Sales\Model\OrderFactory;
 use Paynow\PaymentGateway\Helper\PaymentField;
 use Paynow\PaymentGateway\Helper\PaymentHelper;
 use Paynow\PaymentGateway\Helper\PaymentStatusLabel;
+use Paynow\PaymentGateway\Helper\PaymentStatusService;
 use Paynow\PaymentGateway\Model\Logger\Logger;
 use Paynow\Service\Payment;
 
@@ -32,34 +33,26 @@ class Status extends Action
     private $checkoutSession;
 
     /**
-     * @var PaymentHelper
+     * @var PaymentStatusService
      */
-    private $paymentHelper;
-
-    /**
-     * @var Logger
-     */
-    private $logger;
+    private $paymentStatusService;
 
     /**
      * @param CheckoutSession $checkoutSession
      * @param JsonFactory $resultJsonFactory
-     * @param PaymentHelper $paymentHelper
-     * @param Logger $logger
      * @param Context $context
+     * @param PaymentStatusService $paymentStatusService
      */
     public function __construct(
         CheckoutSession $checkoutSession,
         JsonFactory $resultJsonFactory,
-        PaymentHelper $paymentHelper,
-        Logger $logger,
-        Context $context
+        Context $context,
+        PaymentStatusService $paymentStatusService
     ) {
         parent::__construct($context);
         $this->checkoutSession = $checkoutSession;
         $this->resultJsonFactory = $resultJsonFactory;
-        $this->paymentHelper = $paymentHelper;
-        $this->logger = $logger;
+        $this->paymentStatusService = $paymentStatusService;
     }
 
     public function execute()
@@ -73,24 +66,14 @@ class Status extends Action
         }
         $allPayments = $order->getAllPayments();
         $lastPaymentId = end($allPayments)->getAdditionalInformation(PaymentField::PAYMENT_ID_FIELD_NAME);
-        $loggerContext = [PaymentField::PAYMENT_ID_FIELD_NAME => $lastPaymentId];
-        try {
-            $service = new Payment($this->paymentHelper->initializePaynowClient());
-            $paymentStatusObject  = $service->status($lastPaymentId);
-            $status = $paymentStatusObject ->getStatus();
-            $this->logger->debug(
-                "Retrieved status response",
-                array_merge($loggerContext, [$status])
-            );
+        $status = $this->paymentStatusService->getPaymentStatus($lastPaymentId);
 
+        if ($status) {
             return $resultJson->setData([
                 'paymentId'   => $lastPaymentId,
                 'payment_status' => $status,
                 'payment_status_label' => __(PaymentStatusLabel::${$status})
             ]);
-
-        } catch (\Exception $exception) {
-            $this->logger->error($exception->getMessage(), $loggerContext);
         }
 
         return $resultJson->setStatusHeader(404, null, 'Not Found');
