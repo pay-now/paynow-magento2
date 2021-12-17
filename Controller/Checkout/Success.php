@@ -5,12 +5,9 @@ namespace Paynow\PaymentGateway\Controller\Checkout;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
-use Magento\Framework\App\CsrfAwareActionInterface;
-use Magento\Framework\App\Request\Http;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Controller\Result\Redirect as ResponseRedirect;
 use Magento\Framework\Controller\ResultInterface;
-use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\UrlInterface;
 use Magento\Sales\Model\Order;
 use Paynow\PaymentGateway\Helper\NotificationProcessor;
@@ -18,7 +15,6 @@ use Paynow\PaymentGateway\Helper\PaymentField;
 use Paynow\PaymentGateway\Helper\PaymentHelper;
 use Paynow\PaymentGateway\Helper\PaymentStatusService;
 use Paynow\PaymentGateway\Model\Logger\Logger;
-use Paynow\Service\Payment;
 
 /**
  * Class Return
@@ -107,7 +103,9 @@ class Success extends Action
      */
     public function execute()
     {
-        $isRetry = $this->order->getPayment()->hasAdditionalInformation(PaymentField::IS_PAYMENT_RETRY_FIELD_NAME);
+        $isRetry = $this->order &&
+            $this->order->getPayment() &&
+            $this->order->getPayment()->hasAdditionalInformation(PaymentField::IS_PAYMENT_RETRY_FIELD_NAME);
 
         if ($this->shouldRetrieveStatus() && ! $isRetry) {
             $this->retrievePaymentStatusAndUpdateOrder();
