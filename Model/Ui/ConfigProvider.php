@@ -87,7 +87,7 @@ class ConfigProvider
      */
     protected function getConfirmBlikUrl(): string
     {
-        return $this->urlBuilder->getUrl('paynow/payment/blik/confirm', ['_secure' => $this->getRequest()->isSecure()]);
+        return $this->urlBuilder->getUrl('paynow/payment/confirm', ['_secure' => $this->getRequest()->isSecure()]);
     }
 
     /**
