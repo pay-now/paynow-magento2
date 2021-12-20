@@ -66,7 +66,7 @@ class Status extends Action
         }
         $allPayments = $order->getAllPayments();
         $lastPaymentId = end($allPayments)->getAdditionalInformation(PaymentField::PAYMENT_ID_FIELD_NAME);
-        $status = $this->paymentStatusService->getPaymentStatus($lastPaymentId);
+        $status = $this->paymentStatusService->getStatus($lastPaymentId);
 
         if ($status) {
             return $resultJson->setData([
