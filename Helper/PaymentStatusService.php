@@ -44,7 +44,7 @@ class PaymentStatusService
             $status = $paymentStatusObject->getStatus();
             $this->logger->debug(
                 "Retrieved status response",
-                array_merge($loggerContext, [$status])
+                array_merge($loggerContext, ['status' => $status])
             );
 
             return $status;

@@ -55,7 +55,7 @@ class GDPRHelper
         SerializerInterface $serializer
     ) {
         $this->paymentHelper = $paymentHelper;
-        $this->logger        = $logger;
+        $this->logger = $logger;
         $this->cache = $cache;
         $this->serializer = $serializer;
         $this->client = $this->paymentHelper->initializePaynowClient();
