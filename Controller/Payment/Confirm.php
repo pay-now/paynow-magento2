@@ -101,7 +101,10 @@ class Confirm extends Action
 
                 $this->logger->debug(
                     "Retrieved payment data from checkout session",
-                    ["paymentId" => $paymentId, "paymentStatus" => $paymentStatus, "orderId" => $order->getIncrementId()]
+                    ["paymentId" => $paymentId,
+                     "paymentStatus" => $paymentStatus,
+                     "orderId" => $order->getIncrementId()
+                    ]
                 );
 
                 return ["payment_id" => $paymentId, "payment_status" => $paymentStatus];

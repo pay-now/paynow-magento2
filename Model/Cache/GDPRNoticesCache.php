@@ -23,4 +23,3 @@ class GDPRNoticesCache extends TagScope
         parent::__construct($cacheFrontendPool->get(self::TYPE_IDENTIFIER), self::CACHE_TAG);
     }
 }
-
