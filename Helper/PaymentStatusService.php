@@ -36,7 +36,6 @@ class PaymentStatusService
      */
     public function getStatus($paymentId)
     {
-
         $loggerContext = [PaymentField::PAYMENT_ID_FIELD_NAME => $paymentId];
 
         try {
