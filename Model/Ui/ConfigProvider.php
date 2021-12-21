@@ -6,6 +6,7 @@ use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\UrlInterface;
 use Paynow\PaymentGateway\Helper\ConfigHelper;
+use Paynow\PaymentGateway\Helper\GDPRHelper;
 use Paynow\PaymentGateway\Helper\PaymentHelper;
 use Paynow\PaymentGateway\Helper\PaymentMethodsHelper;
 
@@ -44,6 +45,11 @@ class ConfigProvider
     protected $paymentMethodsHelper;
 
     /**
+     * @var GDPRHelper
+     */
+    protected $GDPRHelper;
+
+    /**
      * @var CheckoutSession
      */
     protected $checkoutSession;
@@ -53,6 +59,7 @@ class ConfigProvider
         RequestInterface $request,
         PaymentHelper $paymentHelper,
         PaymentMethodsHelper $paymentMethodsHelper,
+        GDPRHelper $GDPRHelper,
         ConfigHelper $configHelper,
         CheckoutSession $checkoutSession
     ) {
@@ -62,6 +69,7 @@ class ConfigProvider
         $this->paymentMethodsHelper = $paymentMethodsHelper;
         $this->configHelper         = $configHelper;
         $this->checkoutSession      = $checkoutSession;
+        $this->GDPRHelper = $GDPRHelper;
     }
 
     /**
@@ -71,6 +79,15 @@ class ConfigProvider
     protected function getRedirectUrl()
     {
         return $this->urlBuilder->getUrl('paynow/checkout/redirect', ['_secure' => $this->getRequest()->isSecure()]);
+    }
+
+    /**
+     * Return url for BLIK confirmation page
+     * @return string
+     */
+    protected function getConfirmBlikUrl(): string
+    {
+        return $this->urlBuilder->getUrl('paynow/payment/confirm', ['_secure' => $this->getRequest()->isSecure()]);
     }
 
     /**
