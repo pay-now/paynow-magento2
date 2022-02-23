@@ -6,10 +6,10 @@
         <comment>
             <![CDATA[<p>If you do not have an account in the Paynow system yet, <a href="https://paynow.pl/boarding" target="_blank">register in the Production</a> or <a href="https://panel.sandbox.paynow.pl/auth/register" target="_blank">Sandbox</a> environment.</p>]]>
         </comment>
-        <field id="version" translate="label" type="label" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="0">
-            <label>Module version</label>
-            <frontend_model>Paynow\PaymentGateway\Block\Adminhtml\System\Config\Field\Version</frontend_model>
-        </field>
+<!--        <field id="version" translate="label" type="label" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="0">-->
+<!--            <label>Module version</label>-->
+<!--            <frontend_model>Paynow\PaymentGateway\Block\Adminhtml\System\Config\Field\Version</frontend_model>-->
+<!--        </field>-->
         <attribute type="expanded">1</attribute>
     </group>
 </include>
