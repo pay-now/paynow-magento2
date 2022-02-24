@@ -121,15 +121,19 @@ class Success extends Action
     {
         $allPayments = $this->order->getAllPayments();
         $lastPaymentId = end($allPayments)->getAdditionalInformation(PaymentField::PAYMENT_ID_FIELD_NAME);
-
         $loggerContext = [PaymentField::PAYMENT_ID_FIELD_NAME => $lastPaymentId];
+        $this->logger->info(
+            "Retrieving payment status",
+            $loggerContext
+        );
+
         try {
             $service = new Payment($this->paymentHelper->initializePaynowClient());
             $paymentStatusObject  = $service->status($lastPaymentId);
             $status = $paymentStatusObject ->getStatus();
-            $this->logger->debug(
-                "Retrieved status response",
-                array_merge($loggerContext, [$status])
+            $this->logger->info(
+                "Retrieved payment status response",
+                array_merge($loggerContext, [PaymentField::STATUS_FIELD_NAME => $status])
             );
             $this->notificationProcessor->process($lastPaymentId, $status, $this->order->getIncrementId());
 

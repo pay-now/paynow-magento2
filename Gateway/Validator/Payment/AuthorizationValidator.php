@@ -45,7 +45,12 @@ class AuthorizationValidator extends AbstractValidator
             array_key_exists(PaymentField::STATUS_FIELD_NAME, $response) &&
             $response[PaymentField::STATUS_FIELD_NAME] === Status::STATUS_NEW;
 
-        $this->logger->debug("Validating authorization response", ['valid' => $isResponseValid]);
+        $this->logger->debug("Validating authorization response", [
+            PaymentField::EXTERNAL_ID_FIELD_NAME => $response[PaymentField::EXTERNAL_ID_FIELD_NAME],
+            PaymentField::PAYMENT_ID_FIELD_NAME => $response[PaymentField::PAYMENT_ID_FIELD_NAME],
+            PaymentField::STATUS_FIELD_NAME => $response[PaymentField::STATUS_FIELD_NAME],
+            'valid' => $isResponseValid
+        ]);
 
         return $this->createResult(
             $isResponseValid,

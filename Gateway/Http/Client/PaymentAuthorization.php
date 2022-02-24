@@ -54,7 +54,7 @@ class PaymentAuthorization implements ClientInterface
                 $transferObject->getBody(),
                 $transferObject->getHeaders()[PaymentField::IDEMPOTENCY_KEY_FIELD_NAME]
             );
-            $this->logger->debug(
+            $this->logger->info(
                 "Retrieved authorization response",
                 array_merge($loggerContext, [
                     PaymentField::STATUS_FIELD_NAME => $apiResponseObject->getStatus(),

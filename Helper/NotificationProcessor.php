@@ -72,9 +72,11 @@ class NotificationProcessor
     public function process($paymentId, $status, $externalId)
     {
         $this->loggerContext = [
+            PaymentField::EXTERNAL_ID_FIELD_NAME => $externalId,
             PaymentField::PAYMENT_ID_FIELD_NAME => $paymentId,
-            PaymentField::EXTERNAL_ID_FIELD_NAME => $externalId
+            PaymentField::STATUS_FIELD_NAME => $status
         ];
+        $this->logger->info("Processing payment status notification", $this->loggerContext);
 
         /** @var Order */
         $this->order = $this->orderFactory->create()->loadByIncrementId($externalId);
@@ -87,7 +89,6 @@ class NotificationProcessor
         $finalPaymentStatus = $orderPaymentStatus == Status::STATUS_CONFIRMED;
 
         if ($finalPaymentStatus) {
-            $this->logger->info('Order has paid status. Skipped notification processing', $this->loggerContext);
             throw new OrderHasBeenAlreadyPaidException($externalId, $paymentId);
         }
 
@@ -121,6 +122,7 @@ class NotificationProcessor
                 break;
         }
         $this->orderRepository->save($this->order);
+        $this->logger->info("Finished processing payment status notification", $this->loggerContext);
     }
 
     private function paymentNew($paymentId)

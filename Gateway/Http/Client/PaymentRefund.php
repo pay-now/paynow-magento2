@@ -49,15 +49,22 @@ class PaymentRefund implements ClientInterface
         $loggerContext = [
             PaymentField::EXTERNAL_ID_FIELD_NAME => $transferObject->getBody()[PaymentField::EXTERNAL_ID_FIELD_NAME]
         ];
+        $data = $transferObject->getBody();
+        $this->logger->info(
+            "Processing create refund",
+            array_merge($loggerContext, [
+                PaymentField::PAYMENT_ID_FIELD_NAME => $data[PaymentField::PAYMENT_ID_FIELD_NAME],
+                RefundField::AMOUNT_FIELD_NAME => $data[RefundField::AMOUNT_FIELD_NAME]
+            ])
+        );
         try {
             $service = new Refund($this->client);
-            $data = $transferObject->getBody();
             $apiResponseObject = $service->create(
                 $data[PaymentField::PAYMENT_ID_FIELD_NAME],
                 $transferObject->getHeaders()[PaymentField::IDEMPOTENCY_KEY_FIELD_NAME],
                 $data[RefundField::AMOUNT_FIELD_NAME]
             );
-            $this->logger->debug(
+            $this->logger->info(
                 "Retrieved create refund response",
                 array_merge($loggerContext, [
                     RefundField::STATUS_FIELD_NAME => $apiResponseObject->getStatus(),
