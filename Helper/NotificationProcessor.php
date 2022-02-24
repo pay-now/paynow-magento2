@@ -88,6 +88,13 @@ class NotificationProcessor
         $orderPaymentStatus = $paymentAdditionalInformation[PaymentField::STATUS_FIELD_NAME];
         $finalPaymentStatus = $orderPaymentStatus == Status::STATUS_CONFIRMED;
 
+        $this->logger->debug(
+            "Current order state",
+            array_merge($this->loggerContext, [
+                'currentStatus' => $orderPaymentStatus
+            ])
+        );
+
         if ($finalPaymentStatus) {
             throw new OrderHasBeenAlreadyPaidException($externalId, $paymentId);
         }

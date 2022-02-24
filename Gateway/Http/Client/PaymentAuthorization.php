@@ -65,6 +65,7 @@ class PaymentAuthorization implements ClientInterface
                 PaymentField::REDIRECT_URL_FIELD_NAME => $apiResponseObject->getRedirectUrl(),
                 PaymentField::STATUS_FIELD_NAME => $apiResponseObject->getStatus(),
                 PaymentField::PAYMENT_ID_FIELD_NAME => $apiResponseObject->getPaymentId(),
+                PaymentField::EXTERNAL_ID_FIELD_NAME => $transferObject->getBody()[PaymentField::EXTERNAL_ID_FIELD_NAME]
             ];
         } catch (PaynowException $exception) {
             $this->logger->error(
