@@ -34,6 +34,7 @@ class AuthorizationHandlerTest extends TestCase
             PaymentField::PAYMENT_ID_FIELD_NAME => 'testPaymentId',
             PaymentField::STATUS_FIELD_NAME => 'NEW',
             PaymentField::REDIRECT_URL_FIELD_NAME => 'testRedirectUrl',
+            PaymentField::EXTERNAL_ID_FIELD_NAME => 'testExternalId',
         ];
 
         $paymentDO->expects(static::atLeastOnce())

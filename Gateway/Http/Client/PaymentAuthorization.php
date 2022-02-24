@@ -69,10 +69,12 @@ class PaymentAuthorization implements ClientInterface
             ];
         } catch (PaynowException $exception) {
             $this->logger->error(
-                $exception->getMessage(),
+                'An error occurred during payment authorization',
                 array_merge($loggerContext, [
                     'service' => 'Payment',
-                    'action' => 'authorize'
+                    'action' => 'authorize',
+                    'message' => $exception->getMessage(),
+                    'errors' => $exception->getPrevious()->getErrors()
                 ])
             );
             foreach ($exception->getErrors() as $error) {

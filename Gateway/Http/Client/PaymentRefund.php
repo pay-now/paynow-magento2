@@ -58,8 +58,7 @@ class PaymentRefund implements ClientInterface
             ])
         );
         try {
-            $service = new Refund($this->client);
-            $apiResponseObject = $service->create(
+            $apiResponseObject = (new Refund($this->client))->create(
                 $data[PaymentField::PAYMENT_ID_FIELD_NAME],
                 $transferObject->getHeaders()[PaymentField::IDEMPOTENCY_KEY_FIELD_NAME],
                 $data[RefundField::AMOUNT_FIELD_NAME]
@@ -78,10 +77,12 @@ class PaymentRefund implements ClientInterface
             ];
         } catch (PaynowException $exception) {
             $this->logger->error(
-                $exception->getMessage(),
+                'An error occurred during refund create',
                 array_merge($loggerContext, [
                     'service' => 'Refund',
-                    'action' => 'create'
+                    'action' => 'create',
+                    'message' => $exception->getMessage(),
+                    'errors' => $exception->getPrevious()->getErrors()
                 ])
             );
             foreach ($exception->getErrors() as $error) {

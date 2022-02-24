@@ -118,7 +118,10 @@ class Notifications extends Action
             );
             $this->getResponse()->setHttpResponseCode(400);
         } catch (OrderHasBeenAlreadyPaidException $exception) {
-            $this->logger->info($exception->getMessage() . ' Skip processing the notification.');
+            $this->logger->info(
+                $exception->getMessage() . ' Skip processing the notification.',
+                $notificationData
+            );
             $this->getResponse()->setHttpResponseCode(200);
         }
     }

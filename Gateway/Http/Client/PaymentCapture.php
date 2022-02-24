@@ -55,13 +55,18 @@ class PaymentCapture implements ClientInterface
             );
         } catch (PaynowException $exception) {
             $response['errors'] = $exception->getMessage();
-            $this->logger->error($exception->getMessage(), array_merge(
-                $loggerContext,
-                [
-                    'service' => 'Payment',
-                    'action' => 'status'
-                ]
-            ));
+            $this->logger->error(
+                'An error occurred during payment capture',
+                array_merge(
+                    $loggerContext,
+                    [
+                        'service' => 'Payment',
+                        'action' => 'status',
+                        'message' => $exception->getMessage(),
+                        'errors' => $exception->getPrevious()->getErrors()
+                    ]
+                )
+            );
         }
 
         return $response;

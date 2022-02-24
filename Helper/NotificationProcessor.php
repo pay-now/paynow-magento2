@@ -90,9 +90,12 @@ class NotificationProcessor
 
         $this->logger->debug(
             "Current order state",
-            array_merge($this->loggerContext, [
-                'currentStatus' => $orderPaymentStatus
-            ])
+            array_merge(
+                [
+                    'currentStatus' => $orderPaymentStatus
+                ],
+                $this->loggerContext
+            )
         );
 
         if ($finalPaymentStatus) {
@@ -212,7 +215,7 @@ class NotificationProcessor
             $this->order->addCommentToStatusHistory($message);
         }
 
-            $this->order->getPayment()->setIsClosed(true);
+        $this->order->getPayment()->setIsClosed(true);
     }
 
     /**
@@ -250,6 +253,7 @@ class NotificationProcessor
     {
         $paymentStatusFlow = [
             Status::STATUS_NEW => [
+                Status::STATUS_NEW,
                 Status::STATUS_PENDING,
                 Status::STATUS_ERROR,
                 Status::STATUS_EXPIRED,
