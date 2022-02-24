@@ -49,19 +49,24 @@ class PaymentCapture implements ClientInterface
                 PaymentField::STATUS_FIELD_NAME => $apiResponseObject->getStatus(),
                 PaymentField::PAYMENT_ID_FIELD_NAME => $apiResponseObject->getPaymentId(),
             ];
-            $this->logger->debug(
+            $this->logger->info(
                 "Retrieved capture response",
                 array_merge($loggerContext, $response)
             );
         } catch (PaynowException $exception) {
             $response['errors'] = $exception->getMessage();
-            $this->logger->error($exception->getMessage(), array_merge(
-                $loggerContext,
-                [
-                    'service' => 'Payment',
-                    'action' => 'status'
-                ]
-            ));
+            $this->logger->error(
+                'An error occurred during payment capture',
+                array_merge(
+                    $loggerContext,
+                    [
+                        'service' => 'Payment',
+                        'action' => 'status',
+                        'message' => $exception->getMessage(),
+                        'errors' => $exception->getPrevious()->getErrors()
+                    ]
+                )
+            );
         }
 
         return $response;

@@ -90,7 +90,7 @@ class Notifications extends Action
     {
         $payload          = $this->getRequest()->getContent();
         $notificationData = json_decode($payload, true);
-        $this->logger->debug("Received payment status notification", $notificationData);
+        $this->logger->info("Received payment status notification", $notificationData);
         $storeId      = $this->storeManager->getStore()->getId();
         $signatureKey = $this->configHelper->getSignatureKey($storeId, $this->configHelper->isTestMode($storeId));
 
@@ -118,7 +118,10 @@ class Notifications extends Action
             );
             $this->getResponse()->setHttpResponseCode(400);
         } catch (OrderHasBeenAlreadyPaidException $exception) {
-            $this->logger->info($exception->getMessage() . ' Skip processing the notification.');
+            $this->logger->info(
+                $exception->getMessage() . ' Skip processing the notification.',
+                $notificationData
+            );
             $this->getResponse()->setHttpResponseCode(200);
         }
     }

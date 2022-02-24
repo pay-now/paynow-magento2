@@ -55,7 +55,7 @@ class PaymentAuthorization implements ClientInterface
                 $transferObject->getBody(),
                 $transferObject->getHeaders()[PaymentField::IDEMPOTENCY_KEY_FIELD_NAME]
             );
-            $this->logger->debug(
+            $this->logger->info(
                 "Retrieved authorization response",
                 array_merge($loggerContext, [
                     PaymentField::STATUS_FIELD_NAME => $apiResponseObject->getStatus(),
@@ -66,13 +66,16 @@ class PaymentAuthorization implements ClientInterface
                 PaymentField::REDIRECT_URL_FIELD_NAME => $apiResponseObject->getRedirectUrl(),
                 PaymentField::STATUS_FIELD_NAME => $apiResponseObject->getStatus(),
                 PaymentField::PAYMENT_ID_FIELD_NAME => $apiResponseObject->getPaymentId(),
+                PaymentField::EXTERNAL_ID_FIELD_NAME => $transferObject->getBody()[PaymentField::EXTERNAL_ID_FIELD_NAME]
             ];
         } catch (PaynowException $exception) {
             $this->logger->error(
-                $exception->getMessage(),
+                'An error occurred during payment authorization',
                 array_merge($loggerContext, [
                     'service' => 'Payment',
-                    'action' => 'authorize'
+                    'action' => 'authorize',
+                    'message' => $exception->getMessage(),
+                    'errors' => $exception->getPrevious()->getErrors()
                 ])
             );
             foreach ($exception->getErrors() as $error) {

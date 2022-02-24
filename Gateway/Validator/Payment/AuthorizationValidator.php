@@ -59,7 +59,12 @@ class AuthorizationValidator extends AbstractValidator
                 ! empty($response[PaymentField::REDIRECT_URL_FIELD_NAME]);
         }
 
-        $this->logger->debug("Validating authorization response", ['valid' => $isResponseValid]);
+        $this->logger->debug("Validating authorization response", [
+            PaymentField::EXTERNAL_ID_FIELD_NAME => $response[PaymentField::EXTERNAL_ID_FIELD_NAME],
+            PaymentField::PAYMENT_ID_FIELD_NAME => $response[PaymentField::PAYMENT_ID_FIELD_NAME],
+            PaymentField::STATUS_FIELD_NAME => $response[PaymentField::STATUS_FIELD_NAME],
+            'valid' => $isResponseValid
+        ]);
 
         return $this->createResult(
             $isResponseValid,

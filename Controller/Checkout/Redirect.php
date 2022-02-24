@@ -74,7 +74,7 @@ class Redirect extends Action
                 $redirectUrl = $order->getPayment()->getAdditionalInformation(PaymentField::REDIRECT_URL_FIELD_NAME);
                 $paymentId = $order->getPayment()->getAdditionalInformation(PaymentField::PAYMENT_ID_FIELD_NAME);
                 if ($redirectUrl) {
-                    $this->logger->info(
+                    $this->logger->debug(
                         'Redirecting to payment provider page',
                         [
                             PaymentField::EXTERNAL_ID_FIELD_NAME => $order->getRealOrderId(),
