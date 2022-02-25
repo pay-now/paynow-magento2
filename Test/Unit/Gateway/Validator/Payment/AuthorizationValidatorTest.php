@@ -101,7 +101,8 @@ class AuthorizationValidatorTest extends TestCase
                     'response' => [
                         PaymentField::PAYMENT_ID_FIELD_NAME => 'testPaymentId',
                         PaymentField::STATUS_FIELD_NAME => 'NEW',
-                        PaymentField::REDIRECT_URL_FIELD_NAME => 'testRedirectUrl'
+                        PaymentField::REDIRECT_URL_FIELD_NAME => 'testRedirectUrl',
+                        PaymentField::EXTERNAL_ID_FIELD_NAME => 'testExternalId'
                     ],
                 ],
                 'isValid' => true,
@@ -111,7 +112,8 @@ class AuthorizationValidatorTest extends TestCase
                 'validationSubject' => [
                     'response' => [
                         PaymentField::PAYMENT_ID_FIELD_NAME => 'testPaymentId',
-                        PaymentField::STATUS_FIELD_NAME => 'NEW'
+                        PaymentField::STATUS_FIELD_NAME => 'NEW',
+                        PaymentField::EXTERNAL_ID_FIELD_NAME => 'testExternalId'
                     ]
                 ],
                 'isValid' => false,
