@@ -3,7 +3,6 @@
 namespace Paynow\PaymentGateway\Model\Ui;
 
 use Magento\Checkout\Model\ConfigProviderInterface;
-use Paynow\Model\PaymentMethods\AuthorizationType;
 
 /**
  * Class ConfigProvider
@@ -29,8 +28,6 @@ class BlikConfigProvider extends ConfigProvider implements ConfigProviderInterfa
                              && $this->configHelper->isBlikActive()
                              && $blikPaymentMethod
                              && $blikPaymentMethod->isEnabled();
-        $GDPRNotices = $this->GDPRHelper->getNotices();
-        $isWhiteLabel = $blikPaymentMethod && $blikPaymentMethod->getAuthorizationType() === AuthorizationType::CODE;
 
         return [
             'payment' => [
@@ -38,10 +35,7 @@ class BlikConfigProvider extends ConfigProvider implements ConfigProviderInterfa
                     'isActive'        => $isActive,
                     'logoPath'        => $blikPaymentMethod ? $blikPaymentMethod->getImage() : null,
                     'redirectUrl'     => $this->getRedirectUrl(),
-                    'paymentMethodId' => $blikPaymentMethod ? $blikPaymentMethod->getId(): null,
-                    'GDPRNotices' => $GDPRNotices,
-                    'isWhiteLabel' => $isWhiteLabel,
-                    'blikConfirmUrl' => $this->getConfirmBlikUrl()
+                    'paymentMethodId' => $blikPaymentMethod ? $blikPaymentMethod->getId(): null
                 ]
             ]
         ];

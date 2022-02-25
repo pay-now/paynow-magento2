@@ -15,14 +15,11 @@ class PaymentDataAssignObserver extends AbstractDataAssignObserver
 {
     const PAYMENT_METHOD_ID = 'payment_method_id';
 
-    const BLIK_CODE = 'blik_code';
-
     /**
      * @var array
      */
     protected $additionalInformationList = [
-        self::PAYMENT_METHOD_ID,
-        self::BLIK_CODE
+        self::PAYMENT_METHOD_ID
     ];
 
     /**

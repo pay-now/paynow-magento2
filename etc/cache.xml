@@ -1,7 +1,0 @@
-<?xml version="1.0"?>
-<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Cache/etc/cache.xsd">
-    <type name="paynow" translate="label,description" instance="Paynow\PaymentGateway\Model\Cache\GDPRNoticesCache">
-        <label>Paynow GDPR notices</label>
-        <description>Paynow GDPR notices cache.</description>
-    </type>
-</config>

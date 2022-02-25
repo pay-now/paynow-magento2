@@ -72,9 +72,11 @@ class NotificationProcessor
     public function process($paymentId, $status, $externalId)
     {
         $this->loggerContext = [
+            PaymentField::EXTERNAL_ID_FIELD_NAME => $externalId,
             PaymentField::PAYMENT_ID_FIELD_NAME => $paymentId,
-            PaymentField::EXTERNAL_ID_FIELD_NAME => $externalId
+            PaymentField::STATUS_FIELD_NAME => $status
         ];
+        $this->logger->info("Processing payment status notification", $this->loggerContext);
 
         /** @var Order */
         $this->order = $this->orderFactory->create()->loadByIncrementId($externalId);
@@ -86,8 +88,17 @@ class NotificationProcessor
         $orderPaymentStatus = $paymentAdditionalInformation[PaymentField::STATUS_FIELD_NAME];
         $finalPaymentStatus = $orderPaymentStatus == Status::STATUS_CONFIRMED;
 
+        $this->logger->debug(
+            "Current order state",
+            array_merge(
+                [
+                    'currentStatus' => $orderPaymentStatus
+                ],
+                $this->loggerContext
+            )
+        );
+
         if ($finalPaymentStatus) {
-            $this->logger->info('Order has paid status. Skipped notification processing', $this->loggerContext);
             throw new OrderHasBeenAlreadyPaidException($externalId, $paymentId);
         }
 
@@ -121,6 +132,7 @@ class NotificationProcessor
                 break;
         }
         $this->orderRepository->save($this->order);
+        $this->logger->info("Finished processing payment status notification", $this->loggerContext);
     }
 
     private function paymentNew($paymentId)
@@ -203,7 +215,7 @@ class NotificationProcessor
             $this->order->addCommentToStatusHistory($message);
         }
 
-            $this->order->getPayment()->setIsClosed(true);
+        $this->order->getPayment()->setIsClosed(true);
     }
 
     /**
@@ -241,6 +253,7 @@ class NotificationProcessor
     {
         $paymentStatusFlow = [
             Status::STATUS_NEW => [
+                Status::STATUS_NEW,
                 Status::STATUS_PENDING,
                 Status::STATUS_ERROR,
                 Status::STATUS_EXPIRED,

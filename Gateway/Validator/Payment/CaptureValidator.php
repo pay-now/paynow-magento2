@@ -40,16 +40,25 @@ class CaptureValidator extends AbstractValidator
     public function validate(array $validationSubject)
     {
         $response = SubjectReader::readResponse($validationSubject);
-        $isResponseValid = array_key_exists(PaymentField::PAYMENT_ID_FIELD_NAME, $response) &&
-            array_key_exists(PaymentField::STATUS_FIELD_NAME, $response) &&
-            $response[PaymentField::STATUS_FIELD_NAME] === Status::STATUS_CONFIRMED;
 
-        $this->logger->debug(
+        $this->logger->info(
             "Validating capture response",
             [
-                'valid' => $isResponseValid,
                 'paymentId' => $response[PaymentField::PAYMENT_ID_FIELD_NAME],
                 'status' => $response[PaymentField::STATUS_FIELD_NAME]
+            ]
+        );
+
+        $isResponseValid = array_key_exists(PaymentField::PAYMENT_ID_FIELD_NAME, $response) &&
+                           array_key_exists(PaymentField::STATUS_FIELD_NAME, $response) &&
+                           $response[PaymentField::STATUS_FIELD_NAME] === Status::STATUS_CONFIRMED;
+
+        $this->logger->info(
+            "Capture response has been validated",
+            [
+                PaymentField::PAYMENT_ID_FIELD_NAME => $response[PaymentField::PAYMENT_ID_FIELD_NAME],
+                PaymentField::STATUS_FIELD_NAME => $response[PaymentField::STATUS_FIELD_NAME],
+                'valid' => $isResponseValid,
             ]
         );
 

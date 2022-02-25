@@ -40,11 +40,26 @@ class RefundValidator extends AbstractValidator
     public function validate(array $validationSubject)
     {
         $response = SubjectReader::readResponse($validationSubject);
+        $this->logger->info(
+            "Validating refund response",
+            [
+                RefundField::REFUND_ID_FIELD_NAME => $response[RefundField::REFUND_ID_FIELD_NAME],
+                RefundField::STATUS_FIELD_NAME => $response[RefundField::STATUS_FIELD_NAME],
+            ]
+        );
+
         $isResponseValid = array_key_exists(RefundField::REFUND_ID_FIELD_NAME, $response) &&
                            array_key_exists(RefundField::STATUS_FIELD_NAME, $response) &&
                             $response[RefundField::STATUS_FIELD_NAME] === Status::STATUS_PENDING;
 
-        $this->logger->debug("Validating refund response", ['valid' => $isResponseValid]);
+        $this->logger->info(
+            "Refund response has been validated",
+            [
+                RefundField::REFUND_ID_FIELD_NAME => $response[RefundField::REFUND_ID_FIELD_NAME],
+                RefundField::STATUS_FIELD_NAME => $response[RefundField::STATUS_FIELD_NAME],
+                'valid' => $isResponseValid
+            ]
+        );
 
         return $this->createResult(
             $isResponseValid,
