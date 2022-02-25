@@ -1,0 +1,7 @@
+<mapping xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Payment:etc/error_mapping.xsd">
+    <message_list>
+        <message code="AUTHORIZATION_CODE_INVALID" translate="true">Wrong BLIK code</message>
+        <message code="AUTHORIZATION_CODE_EXPIRED" translate="true">BLIK code has expired</message>
+        <message code="AUTHORIZATION_CODE_USED" translate="true">BLIK code already used</message>
+    </message_list>
+</mapping>

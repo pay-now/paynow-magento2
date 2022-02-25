@@ -46,7 +46,7 @@ class RefundRequest extends AbstractRequest implements BuilderInterface
         ];
 
         $request['headers'] = [
-            PaymentField::IDEMPOTENCY_KEY_FIELD_NAME => uniqid($referenceId, true)
+            PaymentField::IDEMPOTENCY_KEY_FIELD_NAME => uniqid(substr($referenceId, 0, 22), true)
         ];
 
         return $request;

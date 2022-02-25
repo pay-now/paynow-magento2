@@ -3,11 +3,15 @@
 namespace Paynow\PaymentGateway\Test\Unit\Gateway\Validator\Payment;
 
 use Magento\Framework\Phrase;
+use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
 use Magento\Payment\Gateway\Validator\Result;
 use Magento\Payment\Gateway\Validator\ResultInterface;
 use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
+use Magento\Sales\Model\Order\Payment;
+use Paynow\Exception\Error;
 use Paynow\PaymentGateway\Gateway\Validator\Payment\AuthorizationValidator;
 use Paynow\PaymentGateway\Helper\PaymentField;
+use Paynow\PaymentGateway\Observer\PaymentDataAssignObserver;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -70,7 +74,7 @@ class AuthorizationValidatorTest extends TestCase
      *
      * @dataProvider dataProviderTestValidate
      */
-    public function testValidate(array $validationSubject, $isValid, $messages)
+    public function testValidate(array $validationSubject, $isValid, $messages, $messageCodes)
     {
         /** @var ResultInterface|MockObject $result */
         $result = new Result($isValid, $messages);
@@ -80,7 +84,7 @@ class AuthorizationValidatorTest extends TestCase
                 [
                     'isValid' => $isValid,
                     'failsDescription' => $messages,
-                    'errorCodes' => []
+                    'errorCodes' => $messageCodes
                 ]
             )
             ->willReturn($result);
@@ -95,6 +99,15 @@ class AuthorizationValidatorTest extends TestCase
      */
     public function dataProviderTestValidate()
     {
+        $error = $this->getMockBuilder(Error::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $error
+            ->expects($this->any())
+            ->method('getType')
+            ->willReturn('WRONG_BLIK_CODE');
+
         return [
             [
                 'validationSubject' => [
@@ -104,8 +117,22 @@ class AuthorizationValidatorTest extends TestCase
                         PaymentField::REDIRECT_URL_FIELD_NAME => 'testRedirectUrl',
                         PaymentField::EXTERNAL_ID_FIELD_NAME => 'testExternalId'
                     ],
+                    'payment' => $this->getPaymentDataObject('')
                 ],
                 'isValid' => true,
+                [],
+                []
+            ],
+            [
+                'validationSubject' => [
+                    'response' => [
+                        PaymentField::PAYMENT_ID_FIELD_NAME => 'testPaymentId',
+                        PaymentField::STATUS_FIELD_NAME => 'NEW'
+                    ],
+                    'payment' => $this->getPaymentDataObject('111111')
+                ],
+                'isValid' => true,
+                [],
                 []
             ],
             [
@@ -114,13 +141,57 @@ class AuthorizationValidatorTest extends TestCase
                         PaymentField::PAYMENT_ID_FIELD_NAME => 'testPaymentId',
                         PaymentField::STATUS_FIELD_NAME => 'NEW',
                         PaymentField::EXTERNAL_ID_FIELD_NAME => 'testExternalId'
-                    ]
+                    ],
+                    'payment' => $this->getPaymentDataObject('')
                 ],
                 'isValid' => false,
                 [
                     __('Error occurred during the payment process.')
-                ]
+                ],
+                []
+            ],
+            [
+                'validationSubject' => [
+                    'response' => [
+                        'errors' => [$error]
+                    ],
+                    'payment' => $this->getPaymentDataObject('123123')
+                ],
+                'isValid' => false,
+                [
+                    __('Error occurred during the payment process.')
+                ],
+                ['WRONG_BLIK_CODE']
             ]
         ];
+    }
+
+    private function getPaymentDataObject($blikCode)
+    {
+        $paymentInfo = $this->getMockBuilder(Payment::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $paymentInfo
+            ->expects($this->any())
+            ->method('getAdditionalInformation')
+            ->willReturn([PaymentDataAssignObserver::BLIK_CODE => $blikCode]);
+
+        $paymentInfo
+            ->expects($this->any())
+            ->method('hasAdditionalInformation')
+            ->with(PaymentDataAssignObserver::BLIK_CODE)
+            ->willReturn(boolval($blikCode));
+
+        $paymentDO = $this->getMockBuilder(PaymentDataObjectInterface::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $paymentDO
+            ->expects($this->any())
+            ->method('getPayment')
+            ->willReturn($paymentInfo);
+
+        return $paymentDO;
     }
 }
