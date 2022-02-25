@@ -5,13 +5,19 @@ namespace Paynow\PaymentGateway\Controller\Checkout;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
+use Magento\Framework\App\CsrfAwareActionInterface;
+use Magento\Framework\App\Request\Http;
+use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Controller\Result\Redirect as ResponseRedirect;
+use Magento\Framework\Controller\ResultInterface;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\UrlInterface;
 use Magento\Sales\Model\Order;
 use Paynow\PaymentGateway\Helper\NotificationProcessor;
 use Paynow\PaymentGateway\Helper\PaymentField;
-use Paynow\PaymentGateway\Helper\PaymentStatusService;
+use Paynow\PaymentGateway\Helper\PaymentHelper;
 use Paynow\PaymentGateway\Model\Logger\Logger;
+use Paynow\Service\Payment;
 
 /**
  * Class Return
@@ -39,6 +45,10 @@ class Success extends Action
      * @var Order
      */
     private $order;
+    /**
+     * @var \Magento\Framework\App\RequestInterface
+     */
+    private $request;
 
     /**
      * @var UrlInterface
@@ -46,14 +56,14 @@ class Success extends Action
     protected $urlBuilder;
 
     /**
+     * @var PaymentHelper
+     */
+    private $paymentHelper;
+
+    /**
      * @var NotificationProcessor
      */
     private $notificationProcessor;
-
-    /**
-     * @var PaymentStatusService
-     */
-    private $paymentStatusService;
 
     /**
      * Redirect constructor.
@@ -62,7 +72,7 @@ class Success extends Action
      * @param Logger $logger
      * @param UrlInterface $urlBuilder
      * @param NotificationProcessor $notificationProcessor
-     * @param PaymentStatusService $paymentStatusService
+     * @param PaymentHelper $paymentHelper
      */
     public function __construct(
         Context $context,
@@ -70,26 +80,25 @@ class Success extends Action
         Logger $logger,
         UrlInterface $urlBuilder,
         NotificationProcessor $notificationProcessor,
-        PaymentStatusService $paymentStatusService
+        PaymentHelper $paymentHelper
     ) {
         parent::__construct($context);
         $this->checkoutSession = $checkoutSession;
         $this->logger = $logger;
         $this->redirectResult = $this->resultRedirectFactory->create();
+        $this->request = $this->getRequest();
         $this->urlBuilder = $urlBuilder;
         $this->notificationProcessor = $notificationProcessor;
+        $this->paymentHelper = $paymentHelper;
         $this->order = $this->checkoutSession->getLastRealOrder();
-        $this->paymentStatusService = $paymentStatusService;
     }
 
     /**
-     * @return ResponseRedirect
+     * @return ResponseInterface|ResponseRedirect|ResultInterface
      */
-    public function execute(): ResponseRedirect
+    public function execute()
     {
-        $isRetry = $this->order &&
-            $this->order->getPayment() &&
-            $this->order->getPayment()->hasAdditionalInformation(PaymentField::IS_PAYMENT_RETRY_FIELD_NAME);
+        $isRetry = $this->order->getPayment()->hasAdditionalInformation(PaymentField::IS_PAYMENT_RETRY_FIELD_NAME);
 
         if ($this->shouldRetrieveStatus() && ! $isRetry) {
             $this->retrievePaymentStatusAndUpdateOrder();
@@ -99,10 +108,6 @@ class Success extends Action
         return $this->redirectResult;
     }
 
-    /**
-     * @param bool $forRetryPayment
-     * @return string
-     */
     public function getRedirectUrl(bool $forRetryPayment): string
     {
         if ($forRetryPayment) {
@@ -121,13 +126,22 @@ class Success extends Action
             "Retrieving payment status",
             $loggerContext
         );
+
         try {
-            $status = $this->paymentStatusService->getStatus($lastPaymentId);
+            $service = new Payment($this->paymentHelper->initializePaynowClient());
+            $paymentStatusObject  = $service->status($lastPaymentId);
+            $status = $paymentStatusObject ->getStatus();
             $this->logger->info(
                 "Retrieved payment status response",
-                array_merge($loggerContext, [PaymentField::STATUS_FIELD_NAME => $status])
+                array_merge(
+                    $loggerContext,
+                    [
+                        PaymentField::STATUS_FIELD_NAME => $status
+                    ]
+                )
             );
             $this->notificationProcessor->process($lastPaymentId, $status, $this->order->getIncrementId());
+
         } catch (\Exception $exception) {
             $this->logger->error($exception->getMessage(), $loggerContext);
         }

@@ -48,7 +48,6 @@ class PaymentAuthorization implements ClientInterface
         $loggerContext = [
             PaymentField::EXTERNAL_ID_FIELD_NAME => $transferObject->getBody()[PaymentField::EXTERNAL_ID_FIELD_NAME]
         ];
-
         try {
             $service = new Payment($this->client);
             $apiResponseObject = $service->authorize(
@@ -81,7 +80,7 @@ class PaymentAuthorization implements ClientInterface
             foreach ($exception->getErrors() as $error) {
                 $this->logger->debug($error->getType() . ' - ' . $error->getMessage(), $loggerContext);
             }
-            return ['errors' => $exception->getErrors()];
+            return $response['errors'] = $exception->getErrors();
         }
     }
 }
