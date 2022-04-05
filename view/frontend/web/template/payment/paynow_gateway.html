@@ -5,12 +5,11 @@
                class="radio"
                data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()"/>
         <label data-bind="attr: {'for': getCode()}" class="label">
-            <img data-bind="attr: {src: getLogoPath(), alt: $t($data.blikAsGateway === true ? 'Bank transfers and card payments' : 'BLIK, bank transfers and card payments'), width: 80}" class="payment-icon"/>
-            <span data-bind="i18n: {$data.blikAsGateway === true ? 'Bank transfers and card payments' : 'BLIK, bank transfers and card payments'}"></span>
+            <img data-bind="attr: {src: getLogoPath(), alt: $t(isBlikGatewayActive() ? 'Bank transfers and card payments' : 'BLIK, bank transfers and card payments'), width: 80}" class="payment-icon"/>
+            <span data-bind="i18n: {isBlikGatewayActive() ? 'Bank transfers and card payments' : 'BLIK, bank transfers and card payments'}"></span>
         </label>
     </div>
     <div class="payment-method-content">
-
         <div class="paynow-payment-options" data-bind="visible: isButtonActive()">
             <span data-bind="i18n: 'Choose payment method:'"></span>
             <div data-bind="visible: isButtonActive(), foreach: methods">

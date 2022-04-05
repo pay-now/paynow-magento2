@@ -27,8 +27,7 @@ define(
             defaults: {
                 template: 'Paynow_PaymentGateway/payment/paynow_gateway',
                 methods: window.checkoutConfig.payment.paynow_gateway.paymentMethods,
-                paymentMethodId: null,
-                blikAsGateway: window.checkoutConfig.payment.paynow_blik_gateway.isActive
+                paymentMethodId: null
             },
             getCode: function () {
                 return 'paynow_gateway';
@@ -69,6 +68,9 @@ define(
             },
             isButtonActive: function () {
                 return this.getCode() === this.isChecked();
+            },
+            isBlikGatewayActive: function () {
+              return window.checkoutConfig.payment.paynow_blik_gateway.isActive;
             },
             setPaymentMethod: function (paymentMethod) {
                 if (paymentMethod.enabled) {
