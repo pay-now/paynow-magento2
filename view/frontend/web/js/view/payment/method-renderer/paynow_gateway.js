@@ -69,6 +69,9 @@ define(
             isButtonActive: function () {
                 return this.getCode() === this.isChecked();
             },
+            isBlikGatewayActive: function () {
+              return window.checkoutConfig.payment.paynow_blik_gateway.isActive;
+            },
             setPaymentMethod: function (paymentMethod) {
                 if (paymentMethod.enabled) {
                     this.paymentMethodId = paymentMethod.id;
