@@ -21,9 +21,10 @@
     align-items: center;
     display: flex;
     background: #ffffff;
+    transition: all 250ms;
 }
 
-.paynow-payment-option label img {
+.paynow-payment-option div img {
     max-width: 80px;
     width: 100%;
     max-height: 100% !important;
