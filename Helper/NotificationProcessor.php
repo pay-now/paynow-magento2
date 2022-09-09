@@ -11,6 +11,9 @@ use Paynow\PaymentGateway\Model\Exception\OrderHasBeenAlreadyPaidException;
 use Paynow\PaymentGateway\Model\Exception\OrderNotFound;
 use Paynow\PaymentGateway\Model\Exception\OrderPaymentStatusTransitionException;
 use Paynow\PaymentGateway\Model\Logger\Logger;
+use Paynow\PaymentGateway\Model\PaymentStatusHistory;
+use Paynow\PaymentGateway\Model\PaymentStatusHistoryFactory;
+use Paynow\PaymentGateway\Api\PaymentStatusHistoryRepositoryInterface;
 
 /**
  * Class NotificationProcessor
@@ -49,16 +52,30 @@ class NotificationProcessor
      */
     private $orderRepository;
 
+    /**
+     * @var PaymentStatusHistoryFactory
+     */
+    private $paymentStatusHistoryFactory;
+
+    /**
+     * @var PaymentStatusHistoryRepositoryInterface
+     */
+    private $paymentStatusHistoryRepository;
+
     public function __construct(
-        OrderFactory $orderFactory,
-        Logger $logger,
-        ConfigHelper $configHelper,
-        OrderRepositoryInterface $orderRepository
+        OrderFactory                            $orderFactory,
+        Logger                                  $logger,
+        ConfigHelper                            $configHelper,
+        OrderRepositoryInterface                $orderRepository,
+        PaymentStatusHistoryFactory             $paymentStatusHistoryFactory,
+        PaymentStatusHistoryRepositoryInterface $paymentStatusHistoryRepository
     ) {
-        $this->orderFactory = $orderFactory;
-        $this->logger = $logger;
-        $this->configHelper = $configHelper;
-        $this->orderRepository = $orderRepository;
+        $this->orderFactory                   = $orderFactory;
+        $this->logger                         = $logger;
+        $this->configHelper                   = $configHelper;
+        $this->orderRepository                = $orderRepository;
+        $this->paymentStatusHistoryFactory    = $paymentStatusHistoryFactory;
+        $this->paymentStatusHistoryRepository = $paymentStatusHistoryRepository;
     }
 
     /**
@@ -72,9 +89,22 @@ class NotificationProcessor
     public function process($paymentId, $status, $externalId)
     {
         $this->loggerContext = [
-            PaymentField::PAYMENT_ID_FIELD_NAME => $paymentId,
+            PaymentField::PAYMENT_ID_FIELD_NAME  => $paymentId,
             PaymentField::EXTERNAL_ID_FIELD_NAME => $externalId
         ];
+
+        $lastPaymentOrder = $this->paymentStatusHistoryRepository->getLastByExternalIdAndPaymentId(
+            $externalId,
+            $paymentId
+        );
+        if ($lastPaymentOrder->getId()) {
+            if (!$this->isCorrectStatus($lastPaymentOrder->getStatus(), $status)) {
+                throw new OrderPaymentStatusTransitionException(
+                    $lastPaymentOrder->getStatus(),
+                    $status
+                );
+            }
+        }
 
         /** @var Order */
         $this->order = $this->orderFactory->create()->loadByIncrementId($externalId);
@@ -83,19 +113,25 @@ class NotificationProcessor
         }
 
         $paymentAdditionalInformation = $this->order->getPayment()->getAdditionalInformation();
-        $orderPaymentStatus = $paymentAdditionalInformation[PaymentField::STATUS_FIELD_NAME];
-        $finalPaymentStatus = $orderPaymentStatus == Status::STATUS_CONFIRMED;
+        $orderPaymentStatus           = $paymentAdditionalInformation[PaymentField::STATUS_FIELD_NAME];
+        $finalPaymentStatus           = $orderPaymentStatus == Status::STATUS_CONFIRMED;
 
         if ($finalPaymentStatus) {
-            $this->logger->info('Order has paid status. Skipped notification processing', $this->loggerContext);
+            $this->logger->info(
+                'Order has paid status. Skipped notification processing',
+                $this->loggerContext
+            );
             throw new OrderHasBeenAlreadyPaidException($externalId, $paymentId);
         }
 
-        if (! $this->isCorrectStatus($orderPaymentStatus, $status)) {
+        if (!$this->isCorrectStatus($orderPaymentStatus, $status)) {
             throw new OrderPaymentStatusTransitionException($orderPaymentStatus, $status);
         }
 
-        $this->order->getPayment()->setAdditionalInformation(PaymentField::STATUS_FIELD_NAME, $status);
+        $this->order->getPayment()->setAdditionalInformation(
+            PaymentField::STATUS_FIELD_NAME,
+            $status
+        );
 
         switch ($status) {
             case Status::STATUS_NEW:
@@ -120,6 +156,13 @@ class NotificationProcessor
                 $this->paymentAbandoned();
                 break;
         }
+        /** @var PaymentStatusHistory $paymentStatusHistory */
+        $paymentStatusHistory = $this->paymentStatusHistoryFactory->create();
+        $paymentStatusHistory->setOrderId($this->order->getId());
+        $paymentStatusHistory->setExternalId($externalId);
+        $paymentStatusHistory->setPaymentId($paymentId);
+        $paymentStatusHistory->setStatus($status);
+        $this->paymentStatusHistoryRepository->save($paymentStatusHistory);
         $this->orderRepository->save($this->order);
     }
 
@@ -157,7 +200,11 @@ class NotificationProcessor
 
     private function paymentPending()
     {
-        $message = __('Awaiting payment confirmation from Paynow. Transaction ID: ') . $this->order->getPayment()->getAdditionalInformation(PaymentField::PAYMENT_ID_FIELD_NAME);
+        $message = __(
+                'Awaiting payment confirmation from Paynow. Transaction ID: '
+            ) . $this->order->getPayment()->getAdditionalInformation(
+                PaymentField::PAYMENT_ID_FIELD_NAME
+            );
         if ($this->configHelper->isOrderStatusChangeActive()) {
             $this->order
                 ->setState(Order::STATE_PENDING_PAYMENT)
@@ -170,7 +217,8 @@ class NotificationProcessor
 
     private function paymentAbandoned()
     {
-        $message = __('Payment has been abandoned. Transaction ID: ') . $this->order->getPayment()->getAdditionalInformation(PaymentField::PAYMENT_ID_FIELD_NAME);
+        $message = __('Payment has been abandoned. Transaction ID: ') . $this->order->getPayment()
+                ->getAdditionalInformation(PaymentField::PAYMENT_ID_FIELD_NAME);
         if ($this->configHelper->isOrderStatusChangeActive()) {
             $this->order
                 ->setState(Order::STATE_PENDING_PAYMENT)
@@ -193,7 +241,11 @@ class NotificationProcessor
 
     private function paymentRejected()
     {
-        $message = __('Payment has not been authorized by the buyer. Transaction ID: ') . (string)$this->order->getPayment()->getAdditionalInformation(PaymentField::PAYMENT_ID_FIELD_NAME);
+        $message = __(
+                'Payment has not been authorized by the buyer. Transaction ID: '
+            ) . (string)$this->order->getPayment()->getAdditionalInformation(
+                PaymentField::PAYMENT_ID_FIELD_NAME
+            );
         if ($this->configHelper->isOrderStatusChangeActive()) {
             $this->order
                 ->setState(Order::STATE_PAYMENT_REVIEW)
@@ -203,7 +255,7 @@ class NotificationProcessor
             $this->order->addCommentToStatusHistory($message);
         }
 
-            $this->order->getPayment()->setIsClosed(true);
+        $this->order->getPayment()->setIsClosed(true);
     }
 
     /**
@@ -211,7 +263,11 @@ class NotificationProcessor
      */
     private function paymentError()
     {
-        $message = __('Payment has been ended with an error. Transaction ID: ') . $this->order->getPayment()->getAdditionalInformation(PaymentField::PAYMENT_ID_FIELD_NAME);
+        $message = __(
+                'Payment has been ended with an error. Transaction ID: '
+            ) . $this->order->getPayment()->getAdditionalInformation(
+                PaymentField::PAYMENT_ID_FIELD_NAME
+            );
         if ($this->configHelper->isOrderStatusChangeActive()) {
             $this->order
                 ->setState(Order::STATE_PAYMENT_REVIEW)
@@ -226,7 +282,8 @@ class NotificationProcessor
      */
     private function paymentExpired()
     {
-        $message = __('Payment has been expired. Transaction ID: ') . $this->order->getPayment()->getAdditionalInformation(PaymentField::PAYMENT_ID_FIELD_NAME);
+        $message = __('Payment has been expired. Transaction ID: ') . $this->order->getPayment()
+                ->getAdditionalInformation(PaymentField::PAYMENT_ID_FIELD_NAME);
         $this->order->addCommentToStatusHistory($message);
         $this->order->getPayment()->deny();
     }
@@ -240,38 +297,38 @@ class NotificationProcessor
     private function isCorrectStatus($previousStatus, $nextStatus): bool
     {
         $paymentStatusFlow = [
-            Status::STATUS_NEW => [
+            Status::STATUS_NEW       => [
                 Status::STATUS_PENDING,
                 Status::STATUS_ERROR,
                 Status::STATUS_EXPIRED,
                 Status::STATUS_CONFIRMED,
                 Status::STATUS_REJECTED
             ],
-            Status::STATUS_PENDING => [
+            Status::STATUS_PENDING   => [
                 Status::STATUS_CONFIRMED,
                 Status::STATUS_REJECTED,
                 Status::STATUS_EXPIRED,
                 Status::STATUS_ABANDONED
             ],
-            Status::STATUS_REJECTED => [
+            Status::STATUS_REJECTED  => [
                 Status::STATUS_PENDING,
                 Status::STATUS_CONFIRMED,
                 Status::STATUS_ABANDONED,
                 Status::STATUS_NEW
             ],
             Status::STATUS_CONFIRMED => [],
-            Status::STATUS_ERROR => [
+            Status::STATUS_ERROR     => [
                 Status::STATUS_CONFIRMED,
                 Status::STATUS_REJECTED,
                 Status::STATUS_ABANDONED,
                 Status::STATUS_NEW
             ],
-            Status::STATUS_EXPIRED => [],
+            Status::STATUS_EXPIRED   => [],
             Status::STATUS_ABANDONED => [Status::STATUS_NEW]
         ];
 
         $previousStatusExists = isset($paymentStatusFlow[$previousStatus]);
-        $isChangePossible = in_array($nextStatus, $paymentStatusFlow[$previousStatus]);
+        $isChangePossible     = in_array($nextStatus, $paymentStatusFlow[$previousStatus]);
         return $previousStatusExists && $isChangePossible;
     }
 }
