@@ -156,13 +156,16 @@ class NotificationProcessor
                 $this->paymentAbandoned();
                 break;
         }
+
         /** @var PaymentStatusHistory $paymentStatusHistory */
         $paymentStatusHistory = $this->paymentStatusHistoryFactory->create();
-        $paymentStatusHistory->setOrderId($this->order->getId());
-        $paymentStatusHistory->setExternalId($externalId);
-        $paymentStatusHistory->setPaymentId($paymentId);
-        $paymentStatusHistory->setStatus($status);
+        $paymentStatusHistory
+            ->setOrderId($this->order->getId())
+            ->setExternalId($externalId)
+            ->setPaymentId($paymentId)
+            ->setStatus($status);
         $this->paymentStatusHistoryRepository->save($paymentStatusHistory);
+
         $this->orderRepository->save($this->order);
     }
 
