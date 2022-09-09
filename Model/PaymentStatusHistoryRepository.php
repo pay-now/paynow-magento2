@@ -152,8 +152,7 @@ class PaymentStatusHistoryRepository implements PaymentStatusHistoryRepositoryIn
     {
         $paymentHistoryCollection = $this->PaymentStatusHistoryCollectionFactory->create(
             $paymentId,
-            $externalId,
-            true
+            $externalId
         );
         return $paymentHistoryCollection->getFirstItem();
     }
