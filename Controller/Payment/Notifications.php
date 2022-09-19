@@ -15,6 +15,7 @@ use Paynow\PaymentGateway\Helper\PaymentHelper;
 use Paynow\PaymentGateway\Model\Exception\OrderHasBeenAlreadyPaidException;
 use Paynow\PaymentGateway\Model\Exception\OrderNotFound;
 use Paynow\PaymentGateway\Model\Exception\OrderPaymentStatusTransitionException;
+use Paynow\PaymentGateway\Model\Exception\OrderPaymentStrictStatusTransitionException;
 use Paynow\PaymentGateway\Model\Logger\Logger;
 use Zend\Http\Headers;
 
@@ -53,20 +54,20 @@ class Notifications extends Action
     /**
      * Redirect constructor.
      *
-     * @param Context $context
+     * @param Context               $context
      * @param StoreManagerInterface $storeManager
      * @param NotificationProcessor $notificationProcessor
-     * @param Logger $logger
-     * @param PaymentHelper $paymentHelper
-     * @param ConfigHelper $configHelper
+     * @param Logger                $logger
+     * @param PaymentHelper         $paymentHelper
+     * @param ConfigHelper          $configHelper
      */
     public function __construct(
-        Context $context,
+        Context               $context,
         StoreManagerInterface $storeManager,
         NotificationProcessor $notificationProcessor,
-        Logger $logger,
-        PaymentHelper $paymentHelper,
-        ConfigHelper $configHelper
+        Logger                $logger,
+        PaymentHelper         $paymentHelper,
+        ConfigHelper          $configHelper
     ) {
         parent::__construct($context);
         $this->storeManager          = $storeManager;
@@ -85,6 +86,8 @@ class Notifications extends Action
 
     /**
      * Process payment status notification
+     *
+     * @return void
      */
     public function execute()
     {
@@ -92,7 +95,12 @@ class Notifications extends Action
         $notificationData = json_decode($payload, true);
         $this->logger->debug("Received payment status notification", $notificationData);
         $storeId      = $this->storeManager->getStore()->getId();
-        $signatureKey = $this->configHelper->getSignatureKey($storeId, $this->configHelper->isTestMode($storeId));
+        $signatureKey = $this->configHelper->getSignatureKey(
+            $storeId,
+            $this->configHelper->isTestMode(
+                $storeId
+            )
+        );
 
         try {
             new Notification(
@@ -111,7 +119,7 @@ class Notifications extends Action
                 $notificationData
             );
             $this->getResponse()->setHttpResponseCode(400);
-        } catch (OrderPaymentStatusTransitionException | OrderNotFound $exception) {
+        } catch (OrderPaymentStatusTransitionException|OrderPaymentStrictStatusTransitionException|OrderNotFound $exception) {
             $this->logger->warning(
                 $exception->getMessage(),
                 $notificationData

@@ -10,6 +10,7 @@ use Paynow\Model\Payment\Status;
 use Paynow\PaymentGateway\Model\Exception\OrderHasBeenAlreadyPaidException;
 use Paynow\PaymentGateway\Model\Exception\OrderNotFound;
 use Paynow\PaymentGateway\Model\Exception\OrderPaymentStatusTransitionException;
+use Paynow\PaymentGateway\Model\Exception\OrderPaymentStrictStatusTransitionException;
 use Paynow\PaymentGateway\Model\Logger\Logger;
 use Paynow\PaymentGateway\Model\PaymentStatusHistory;
 use Paynow\PaymentGateway\Model\PaymentStatusHistoryFactory;
@@ -85,6 +86,7 @@ class NotificationProcessor
      * @throws OrderNotFound
      * @throws OrderHasBeenAlreadyPaidException
      * @throws OrderPaymentStatusTransitionException
+     * @throws OrderPaymentStrictStatusTransitionException
      */
     public function process($paymentId, $status, $externalId)
     {
@@ -99,9 +101,10 @@ class NotificationProcessor
         );
         if ($lastPaymentOrder->getId()) {
             if (!$this->isCorrectStatus($lastPaymentOrder->getStatus(), $status, true)) {
-                throw new OrderPaymentStatusTransitionException(
+                throw new OrderPaymentStrictStatusTransitionException(
                     $lastPaymentOrder->getStatus(),
-                    $status
+                    $status,
+                    $paymentId
                 );
             }
         }
@@ -339,6 +342,7 @@ class NotificationProcessor
                 Status::STATUS_NEW
             ],
             Status::STATUS_EXPIRED   => [],
+            Status::STATUS_ABANDONED => [],
         ];
 
         if ($paymentIdStrict == false) {
