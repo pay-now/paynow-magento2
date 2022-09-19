@@ -98,7 +98,7 @@ class NotificationProcessor
             $paymentId
         );
         if ($lastPaymentOrder->getId()) {
-            if (!$this->isCorrectStatus($lastPaymentOrder->getStatus(), $status)) {
+            if (!$this->isCorrectStatus($lastPaymentOrder->getStatus(), $status, true)) {
                 throw new OrderPaymentStatusTransitionException(
                     $lastPaymentOrder->getStatus(),
                     $status
@@ -218,6 +218,9 @@ class NotificationProcessor
         $this->order->getPayment()->setIsClosed(false);
     }
 
+    /**
+     * @return void
+     */
     private function paymentAbandoned()
     {
         $message = __('Payment has been abandoned. Transaction ID: ') . $this->order->getPayment()
@@ -232,6 +235,9 @@ class NotificationProcessor
         $this->order->getPayment()->setIsClosed(true);
     }
 
+    /**
+     * @return void
+     */
     private function paymentConfirmed()
     {
         if ($this->order->getPayment()->canCapture()) {
@@ -242,6 +248,9 @@ class NotificationProcessor
         }
     }
 
+    /**
+     * @return void
+     */
     private function paymentRejected()
     {
         $message = __(
@@ -292,13 +301,16 @@ class NotificationProcessor
     }
 
     /**
-     * @param $previousStatus
-     * @param $nextStatus
-     *
+     * @param string $previousStatus
+     * @param string $nextStatus
+     * @param bool   $paymentIdStrict
      * @return bool
      */
-    private function isCorrectStatus($previousStatus, $nextStatus): bool
-    {
+    private function isCorrectStatus(
+        string $previousStatus,
+        string $nextStatus,
+        bool   $paymentIdStrict = false
+    ): bool {
         $paymentStatusFlow = [
             Status::STATUS_NEW       => [
                 Status::STATUS_PENDING,
@@ -327,11 +339,15 @@ class NotificationProcessor
                 Status::STATUS_NEW
             ],
             Status::STATUS_EXPIRED   => [],
-            Status::STATUS_ABANDONED => [Status::STATUS_NEW]
         ];
+
+        if ($paymentIdStrict == false) {
+            $paymentStatusFlow[Status::STATUS_ABANDONED] = [Status::STATUS_NEW];
+        }
 
         $previousStatusExists = isset($paymentStatusFlow[$previousStatus]);
         $isChangePossible     = in_array($nextStatus, $paymentStatusFlow[$previousStatus]);
         return $previousStatusExists && $isChangePossible;
     }
+
 }
