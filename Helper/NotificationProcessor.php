@@ -329,10 +329,7 @@ class NotificationProcessor
                 Status::STATUS_ABANDONED
             ],
             Status::STATUS_REJECTED  => [
-                Status::STATUS_PENDING,
-                Status::STATUS_CONFIRMED,
-                Status::STATUS_ABANDONED,
-                Status::STATUS_NEW
+                Status::STATUS_ABANDONED
             ],
             Status::STATUS_CONFIRMED => [],
             Status::STATUS_ERROR     => [
@@ -346,7 +343,13 @@ class NotificationProcessor
         ];
 
         if ($paymentIdStrict == false) {
-            $paymentStatusFlow[Status::STATUS_ABANDONED] = [Status::STATUS_NEW];
+            array_push(
+                $paymentStatusFlow[Status::STATUS_REJECTED],
+                Status::STATUS_NEW,
+                Status::STATUS_PENDING,
+                Status::STATUS_CONFIRMED
+            );
+            $paymentStatusFlow[Status::STATUS_ABANDONED][] = Status::STATUS_NEW;
         }
 
         $previousStatusExists = isset($paymentStatusFlow[$previousStatus]);
