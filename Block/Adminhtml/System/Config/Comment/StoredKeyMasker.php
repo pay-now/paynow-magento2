@@ -35,7 +35,7 @@ class StoredKeyMasker implements CommentInterface
      */
     public function getCommentText($elementValue)
     {
-        $apiKeyStored = substr($this->encryptor->decrypt(trim($elementValue)), -6);
+        $apiKeyStored = substr($this->encryptor->decrypt(trim($elementValue ?? '')), -6);
         if (!$apiKeyStored) {
             return '';
         }
