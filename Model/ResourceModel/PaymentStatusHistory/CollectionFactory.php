@@ -52,7 +52,7 @@ class CollectionFactory implements CollectionFactoryInterface
             $collection->addFieldToFilter('external_id', $externalId);
         }
 
-        $collection->addFieldToSort('created_at', 'DESC');
+        $collection->setOrder('created_at', 'DESC');
 
         return $collection;
     }
