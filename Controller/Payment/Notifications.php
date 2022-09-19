@@ -90,9 +90,7 @@ class Notifications extends Action
     {
         $payload          = $this->getRequest()->getContent();
         $notificationData = json_decode($payload, true);
-        if (!is_null($notificationData)){
-            $this->logger->debug("Received payment status notification", $notificationData);
-        }
+        $this->logger->debug("Received payment status notification", $notificationData);
         $storeId      = $this->storeManager->getStore()->getId();
         $signatureKey = $this->configHelper->getSignatureKey($storeId, $this->configHelper->isTestMode($storeId));
 
