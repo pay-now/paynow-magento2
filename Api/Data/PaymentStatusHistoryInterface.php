@@ -11,7 +11,7 @@ interface PaymentStatusHistoryInterface
     const STATUS      = 'status';
     const ENTITY_ID   = 'entity_id';
     const EXTERNAL_ID = 'external_id';
-    const CREATED_AT     = 'created_at';
+    const CREATED_AT  = 'created_at';
     const PAYMENT_ID  = 'payment_id';
 
     /**
