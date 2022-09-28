@@ -329,7 +329,8 @@ class NotificationProcessor
                 Status::STATUS_ABANDONED
             ],
             Status::STATUS_REJECTED  => [
-                Status::STATUS_ABANDONED
+                Status::STATUS_ABANDONED,
+                Status::STATUS_CONFIRMED
             ],
             Status::STATUS_CONFIRMED => [],
             Status::STATUS_ERROR     => [
@@ -346,8 +347,7 @@ class NotificationProcessor
             array_push(
                 $paymentStatusFlow[Status::STATUS_REJECTED],
                 Status::STATUS_NEW,
-                Status::STATUS_PENDING,
-                Status::STATUS_CONFIRMED
+                Status::STATUS_PENDING
             );
             $paymentStatusFlow[Status::STATUS_ABANDONED][] = Status::STATUS_NEW;
         }
