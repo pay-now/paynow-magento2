@@ -2,7 +2,7 @@
   "name": "pay-now/paynow-magento2",
   "description": "Module for Paynow payments",
   "type": "magento2-module",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "license": "MIT",
   "keywords": [
     "paynow",

@@ -2,7 +2,6 @@
 
 # Paynow plugin for Magento 2
 
-[![Build Status](https://travis-ci.com/pay-now/paynow-magento2.svg?branch=master)](https://travis-ci.com/pay-now/paynow-magento2)
 [![Latest Version](https://img.shields.io/github/release/pay-now/paynow-magento2.svg)](https://github.com/pay-now/paynow-magento2/releases)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg)](LICENSE)
 [![Total Downloads](https://img.shields.io/packagist/dt/pay-now/paynow-magento2)](https://packagist.org/packages/pay-now/paynow-magento2)
