@@ -77,6 +77,7 @@ class Retry extends Action
         if (!$this->configHelper->isRetryPaymentActive()) {
             $this->messageManager->addErrorMessage(__('Retry payment is not active.'));
             $this->redirectResult->setPath('sales/order/history', ['_secure' => $this->getRequest()->isSecure()]);
+            return $this->redirectResult;
         }
 
         $orderId = (int)$this->getRequest()->getParams()['order_id'];
@@ -86,6 +87,7 @@ class Retry extends Action
         if (!$this->paymentHelper->isRetryPaymentActiveForOrder($order)) {
             $this->messageManager->addErrorMessage(__('Retry payment is not available for the order.'));
             $this->redirectResult->setPath('checkout/cart', ['_secure' => $this->getRequest()->isSecure()]);
+            return $this->redirectResult;
         }
 
         $this->authorizeNewPayment($order);
