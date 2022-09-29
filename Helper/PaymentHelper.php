@@ -283,7 +283,11 @@ class PaymentHelper extends AbstractHelper
         $paymentStatus = $order->getPayment()->getAdditionalInformation(PaymentField::STATUS_FIELD_NAME);
 
         return $this->configHelper->isRetryPaymentActive() &&
-               $order->getStatus() === Order::STATE_PAYMENT_REVIEW &&
+                (
+                    $order->getStatus() === Order::STATE_PAYMENT_REVIEW ||
+                    $order->getStatus() === Order::STATE_PENDING_PAYMENT
+                )
+                &&
                in_array(
                    $paymentStatus,
                    [
