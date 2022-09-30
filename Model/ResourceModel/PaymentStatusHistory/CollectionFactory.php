@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 namespace Paynow\PaymentGateway\Model\ResourceModel\PaymentStatusHistory;
 
+/**
+ * Class CollectionFactory
+ *
+ * @package Paynow\PaymentGateway\Model\ResourceModel\PaymentStatusHistory
+ */
 class CollectionFactory implements CollectionFactoryInterface
 {
 
@@ -27,8 +32,7 @@ class CollectionFactory implements CollectionFactoryInterface
      * @param \Magento\Framework\ObjectManagerInterface $objectManager
      * @param string                                    $instanceName
      */
-    public function __construct
-    (
+    public function __construct(
         \Magento\Framework\ObjectManagerInterface $objectManager,
         $instanceName = \Paynow\PaymentGateway\Model\ResourceModel\PaymentStatusHistory\Collection::class
     ) {

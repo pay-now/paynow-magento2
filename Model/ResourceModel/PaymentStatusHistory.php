@@ -6,6 +6,11 @@ namespace Paynow\PaymentGateway\Model\ResourceModel;
 
 use Magento\Framework\Model\ResourceModel\Db\AbstractDb;
 
+/**
+ * Class PaymentStatusHistory
+ *
+ * @package Paynow\PaymentGateway\Model\ResourceModel
+ */
 class PaymentStatusHistory extends AbstractDb
 {
 
@@ -17,4 +22,3 @@ class PaymentStatusHistory extends AbstractDb
         $this->_init('paynow_paymentgateway_paymentstatushistory', 'entity_id');
     }
 }
-

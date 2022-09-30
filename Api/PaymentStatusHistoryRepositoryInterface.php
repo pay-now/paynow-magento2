@@ -69,7 +69,4 @@ interface PaymentStatusHistoryRepositoryInterface
      * @return \Paynow\PaymentGateway\Api\Data\PaymentStatusHistoryInterface
      */
     public function getLastByExternalIdAndPaymentId($externalId, $paymentId);
-
 }
-
-

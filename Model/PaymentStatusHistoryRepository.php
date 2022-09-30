@@ -13,8 +13,14 @@ use Paynow\PaymentGateway\Api\Data\PaymentStatusHistoryInterfaceFactory;
 use Paynow\PaymentGateway\Api\Data\PaymentStatusHistorySearchResultsInterfaceFactory;
 use Paynow\PaymentGateway\Api\PaymentStatusHistoryRepositoryInterface;
 use Paynow\PaymentGateway\Model\ResourceModel\PaymentStatusHistory as ResourcePaymentStatusHistory;
-use Paynow\PaymentGateway\Model\ResourceModel\PaymentStatusHistory\CollectionFactory as PaymentStatusHistoryCollectionFactory;
+use Paynow\PaymentGateway\Model\ResourceModel\PaymentStatusHistory\CollectionFactory
+    as PaymentStatusHistoryCollectionFactory;
 
+/**
+ * Class PaymentStatusHistoryRepository
+ *
+ * @package Paynow\PaymentGateway\Model
+ */
 class PaymentStatusHistoryRepository implements PaymentStatusHistoryRepositoryInterface
 {
 
@@ -165,4 +171,3 @@ class PaymentStatusHistoryRepository implements PaymentStatusHistoryRepositoryIn
         return $this->delete($this->get($id));
     }
 }
-
