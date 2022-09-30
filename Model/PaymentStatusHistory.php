@@ -7,6 +7,11 @@ namespace Paynow\PaymentGateway\Model;
 use Magento\Framework\Model\AbstractModel;
 use Paynow\PaymentGateway\Api\Data\PaymentStatusHistoryInterface;
 
+/**
+ * Class PaymentStatusHistory
+ *
+ * @package Paynow\PaymentGateway\Model
+ */
 class PaymentStatusHistory extends AbstractModel implements PaymentStatusHistoryInterface
 {
 
@@ -114,4 +119,3 @@ class PaymentStatusHistory extends AbstractModel implements PaymentStatusHistory
         return $this->setData(self::ORDER_ID, $orderId);
     }
 }
-

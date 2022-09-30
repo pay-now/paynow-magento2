@@ -104,4 +104,3 @@ interface PaymentStatusHistoryInterface
      */
     public function setOrderId($orderId);
 }
-

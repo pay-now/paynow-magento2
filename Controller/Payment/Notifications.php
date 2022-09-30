@@ -119,11 +119,11 @@ class Notifications extends Action
                 $notificationData
             );
             $this->getResponse()->setHttpResponseCode(400);
-        } catch (OrderPaymentStatusTransitionException|OrderPaymentStrictStatusTransitionException|OrderNotFound $exception) {
-            $this->logger->warning(
-                $exception->getMessage(),
-                $notificationData
-            );
+        } catch (OrderPaymentStatusTransitionException
+            | OrderPaymentStrictStatusTransitionException
+            | OrderNotFound $exception
+        ) {
+            $this->logger->warning($exception->getMessage(), $notificationData);
             $this->getResponse()->setHttpResponseCode(400);
         } catch (OrderHasBeenAlreadyPaidException $exception) {
             $this->logger->info($exception->getMessage() . ' Skip processing the notification.');

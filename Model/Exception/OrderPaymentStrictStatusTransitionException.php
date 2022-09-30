@@ -15,6 +15,6 @@ class OrderPaymentStrictStatusTransitionException extends Exception
 
     public function __construct($orderPaymentStatus, $paymentStatus, $paymentId)
     {
-        parent::__construct(sprintf(self::EXCEPTION_MESSAGE, $orderPaymentStatus, $paymentStatus,$paymentId));
+        parent::__construct(sprintf(self::EXCEPTION_MESSAGE, $orderPaymentStatus, $paymentStatus, $paymentId));
     }
 }

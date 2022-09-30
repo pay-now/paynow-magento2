@@ -6,6 +6,11 @@ namespace Paynow\PaymentGateway\Model\ResourceModel\PaymentStatusHistory;
 
 use Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection;
 
+/**
+ * Class Collection
+ *
+ * @package Paynow\PaymentGateway\Model\ResourceModel\PaymentStatusHistory
+ */
 class Collection extends AbstractCollection
 {
 
@@ -25,4 +30,3 @@ class Collection extends AbstractCollection
         );
     }
 }
-

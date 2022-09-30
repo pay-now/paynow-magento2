@@ -7,6 +7,7 @@ use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment\Transaction;
 use Magento\Sales\Model\OrderFactory;
 use Paynow\Model\Payment\Status;
+use Paynow\PaymentGateway\Api\PaymentStatusHistoryRepositoryInterface;
 use Paynow\PaymentGateway\Model\Exception\OrderHasBeenAlreadyPaidException;
 use Paynow\PaymentGateway\Model\Exception\OrderNotFound;
 use Paynow\PaymentGateway\Model\Exception\OrderPaymentStatusTransitionException;
@@ -14,7 +15,6 @@ use Paynow\PaymentGateway\Model\Exception\OrderPaymentStrictStatusTransitionExce
 use Paynow\PaymentGateway\Model\Logger\Logger;
 use Paynow\PaymentGateway\Model\PaymentStatusHistory;
 use Paynow\PaymentGateway\Model\PaymentStatusHistoryFactory;
-use Paynow\PaymentGateway\Api\PaymentStatusHistoryRepositoryInterface;
 
 /**
  * Class NotificationProcessor
@@ -207,10 +207,10 @@ class NotificationProcessor
     private function paymentPending()
     {
         $message = __(
-                'Awaiting payment confirmation from Paynow. Transaction ID: '
-            ) . $this->order->getPayment()->getAdditionalInformation(
-                PaymentField::PAYMENT_ID_FIELD_NAME
-            );
+            'Awaiting payment confirmation from Paynow. Transaction ID: '
+        ) . $this->order->getPayment()->getAdditionalInformation(
+            PaymentField::PAYMENT_ID_FIELD_NAME
+        );
         if ($this->configHelper->isOrderStatusChangeActive()) {
             $this->order
                 ->setState(Order::STATE_PENDING_PAYMENT)
@@ -257,10 +257,10 @@ class NotificationProcessor
     private function paymentRejected()
     {
         $message = __(
-                'Payment has not been authorized by the buyer. Transaction ID: '
-            ) . (string)$this->order->getPayment()->getAdditionalInformation(
-                PaymentField::PAYMENT_ID_FIELD_NAME
-            );
+            'Payment has not been authorized by the buyer. Transaction ID: '
+        ) . (string)$this->order->getPayment()->getAdditionalInformation(
+            PaymentField::PAYMENT_ID_FIELD_NAME
+        );
         if ($this->configHelper->isOrderStatusChangeActive()) {
             $this->order
                 ->setState(Order::STATE_PAYMENT_REVIEW)
@@ -279,10 +279,10 @@ class NotificationProcessor
     private function paymentError()
     {
         $message = __(
-                'Payment has been ended with an error. Transaction ID: '
-            ) . $this->order->getPayment()->getAdditionalInformation(
-                PaymentField::PAYMENT_ID_FIELD_NAME
-            );
+            'Payment has been ended with an error. Transaction ID: '
+        ) . $this->order->getPayment()->getAdditionalInformation(
+            PaymentField::PAYMENT_ID_FIELD_NAME
+        );
         if ($this->configHelper->isOrderStatusChangeActive()) {
             $this->order
                 ->setState(Order::STATE_PAYMENT_REVIEW)
@@ -356,5 +356,4 @@ class NotificationProcessor
         $isChangePossible     = in_array($nextStatus, $paymentStatusFlow[$previousStatus]);
         return $previousStatusExists && $isChangePossible;
     }
-
 }
