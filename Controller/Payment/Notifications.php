@@ -15,6 +15,7 @@ use Paynow\PaymentGateway\Helper\PaymentHelper;
 use Paynow\PaymentGateway\Model\Exception\OrderHasBeenAlreadyPaidException;
 use Paynow\PaymentGateway\Model\Exception\OrderNotFound;
 use Paynow\PaymentGateway\Model\Exception\OrderPaymentStatusTransitionException;
+use Paynow\PaymentGateway\Model\Exception\OrderPaymentStrictStatusTransition200Exception;
 use Paynow\PaymentGateway\Model\Exception\OrderPaymentStrictStatusTransitionException;
 use Paynow\PaymentGateway\Model\Logger\Logger;
 use Zend\Http\Headers;

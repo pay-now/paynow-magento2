@@ -110,18 +110,20 @@ class NotificationProcessor
 
             if (!$isStatusCorrect) {
                 if ($c <= self::MAX_ATTEPMTS_TO_DELIVER_WRONG_STATUSES) {
-                    throw new OrderPaymentStrictStatusTransitionException(
-                        $lastPaymentOrder->getStatus(),
-                        $status,
-                        $paymentId
-                    );
-                } else {
+                    $lastPaymentOrder->setCounter($c++);
                     throw new OrderPaymentStrictStatusTransition200Exception(
                         $lastPaymentOrder->getStatus(),
                         $status,
                         $paymentId,
                         $c,
                         self::MAX_ATTEPMTS_TO_DELIVER_WRONG_STATUSES
+                    );
+                } else {
+
+                    throw new OrderPaymentStrictStatusTransitionException(
+                        $lastPaymentOrder->getStatus(),
+                        $status,
+                        $paymentId
                     );
                 }
             }
