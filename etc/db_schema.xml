@@ -12,6 +12,7 @@
         <column name="external_id" nullable="true" xsi:type="text" comment="external_id"/>
         <column name="order_id" nullable="true" xsi:type="text" comment="order_id"/>
         <column name="status" nullable="true" xsi:type="text" comment="status"/>
+        <column name="counter" nullable="false" default="0" xsi:type="integer" comment="status"/>
         <column xsi:type="timestamp" name="created_at" on_update="false" nullable="false"
                 default="CURRENT_TIMESTAMP"
                 comment="Created At"/>
