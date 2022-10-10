@@ -125,7 +125,9 @@ class Notifications extends Action
         ) {
             $this->logger->warning($exception->getMessage(), $notificationData);
             $this->getResponse()->setHttpResponseCode(400);
-        } catch (OrderHasBeenAlreadyPaidException $exception) {
+        } catch (OrderHasBeenAlreadyPaidException
+            | OrderPaymentStrictStatusTransition200Exception
+        $exception) {
             $this->logger->info($exception->getMessage() . ' Skip processing the notification.');
             $this->getResponse()->setHttpResponseCode(200);
         }

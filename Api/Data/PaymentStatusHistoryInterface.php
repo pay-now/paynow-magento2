@@ -13,6 +13,7 @@ interface PaymentStatusHistoryInterface
     const EXTERNAL_ID = 'external_id';
     const CREATED_AT  = 'created_at';
     const PAYMENT_ID  = 'payment_id';
+    const COUNTER     = 'counter';
 
     /**
      * Get entity_id
@@ -103,4 +104,19 @@ interface PaymentStatusHistoryInterface
      * @return \Paynow\PaymentGateway\PaymentStatusHistory\Api\Data\PaymentStatusHistoryInterface
      */
     public function setOrderId($orderId);
+
+    /**
+     * Get conter
+     *
+     * @return int
+     */
+    public function getCounter();
+
+    /**
+     * Set conter
+     *
+     * @param string $orderId
+     * @return \Paynow\PaymentGateway\PaymentStatusHistory\Api\Data\PaymentStatusHistoryInterface
+     */
+    public function setCounter($counter);
 }

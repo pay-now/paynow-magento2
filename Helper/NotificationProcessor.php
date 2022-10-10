@@ -11,6 +11,7 @@ use Paynow\PaymentGateway\Api\PaymentStatusHistoryRepositoryInterface;
 use Paynow\PaymentGateway\Model\Exception\OrderHasBeenAlreadyPaidException;
 use Paynow\PaymentGateway\Model\Exception\OrderNotFound;
 use Paynow\PaymentGateway\Model\Exception\OrderPaymentStatusTransitionException;
+use Paynow\PaymentGateway\Model\Exception\OrderPaymentStrictStatusTransition200Exception;
 use Paynow\PaymentGateway\Model\Exception\OrderPaymentStrictStatusTransitionException;
 use Paynow\PaymentGateway\Model\Logger\Logger;
 use Paynow\PaymentGateway\Model\PaymentStatusHistory;
@@ -23,6 +24,8 @@ use Paynow\PaymentGateway\Model\PaymentStatusHistoryFactory;
  */
 class NotificationProcessor
 {
+    CONST MAX_ATTEPMTS_TO_DELIVER_WRONG_STATUSES = 3;
+
     /**
      * @var Magento\Sales\Model\OrderFactory
      */
@@ -87,6 +90,8 @@ class NotificationProcessor
      * @throws OrderHasBeenAlreadyPaidException
      * @throws OrderPaymentStatusTransitionException
      * @throws OrderPaymentStrictStatusTransitionException
+     * @throws OrderPaymentStrictStatusTransition200Exception
+     * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function process($paymentId, $status, $externalId)
     {
@@ -100,12 +105,25 @@ class NotificationProcessor
             $paymentId
         );
         if ($lastPaymentOrder->getId()) {
-            if (!$this->isCorrectStatus($lastPaymentOrder->getStatus(), $status, true)) {
-                throw new OrderPaymentStrictStatusTransitionException(
-                    $lastPaymentOrder->getStatus(),
-                    $status,
-                    $paymentId
-                );
+            $isStatusCorrect = $this->isCorrectStatus($lastPaymentOrder->getStatus(), $status, true);
+            $c = $lastPaymentOrder->getCounter();
+
+            if (!$isStatusCorrect) {
+                if ($c <= self::MAX_ATTEPMTS_TO_DELIVER_WRONG_STATUSES) {
+                    throw new OrderPaymentStrictStatusTransitionException(
+                        $lastPaymentOrder->getStatus(),
+                        $status,
+                        $paymentId
+                    );
+                } else {
+                    throw new OrderPaymentStrictStatusTransition200Exception(
+                        $lastPaymentOrder->getStatus(),
+                        $status,
+                        $paymentId,
+                        $c,
+                        self::MAX_ATTEPMTS_TO_DELIVER_WRONG_STATUSES
+                    );
+                }
             }
         }
 

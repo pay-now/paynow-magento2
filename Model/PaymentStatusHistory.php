@@ -118,4 +118,20 @@ class PaymentStatusHistory extends AbstractModel implements PaymentStatusHistory
     {
         return $this->setData(self::ORDER_ID, $orderId);
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function getCounter()
+    {
+        return $this->getData(self::COUNTER);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setCounter($counter)
+    {
+        return $this->setData(self::COUNTER, $counter);
+    }
 }
