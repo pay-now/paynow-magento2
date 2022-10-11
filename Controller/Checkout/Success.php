@@ -87,29 +87,15 @@ class Success extends Action
      */
     public function execute(): ResponseRedirect
     {
-        $isRetry = $this->order &&
-            $this->order->getPayment() &&
-            $this->order->getPayment()->hasAdditionalInformation(PaymentField::IS_PAYMENT_RETRY_FIELD_NAME);
-
-        if ($this->shouldRetrieveStatus() && ! $isRetry) {
+        if ($this->shouldRetrieveStatus()) {
             $this->retrievePaymentStatusAndUpdateOrder();
         }
-        $this->redirectResult->setUrl($this->getRedirectUrl($isRetry));
+
+        $this->redirectResult->setUrl(
+            $this->urlBuilder->getUrl('checkout/onepage/success')
+        );
 
         return $this->redirectResult;
-    }
-
-    /**
-     * @param bool $forRetryPayment
-     * @return string
-     */
-    public function getRedirectUrl(bool $forRetryPayment): string
-    {
-        if ($forRetryPayment) {
-            return $this->urlBuilder->getUrl('sales/order/history');
-        }
-
-        return $this->urlBuilder->getUrl('checkout/onepage/success');
     }
 
     private function retrievePaymentStatusAndUpdateOrder()
@@ -119,7 +105,12 @@ class Success extends Action
         $status = $this->paymentStatusService->getStatus($lastPaymentId);
         $loggerContext = [PaymentField::PAYMENT_ID_FIELD_NAME => $lastPaymentId];
         try {
-            $this->notificationProcessor->process($lastPaymentId, $status, $this->order->getIncrementId());
+            $this->notificationProcessor->process(
+                $lastPaymentId,
+                $status,
+                $this->order->getIncrementId(),
+                date("Y-m-d\TH:i:s")
+            );
         } catch (\Exception $exception) {
             $this->logger->error($exception->getMessage(), $loggerContext);
         }
@@ -132,6 +123,7 @@ class Success extends Action
     {
         return $this->getRequest()->getParam('paymentStatus') &&
             $this->getRequest()->getParam('paymentId') &&
-            $this->order;
+            $this->order &&
+            count($this->order->getAllPayments()) > 0;
     }
 }

@@ -28,4 +28,6 @@ class PaymentField
     const ORDER_ITEMS = 'orderItems';
     const VALIDITY_TIME = 'validityTime';
     const AUTHORIZATION_CODE = 'authorizationCode';
+    const MODIFIED_AT = 'modifiedAt';
+    const NOTIFICATION_HISTORY = 'notificationHistory';
 }

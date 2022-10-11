@@ -9,14 +9,11 @@ use Magento\Store\Model\StoreManagerInterface;
 use Paynow\Exception\SignatureVerificationException;
 use Paynow\Notification;
 use Paynow\PaymentGateway\Helper\ConfigHelper;
+use Paynow\PaymentGateway\Model\Exception\NotificationRetryProcessing;
+use Paynow\PaymentGateway\Model\Exception\NotificationStopProcessing;
 use Paynow\PaymentGateway\Helper\NotificationProcessor;
 use Paynow\PaymentGateway\Helper\PaymentField;
 use Paynow\PaymentGateway\Helper\PaymentHelper;
-use Paynow\PaymentGateway\Model\Exception\OrderHasBeenAlreadyPaidException;
-use Paynow\PaymentGateway\Model\Exception\OrderNotFound;
-use Paynow\PaymentGateway\Model\Exception\OrderPaymentStatusTransitionException;
-use Paynow\PaymentGateway\Model\Exception\OrderPaymentStrictStatusTransition200Exception;
-use Paynow\PaymentGateway\Model\Exception\OrderPaymentStrictStatusTransitionException;
 use Paynow\PaymentGateway\Model\Logger\Logger;
 use Zend\Http\Headers;
 
@@ -95,6 +92,7 @@ class Notifications extends Action
         $payload          = $this->getRequest()->getContent();
         $notificationData = json_decode($payload, true);
         $this->logger->debug("Received payment status notification", $notificationData);
+
         $storeId      = $this->storeManager->getStore()->getId();
         $signatureKey = $this->configHelper->getSignatureKey(
             $storeId,
@@ -112,7 +110,8 @@ class Notifications extends Action
             $this->notificationProcessor->process(
                 $notificationData[PaymentField::PAYMENT_ID_FIELD_NAME],
                 $notificationData[PaymentField::STATUS_FIELD_NAME],
-                $notificationData[PaymentField::EXTERNAL_ID_FIELD_NAME]
+                $notificationData[PaymentField::EXTERNAL_ID_FIELD_NAME],
+                $notificationData[PaymentField::MODIFIED_AT] ?? ''
             );
         } catch (SignatureVerificationException $exception) {
             $this->logger->error(
@@ -120,17 +119,26 @@ class Notifications extends Action
                 $notificationData
             );
             $this->getResponse()->setHttpResponseCode(400);
-        } catch (OrderPaymentStatusTransitionException
-            | OrderPaymentStrictStatusTransitionException
-            | OrderNotFound $exception
+        } catch (
+            NotificationStopProcessing
+            | NotificationRetryProcessing $exception
         ) {
-            $this->logger->warning($exception->getMessage(), $notificationData);
+            $responseCode = ($exception instanceof NotificationStopProcessing) ? 200 : 400;
+            $exception->logContext['responseCode'] = $responseCode;
+
+            $this->logger->debug(
+                $exception->logMessage,
+                $exception->logContext
+            );
+            $this->getResponse()->setHttpResponseCode($responseCode);
+        } catch (\Exception $exception) {
+            $notificationData['exeption'] = $exception->getMessage();
+
+            $this->logger->debug(
+                'Payment status notification processor -> unknown error',
+                $notificationData
+            );
             $this->getResponse()->setHttpResponseCode(400);
-        } catch (OrderHasBeenAlreadyPaidException
-            | OrderPaymentStrictStatusTransition200Exception
-        $exception) {
-            $this->logger->info($exception->getMessage() . ' Skip processing the notification.');
-            $this->getResponse()->setHttpResponseCode(200);
         }
     }
 }
