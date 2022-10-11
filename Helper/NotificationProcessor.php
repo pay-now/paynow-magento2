@@ -7,11 +7,9 @@ use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment\Transaction;
 use Magento\Sales\Model\OrderFactory;
 use Paynow\Model\Payment\Status;
-use Paynow\PaymentGateway\Api\PaymentStatusHistoryRepositoryInterface;
 use Paynow\PaymentGateway\Model\Exception\NotificationRetryProcessing;
 use Paynow\PaymentGateway\Model\Exception\NotificationStopProcessing;
 use Paynow\PaymentGateway\Model\Logger\Logger;
-use Paynow\PaymentGateway\Model\PaymentStatusHistoryFactory;
 
 /**
  * Class NotificationProcessor
@@ -56,16 +54,12 @@ class NotificationProcessor
         OrderFactory                            $orderFactory,
         Logger                                  $logger,
         ConfigHelper                            $configHelper,
-        OrderRepositoryInterface                $orderRepository,
-        PaymentStatusHistoryFactory             $paymentStatusHistoryFactory,
-        PaymentStatusHistoryRepositoryInterface $paymentStatusHistoryRepository
+        OrderRepositoryInterface                $orderRepository
     ) {
         $this->orderFactory                   = $orderFactory;
         $this->logger                         = $logger;
         $this->configHelper                   = $configHelper;
         $this->orderRepository                = $orderRepository;
-        $this->paymentStatusHistoryFactory    = $paymentStatusHistoryFactory;
-        $this->paymentStatusHistoryRepository = $paymentStatusHistoryRepository;
     }
 
     /**
@@ -73,9 +67,7 @@ class NotificationProcessor
      * @param $status
      * @param $externalId
      * @param $modifiedAt
-     * @throws \Paynow\PaymentGateway\Helper\Exception\NotificationRetryProcessing
-     * @throws \Paynow\PaymentGateway\Helper\Exception\NotificationStopProcessing
-     * @throws \Paynow\PaymentGateway\Model\Exception\OrderNotFound
+     * @throws \Paynow\PaymentGateway\Model\Exception\NotificationStopProcessing
      */
     public function process($paymentId, $status, $externalId, $modifiedAt)
     {

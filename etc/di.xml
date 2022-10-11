@@ -160,8 +160,4 @@
         </arguments>
     </virtualType>
 
-    <!-- Payment status history interfaces binding  -->
-    <preference for="Paynow\PaymentGateway\Api\PaymentStatusHistoryRepositoryInterface" type="Paynow\PaymentGateway\Model\PaymentStatusHistoryRepository"/>
-    <preference for="Paynow\PaymentGateway\Api\Data\PaymentStatusHistoryInterface" type="Paynow\PaymentGateway\Model\PaymentStatusHistory"/>
-    <preference for="Paynow\PaymentGateway\Api\Data\PaymentStatusHistorySearchResultsInterface" type="Magento\Framework\Api\SearchResults"/>
 </config>
