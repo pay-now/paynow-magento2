@@ -68,6 +68,7 @@ class NotificationProcessor
      * @param $externalId
      * @param $modifiedAt
      * @throws \Paynow\PaymentGateway\Model\Exception\NotificationStopProcessing
+     * @throws \Paynow\PaymentGateway\Model\Exception\NotificationRetryProcessing
      */
     public function process($paymentId, $status, $externalId, $modifiedAt)
     {
@@ -179,8 +180,8 @@ class NotificationProcessor
     }
 
     /**
-     * @throws \Paynow\PaymentGateway\Helper\Exception\NotificationRetryProcessing
-     * @throws \Paynow\PaymentGateway\Helper\Exception\NotificationStopProcessing
+     * @throws \Paynow\PaymentGateway\Model\Exception\NotificationRetryProcessing
+     * @throws \Paynow\PaymentGateway\Model\Exception\NotificationStopProcessing
      */
     private function retryProcessingNTimes($message, $counter)
     {
@@ -202,6 +203,7 @@ class NotificationProcessor
             PaymentField::NOTIFICATION_HISTORY,
             $history
         );
+        $this->orderRepository->save($this->order);
 
         $this->context['statusCounter'] = $history[$historyKey];
 
