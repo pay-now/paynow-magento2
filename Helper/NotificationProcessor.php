@@ -63,14 +63,17 @@ class NotificationProcessor
     }
 
     /**
-     * @param $paymentId
-     * @param $status
-     * @param $externalId
-     * @param $modifiedAt
-     * @throws \Paynow\PaymentGateway\Model\Exception\NotificationStopProcessing
+     * @param      $paymentId
+     * @param      $status
+     * @param      $externalId
+     * @param      $modifiedAt
+     * @param bool $force
+     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
      * @throws \Paynow\PaymentGateway\Model\Exception\NotificationRetryProcessing
+     * @throws \Paynow\PaymentGateway\Model\Exception\NotificationStopProcessing
      */
-    public function process($paymentId, $status, $externalId, $modifiedAt)
+    public function process($paymentId, $status, $externalId, $modifiedAt, $force = false)
     {
         $this->context = [
             PaymentField::PAYMENT_ID_FIELD_NAME  => $paymentId,
@@ -118,7 +121,7 @@ class NotificationProcessor
             );
         }
 
-        if ($orderPaymentId != $paymentId && !$isNew) {
+        if ($orderPaymentId != $paymentId && !$isNew && !$force) {
             $this->retryProcessingNTimes(
                 'Skipped processing. Order has another active payment.',
                 3
@@ -132,7 +135,7 @@ class NotificationProcessor
             );
         }
 
-        if (!$this->isCorrectStatus($orderPaymentStatus, $status) && !$isNew) {
+        if (!$this->isCorrectStatus($orderPaymentStatus, $status) && !$isNew && !$force) {
             $this->retryProcessingNTimes(
                 sprintf(
                     'Order status transition from %s to %s is incorrect.',
@@ -282,6 +285,7 @@ class NotificationProcessor
 
     /**
      * @return void
+     * @throws \Magento\Framework\Exception\LocalizedException
      */
     private function paymentConfirmed()
     {
@@ -295,6 +299,7 @@ class NotificationProcessor
 
     /**
      * @return void
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
     private function paymentRejected()
     {
@@ -354,7 +359,6 @@ class NotificationProcessor
     private function isCorrectStatus(
         string $previousStatus,
         string $nextStatus,
-        bool   $paymentIdStrict = false
     ): bool {
         $paymentStatusFlow = [
 
@@ -385,15 +389,6 @@ class NotificationProcessor
             Status::STATUS_EXPIRED   => [],
             Status::STATUS_ABANDONED => [],
         ];
-
-        if ($paymentIdStrict == false) {
-            array_push(
-                $paymentStatusFlow[Status::STATUS_REJECTED],
-                Status::STATUS_NEW,
-                Status::STATUS_PENDING
-            );
-            $paymentStatusFlow[Status::STATUS_ABANDONED][] = Status::STATUS_NEW;
-        }
 
         $previousStatusExists = isset($paymentStatusFlow[$previousStatus]);
         $isChangePossible     = in_array($nextStatus, $paymentStatusFlow[$previousStatus]);

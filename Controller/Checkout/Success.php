@@ -109,7 +109,8 @@ class Success extends Action
                 $lastPaymentId,
                 $status,
                 $this->order->getIncrementId(),
-                date("Y-m-d\TH:i:s")
+                date("Y-m-d\TH:i:s"),
+                true
             );
         } catch (\Exception $exception) {
             $this->logger->error($exception->getMessage(), $loggerContext);
