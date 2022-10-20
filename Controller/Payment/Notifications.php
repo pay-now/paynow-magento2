@@ -5,6 +5,8 @@ namespace Paynow\PaymentGateway\Controller\Payment;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\Request\Http;
+use Magento\Sales\Model\OrderFactory;
+use Magento\Sales\Model\Order;
 use Magento\Store\Model\StoreManagerInterface;
 use Paynow\Exception\SignatureVerificationException;
 use Paynow\Notification;
@@ -45,9 +47,15 @@ class Notifications extends Action
     private $configHelper;
 
     /**
+     * @var OrderFactory
+     */
+    private $orderFactory;
+
+    /**
      * @var Logger
      */
     private $logger;
+
 
     /**
      * Redirect constructor.
@@ -65,7 +73,8 @@ class Notifications extends Action
         NotificationProcessor $notificationProcessor,
         Logger                $logger,
         PaymentHelper         $paymentHelper,
-        ConfigHelper          $configHelper
+        ConfigHelper          $configHelper,
+        OrderFactory          $orderFactory
     ) {
         parent::__construct($context);
         $this->storeManager          = $storeManager;
@@ -73,6 +82,7 @@ class Notifications extends Action
         $this->logger                = $logger;
         $this->paymentHelper         = $paymentHelper;
         $this->configHelper          = $configHelper;
+        $this->orderFactory          = $orderFactory;
         if (interface_exists(\Magento\Framework\App\CsrfAwareActionInterface::class)) {
             $request = $this->getRequest();
             if ($request instanceof Http && $request->isPost()) {
@@ -94,6 +104,13 @@ class Notifications extends Action
         $this->logger->debug("Received payment status notification", $notificationData);
 
         $storeId      = $this->storeManager->getStore()->getId();
+        $order        = $this->orderFactory->create()
+            ->loadByIncrementId((string)$notificationData[PaymentField::EXTERNAL_ID_FIELD_NAME] ?? '');
+        if ($order->getId()) {
+            $this->storeManager->setCurrentStore($order->getStoreId());
+            $storeId = $order->getStoreId();
+        }
+
         $signatureKey = $this->configHelper->getSignatureKey(
             $storeId,
             $this->configHelper->isTestMode(
