@@ -60,12 +60,13 @@ class Notifications extends Action
     /**
      * Redirect constructor.
      *
-     * @param Context               $context
+     * @param Context $context
      * @param StoreManagerInterface $storeManager
      * @param NotificationProcessor $notificationProcessor
-     * @param Logger                $logger
-     * @param PaymentHelper         $paymentHelper
-     * @param ConfigHelper          $configHelper
+     * @param Logger $logger
+     * @param PaymentHelper $paymentHelper
+     * @param ConfigHelper $configHelper
+     * @param OrderFactory $orderFactory
      */
     public function __construct(
         Context               $context,
