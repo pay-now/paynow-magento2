@@ -18,8 +18,6 @@ use Paynow\PaymentGateway\Model\Logger\Logger;
  */
 class NotificationProcessor
 {
-    CONST MAX_ATTEPMTS_TO_DELIVER_WRONG_STATUSES = 3;
-
     /**
      * @var Magento\Sales\Model\OrderFactory
      */
@@ -123,8 +121,7 @@ class NotificationProcessor
 
         if ($orderPaymentId != $paymentId && !$isNew && !$force) {
             $this->retryProcessingNTimes(
-                'Skipped processing. Order has another active payment.',
-                3
+                'Skipped processing. Order has another active payment.'
             );
         }
 
@@ -141,8 +138,7 @@ class NotificationProcessor
                     'Order status transition from %s to %s is incorrect.',
                     $orderPaymentStatus,
                     $status
-                ),
-                3
+                )
             );
         }
 
@@ -186,7 +182,7 @@ class NotificationProcessor
      * @throws \Paynow\PaymentGateway\Model\Exception\NotificationRetryProcessing
      * @throws \Paynow\PaymentGateway\Model\Exception\NotificationStopProcessing
      */
-    private function retryProcessingNTimes($message, $counter)
+    private function retryProcessingNTimes($message, $counter = 3)
     {
         $paymentAdditionalInformation = $this->order->getPayment()->getAdditionalInformation();
         $history = $paymentAdditionalInformation[PaymentField::NOTIFICATION_HISTORY] ?? [];

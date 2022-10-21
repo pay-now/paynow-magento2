@@ -56,7 +56,6 @@ class Notifications extends Action
      */
     private $logger;
 
-
     /**
      * Redirect constructor.
      *
@@ -137,10 +136,7 @@ class Notifications extends Action
                 $notificationData
             );
             $this->getResponse()->setHttpResponseCode(400);
-        } catch (
-            NotificationStopProcessing
-            | NotificationRetryProcessing $exception
-        ) {
+        } catch (NotificationStopProcessing | NotificationRetryProcessing $exception) {
             $responseCode = ($exception instanceof NotificationStopProcessing) ? 200 : 400;
             $exception->logContext['responseCode'] = $responseCode;
 
