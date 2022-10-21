@@ -5,17 +5,17 @@ namespace Paynow\PaymentGateway\Controller\Payment;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\Request\Http;
+use Magento\Sales\Model\OrderFactory;
+use Magento\Sales\Model\Order;
 use Magento\Store\Model\StoreManagerInterface;
 use Paynow\Exception\SignatureVerificationException;
 use Paynow\Notification;
 use Paynow\PaymentGateway\Helper\ConfigHelper;
+use Paynow\PaymentGateway\Model\Exception\NotificationRetryProcessing;
+use Paynow\PaymentGateway\Model\Exception\NotificationStopProcessing;
 use Paynow\PaymentGateway\Helper\NotificationProcessor;
 use Paynow\PaymentGateway\Helper\PaymentField;
 use Paynow\PaymentGateway\Helper\PaymentHelper;
-use Paynow\PaymentGateway\Model\Exception\OrderHasBeenAlreadyPaidException;
-use Paynow\PaymentGateway\Model\Exception\OrderNotFound;
-use Paynow\PaymentGateway\Model\Exception\OrderPaymentStatusTransitionException;
-use Paynow\PaymentGateway\Model\Exception\OrderPaymentStrictStatusTransitionException;
 use Paynow\PaymentGateway\Model\Logger\Logger;
 use Zend\Http\Headers;
 
@@ -47,6 +47,11 @@ class Notifications extends Action
     private $configHelper;
 
     /**
+     * @var OrderFactory
+     */
+    private $orderFactory;
+
+    /**
      * @var Logger
      */
     private $logger;
@@ -54,12 +59,13 @@ class Notifications extends Action
     /**
      * Redirect constructor.
      *
-     * @param Context               $context
+     * @param Context $context
      * @param StoreManagerInterface $storeManager
      * @param NotificationProcessor $notificationProcessor
-     * @param Logger                $logger
-     * @param PaymentHelper         $paymentHelper
-     * @param ConfigHelper          $configHelper
+     * @param Logger $logger
+     * @param PaymentHelper $paymentHelper
+     * @param ConfigHelper $configHelper
+     * @param OrderFactory $orderFactory
      */
     public function __construct(
         Context               $context,
@@ -67,7 +73,8 @@ class Notifications extends Action
         NotificationProcessor $notificationProcessor,
         Logger                $logger,
         PaymentHelper         $paymentHelper,
-        ConfigHelper          $configHelper
+        ConfigHelper          $configHelper,
+        OrderFactory          $orderFactory
     ) {
         parent::__construct($context);
         $this->storeManager          = $storeManager;
@@ -75,6 +82,7 @@ class Notifications extends Action
         $this->logger                = $logger;
         $this->paymentHelper         = $paymentHelper;
         $this->configHelper          = $configHelper;
+        $this->orderFactory          = $orderFactory;
         if (interface_exists(\Magento\Framework\App\CsrfAwareActionInterface::class)) {
             $request = $this->getRequest();
             if ($request instanceof Http && $request->isPost()) {
@@ -94,7 +102,15 @@ class Notifications extends Action
         $payload          = $this->getRequest()->getContent();
         $notificationData = json_decode($payload, true);
         $this->logger->debug("Received payment status notification", $notificationData);
+
         $storeId      = $this->storeManager->getStore()->getId();
+        $order        = $this->orderFactory->create()
+            ->loadByIncrementId((string)$notificationData[PaymentField::EXTERNAL_ID_FIELD_NAME] ?? '');
+        if ($order->getId()) {
+            $this->storeManager->setCurrentStore($order->getStoreId());
+            $storeId = $order->getStoreId();
+        }
+
         $signatureKey = $this->configHelper->getSignatureKey(
             $storeId,
             $this->configHelper->isTestMode(
@@ -111,7 +127,8 @@ class Notifications extends Action
             $this->notificationProcessor->process(
                 $notificationData[PaymentField::PAYMENT_ID_FIELD_NAME],
                 $notificationData[PaymentField::STATUS_FIELD_NAME],
-                $notificationData[PaymentField::EXTERNAL_ID_FIELD_NAME]
+                $notificationData[PaymentField::EXTERNAL_ID_FIELD_NAME],
+                $notificationData[PaymentField::MODIFIED_AT] ?? ''
             );
         } catch (SignatureVerificationException $exception) {
             $this->logger->error(
@@ -119,15 +136,23 @@ class Notifications extends Action
                 $notificationData
             );
             $this->getResponse()->setHttpResponseCode(400);
-        } catch (OrderPaymentStatusTransitionException
-            | OrderPaymentStrictStatusTransitionException
-            | OrderNotFound $exception
-        ) {
-            $this->logger->warning($exception->getMessage(), $notificationData);
+        } catch (NotificationStopProcessing | NotificationRetryProcessing $exception) {
+            $responseCode = ($exception instanceof NotificationStopProcessing) ? 200 : 400;
+            $exception->logContext['responseCode'] = $responseCode;
+
+            $this->logger->debug(
+                $exception->logMessage,
+                $exception->logContext
+            );
+            $this->getResponse()->setHttpResponseCode($responseCode);
+        } catch (\Exception $exception) {
+            $notificationData['exeption'] = $exception->getMessage();
+
+            $this->logger->debug(
+                'Payment status notification processor -> unknown error',
+                $notificationData
+            );
             $this->getResponse()->setHttpResponseCode(400);
-        } catch (OrderHasBeenAlreadyPaidException $exception) {
-            $this->logger->info($exception->getMessage() . ' Skip processing the notification.');
-            $this->getResponse()->setHttpResponseCode(200);
         }
     }
 }

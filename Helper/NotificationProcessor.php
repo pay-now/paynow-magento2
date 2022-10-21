@@ -7,14 +7,9 @@ use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment\Transaction;
 use Magento\Sales\Model\OrderFactory;
 use Paynow\Model\Payment\Status;
-use Paynow\PaymentGateway\Api\PaymentStatusHistoryRepositoryInterface;
-use Paynow\PaymentGateway\Model\Exception\OrderHasBeenAlreadyPaidException;
-use Paynow\PaymentGateway\Model\Exception\OrderNotFound;
-use Paynow\PaymentGateway\Model\Exception\OrderPaymentStatusTransitionException;
-use Paynow\PaymentGateway\Model\Exception\OrderPaymentStrictStatusTransitionException;
+use Paynow\PaymentGateway\Model\Exception\NotificationRetryProcessing;
+use Paynow\PaymentGateway\Model\Exception\NotificationStopProcessing;
 use Paynow\PaymentGateway\Model\Logger\Logger;
-use Paynow\PaymentGateway\Model\PaymentStatusHistory;
-use Paynow\PaymentGateway\Model\PaymentStatusHistoryFactory;
 
 /**
  * Class NotificationProcessor
@@ -41,7 +36,7 @@ class NotificationProcessor
     /**
      * @var array
      */
-    private $loggerContext;
+    private $context;
 
     /**
      * @var ConfigHelper
@@ -53,87 +48,107 @@ class NotificationProcessor
      */
     private $orderRepository;
 
-    /**
-     * @var PaymentStatusHistoryFactory
-     */
-    private $paymentStatusHistoryFactory;
-
-    /**
-     * @var PaymentStatusHistoryRepositoryInterface
-     */
-    private $paymentStatusHistoryRepository;
-
     public function __construct(
         OrderFactory                            $orderFactory,
         Logger                                  $logger,
         ConfigHelper                            $configHelper,
-        OrderRepositoryInterface                $orderRepository,
-        PaymentStatusHistoryFactory             $paymentStatusHistoryFactory,
-        PaymentStatusHistoryRepositoryInterface $paymentStatusHistoryRepository
+        OrderRepositoryInterface                $orderRepository
     ) {
         $this->orderFactory                   = $orderFactory;
         $this->logger                         = $logger;
         $this->configHelper                   = $configHelper;
         $this->orderRepository                = $orderRepository;
-        $this->paymentStatusHistoryFactory    = $paymentStatusHistoryFactory;
-        $this->paymentStatusHistoryRepository = $paymentStatusHistoryRepository;
     }
 
     /**
-     * @param $paymentId
-     * @param $status
-     * @param $externalId
-     * @throws OrderNotFound
-     * @throws OrderHasBeenAlreadyPaidException
-     * @throws OrderPaymentStatusTransitionException
-     * @throws OrderPaymentStrictStatusTransitionException
+     * @param      $paymentId
+     * @param      $status
+     * @param      $externalId
+     * @param      $modifiedAt
+     * @param bool $force
+     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @throws \Paynow\PaymentGateway\Model\Exception\NotificationRetryProcessing
+     * @throws \Paynow\PaymentGateway\Model\Exception\NotificationStopProcessing
      */
-    public function process($paymentId, $status, $externalId)
+    public function process($paymentId, $status, $externalId, $modifiedAt, $force = false)
     {
-        $this->loggerContext = [
+        $this->context = [
             PaymentField::PAYMENT_ID_FIELD_NAME  => $paymentId,
-            PaymentField::EXTERNAL_ID_FIELD_NAME => $externalId
+            PaymentField::EXTERNAL_ID_FIELD_NAME => $externalId,
+            PaymentField::STATUS_FIELD_NAME      => $status,
+            PaymentField::MODIFIED_AT            => $modifiedAt
         ];
 
-        $lastPaymentOrder = $this->paymentStatusHistoryRepository->getLastByExternalIdAndPaymentId(
-            $externalId,
-            $paymentId
-        );
-        if ($lastPaymentOrder->getId()) {
-            if (!$this->isCorrectStatus($lastPaymentOrder->getStatus(), $status, true)) {
-                throw new OrderPaymentStrictStatusTransitionException(
-                    $lastPaymentOrder->getStatus(),
-                    $status,
-                    $paymentId
-                );
-            }
-        }
+        $isNew = $status == Status::STATUS_NEW;
 
         /** @var Order */
         $this->order = $this->orderFactory->create()->loadByIncrementId($externalId);
         if (!$this->order->getId()) {
-            throw new OrderNotFound($externalId);
+            throw new NotificationStopProcessing(
+                'Skipped processing. Order not found.',
+                $this->context
+            );
         }
 
         $paymentAdditionalInformation = $this->order->getPayment()->getAdditionalInformation();
-        $orderPaymentStatus           = $paymentAdditionalInformation[PaymentField::STATUS_FIELD_NAME];
-        $finalPaymentStatus           = $orderPaymentStatus == Status::STATUS_CONFIRMED;
+        $orderPaymentId = $paymentAdditionalInformation[PaymentField::PAYMENT_ID_FIELD_NAME];
+        $orderPaymentStatus = $paymentAdditionalInformation[PaymentField::STATUS_FIELD_NAME];
+        $orderPaymentStatusDate = $paymentAdditionalInformation[PaymentField::MODIFIED_AT] ?? '';
 
-        if ($finalPaymentStatus) {
-            $this->logger->info(
-                'Order has paid status. Skipped notification processing',
-                $this->loggerContext
+        $this->context += [
+            'orderPaymentId'         => $orderPaymentId,
+            'orderPaymentStatus'     => $orderPaymentStatus,
+            'orderPaymentStatusDate' => $orderPaymentStatusDate,
+        ];
+
+        if ($orderPaymentStatus == Status::STATUS_CONFIRMED) {
+            throw new NotificationStopProcessing(
+                'Skipped processing. Order has paid status.',
+                $this->context
             );
-            throw new OrderHasBeenAlreadyPaidException($externalId, $paymentId);
         }
 
-        if (!$this->isCorrectStatus($orderPaymentStatus, $status)) {
-            throw new OrderPaymentStatusTransitionException($orderPaymentStatus, $status);
+        if ($orderPaymentStatus == $status && $orderPaymentId == $paymentId) {
+            throw new NotificationStopProcessing(
+                sprintf(
+                    'Skipped processing. Transition status (%s) already consumed.',
+                    $status
+                ),
+                $this->context
+            );
+        }
+
+        if ($orderPaymentId != $paymentId && !$isNew && !$force) {
+            $this->retryProcessingNTimes(
+                'Skipped processing. Order has another active payment.'
+            );
+        }
+
+        if (!empty($orderPaymentStatusDate) && $orderPaymentStatusDate > $modifiedAt) {
+            throw new NotificationStopProcessing(
+                'Skipped processing. Order has newer status. Time travels are prohibited.',
+                $this->context
+            );
+        }
+
+        if (!$this->isCorrectStatus($orderPaymentStatus, $status) && !$isNew && !$force) {
+            $this->retryProcessingNTimes(
+                sprintf(
+                    'Order status transition from %s to %s is incorrect.',
+                    $orderPaymentStatus,
+                    $status
+                )
+            );
         }
 
         $this->order->getPayment()->setAdditionalInformation(
             PaymentField::STATUS_FIELD_NAME,
             $status
+        );
+        $this->order->getPayment()->setAdditionalInformation(
+            PaymentField::MODIFIED_AT,
+            $modifiedAt
         );
 
         switch ($status) {
@@ -160,16 +175,42 @@ class NotificationProcessor
                 break;
         }
 
-        /** @var PaymentStatusHistory $paymentStatusHistory */
-        $paymentStatusHistory = $this->paymentStatusHistoryFactory->create();
-        $paymentStatusHistory
-            ->setOrderId($this->order->getId())
-            ->setExternalId($externalId)
-            ->setPaymentId($paymentId)
-            ->setStatus($status);
-        $this->paymentStatusHistoryRepository->save($paymentStatusHistory);
-
         $this->orderRepository->save($this->order);
+    }
+
+    /**
+     * @throws \Paynow\PaymentGateway\Model\Exception\NotificationRetryProcessing
+     * @throws \Paynow\PaymentGateway\Model\Exception\NotificationStopProcessing
+     */
+    private function retryProcessingNTimes($message, $counter = 3)
+    {
+        $paymentAdditionalInformation = $this->order->getPayment()->getAdditionalInformation();
+        $history = $paymentAdditionalInformation[PaymentField::NOTIFICATION_HISTORY] ?? [];
+
+        $historyKey = sprintf(
+            '%s:%s',
+            $this->context[PaymentField::PAYMENT_ID_FIELD_NAME],
+            $this->context[PaymentField::STATUS_FIELD_NAME]
+        );
+
+        if (!isset($history[$historyKey])) {
+            $history[$historyKey] = 0;
+        }
+        $history[$historyKey]++;
+
+        $this->order->getPayment()->setAdditionalInformation(
+            PaymentField::NOTIFICATION_HISTORY,
+            $history
+        );
+        $this->orderRepository->save($this->order);
+
+        $this->context['statusCounter'] = $history[$historyKey];
+
+        if ($history[$historyKey] >= $counter) {
+            throw new NotificationStopProcessing($message, $this->context);
+        } else {
+            throw new NotificationRetryProcessing($message, $this->context);
+        }
     }
 
     private function paymentNew($paymentId)
@@ -240,19 +281,21 @@ class NotificationProcessor
 
     /**
      * @return void
+     * @throws \Magento\Framework\Exception\LocalizedException
      */
     private function paymentConfirmed()
     {
         if ($this->order->getPayment()->canCapture()) {
             $this->order->getPayment()->capture();
-            $this->logger->info('Payment has been captured', $this->loggerContext);
+            $this->logger->info('Payment has been captured', $this->context);
         } else {
-            $this->logger->warning('Payment has not been captured', $this->loggerContext);
+            $this->logger->warning('Payment has not been captured', $this->context);
         }
     }
 
     /**
      * @return void
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
     private function paymentRejected()
     {
@@ -265,7 +308,7 @@ class NotificationProcessor
             $this->order
                 ->setState(Order::STATE_PAYMENT_REVIEW)
                 ->addStatusToHistory(Order::STATE_PAYMENT_REVIEW, $message);
-            $this->logger->info('Order has been canceled', $this->loggerContext);
+            $this->logger->info('Order has been canceled', $this->context);
         } else {
             $this->order->addCommentToStatusHistory($message);
         }
@@ -306,15 +349,14 @@ class NotificationProcessor
     /**
      * @param string $previousStatus
      * @param string $nextStatus
-     * @param bool   $paymentIdStrict
      * @return bool
      */
     private function isCorrectStatus(
         string $previousStatus,
-        string $nextStatus,
-        bool   $paymentIdStrict = false
+        string $nextStatus
     ): bool {
         $paymentStatusFlow = [
+
             Status::STATUS_NEW       => [
                 Status::STATUS_PENDING,
                 Status::STATUS_ERROR,
@@ -343,17 +385,11 @@ class NotificationProcessor
             Status::STATUS_ABANDONED => [],
         ];
 
-        if ($paymentIdStrict == false) {
-            array_push(
-                $paymentStatusFlow[Status::STATUS_REJECTED],
-                Status::STATUS_NEW,
-                Status::STATUS_PENDING
-            );
-            $paymentStatusFlow[Status::STATUS_ABANDONED][] = Status::STATUS_NEW;
-        }
-
         $previousStatusExists = isset($paymentStatusFlow[$previousStatus]);
         $isChangePossible     = in_array($nextStatus, $paymentStatusFlow[$previousStatus]);
+        if (!$previousStatusExists && $nextStatus == Status::STATUS_NEW) {
+            return true;
+        }
         return $previousStatusExists && $isChangePossible;
     }
 }
