@@ -353,12 +353,11 @@ class NotificationProcessor
     /**
      * @param string $previousStatus
      * @param string $nextStatus
-     * @param bool   $paymentIdStrict
      * @return bool
      */
     private function isCorrectStatus(
         string $previousStatus,
-        string $nextStatus,
+        string $nextStatus
     ): bool {
         $paymentStatusFlow = [
 
