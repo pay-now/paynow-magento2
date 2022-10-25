@@ -49,8 +49,8 @@
         <field id="payment_validity_time" translate="label" type="text" sortOrder="9" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Payment validity time</label>
             <config_path>payment/paynow_gateway/payment_validity_time</config_path>
-            <validate>validate-number validate-number-range number-range-60-86400</validate>
-            <comment>Determines how long it will be possible to pay for the order from the moment the payment link is generated. Value expressed in seconds. Maximum value is 86400 seconds.</comment>
+            <validate>validate-number validate-number-range number-range-60-864000</validate>
+            <comment>Determines how long it will be possible to pay for the order from the moment the payment link is generated. Value expressed in seconds. Maximum value is 864000 seconds (10 days).</comment>
             <depends>
                 <field id="*/*/paynow_general_settings/use_payment_validity_time">1</field>
             </depends>
