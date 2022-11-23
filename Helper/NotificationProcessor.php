@@ -81,6 +81,13 @@ class NotificationProcessor
         ];
 
         $isNew = $status == Status::STATUS_NEW;
+        $isConfirmed = $status == Status::STATUS_CONFIRMED;
+
+        // Delay NEW status, in case when API sends notifications in bundle,
+        // status NEW should finish processing at the very end
+        if ($isNew) {
+           sleep(3);
+        }
 
         /** @var Order */
         $this->order = $this->orderFactory->create()->loadByIncrementId($externalId);
@@ -103,6 +110,9 @@ class NotificationProcessor
         ];
 
         if ($orderPaymentStatus == Status::STATUS_CONFIRMED) {
+            if ($isConfirmed && $orderPaymentId != $paymentId) {
+                $this->addConfirmPaymentToOrderHistory($paymentId);
+            }
             throw new NotificationStopProcessing(
                 'Skipped processing. Order has paid status.',
                 $this->context
@@ -175,6 +185,20 @@ class NotificationProcessor
                 break;
         }
 
+        $this->orderRepository->save($this->order);
+    }
+
+    /**
+     * @param $paymentId
+     */
+    protected function addConfirmPaymentToOrderHistory($paymentId): void
+    {
+        $message = __(
+                'Transaction confirmed, but order already paid. Transaction ID: '
+            ) . $paymentId;
+        $this->order
+            ->setState($this->order->getState())
+            ->addStatusToHistory($this->order->getStatus(), $message);
         $this->orderRepository->save($this->order);
     }
 
