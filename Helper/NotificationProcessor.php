@@ -86,6 +86,7 @@ class NotificationProcessor
         // Delay NEW status, in case when API sends notifications in bundle,
         // status NEW should finish processing at the very end
         if ($isNew) {
+            // phpcs:ignore Magento2.Functions.DiscouragedFunction
             sleep(3);
         }
 
