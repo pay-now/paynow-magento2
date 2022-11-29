@@ -86,7 +86,7 @@ class NotificationProcessor
         // Delay NEW status, in case when API sends notifications in bundle,
         // status NEW should finish processing at the very end
         if ($isNew) {
-           sleep(3);
+            sleep(3);
         }
 
         /** @var Order */
@@ -194,8 +194,8 @@ class NotificationProcessor
     protected function addConfirmPaymentToOrderHistory($paymentId): void
     {
         $message = __(
-                'Transaction confirmed, but order already paid. Transaction ID: '
-            ) . $paymentId;
+            'Transaction confirmed, but order already paid. Transaction ID: '
+        ) . $paymentId;
         $this->order
             ->setState($this->order->getState())
             ->addStatusToHistory($this->order->getStatus(), $message);
