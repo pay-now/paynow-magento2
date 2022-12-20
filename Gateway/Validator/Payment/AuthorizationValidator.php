@@ -43,6 +43,8 @@ class AuthorizationValidator extends AbstractValidator
         $response = SubjectReader::readResponse($validationSubject);
         $payment = SubjectReader::readPayment($validationSubject);
 
+        $this->logger->debug("Validating authorization response", ['response' => $response]);
+
         $isWhiteLabelPayment = $payment->getPayment()->hasAdditionalInformation(PaymentDataAssignObserver::BLIK_CODE)
             && ! empty($payment->getPayment()->getAdditionalInformation(PaymentDataAssignObserver::BLIK_CODE));
 
@@ -59,12 +61,21 @@ class AuthorizationValidator extends AbstractValidator
                 ! empty($response[PaymentField::REDIRECT_URL_FIELD_NAME]);
         }
 
-        $this->logger->debug("Validating authorization response", ['valid' => $isResponseValid]);
+        $errorCodes = [];
+        if (!$isResponseValid && $isWhiteLabelPayment && isset($response['errors'][0])) {
+            $errorCodes[] = $response['errors'][0]->getType();
+        }
+
+        $this->logger->debug("Validating authorization response", [
+            'valid' => $isResponseValid,
+            'whiteLabel' => $isWhiteLabelPayment,
+            'errorCodes' => $errorCodes
+        ]);
 
         return $this->createResult(
             $isResponseValid,
             $isResponseValid ? [] : [__('Error occurred during the payment process.')],
-            $isResponseValid || !$isWhiteLabelPayment ? [] : [$response['errors'][0]->getType()]
+            $errorCodes
         );
     }
 }
