@@ -85,7 +85,9 @@ class NotificationProcessor
 
         // Delay NEW status, in case when API sends notifications in bundle,
         // status NEW should finish processing at the very end
-        if ($isNew) {
+        // Delay CONFIRMED status, in case when API sends notifications in the same
+        // time as Magento retrieve status o
+        if ($isNew || (!$force && $isConfirmed)) {
             // phpcs:ignore Magento2.Functions.DiscouragedFunction
             sleep(3);
         }
@@ -137,10 +139,12 @@ class NotificationProcessor
         }
 
         if (!empty($orderPaymentStatusDate) && $orderPaymentStatusDate > $modifiedAt) {
-            throw new NotificationStopProcessing(
-                'Skipped processing. Order has newer status. Time travels are prohibited.',
-                $this->context
-            );
+            if (!$isNew || $orderPaymentId == $paymentId) {
+                throw new NotificationStopProcessing(
+                    'Skipped processing. Order has newer status. Time travels are prohibited.',
+                    $this->context
+                );
+            }
         }
 
         if (!$this->isCorrectStatus($orderPaymentStatus, $status) && !$isNew && !$force) {
