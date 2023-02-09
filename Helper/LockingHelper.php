@@ -11,8 +11,8 @@ use Magento\Framework\Filesystem\DirectoryList;
  */
 class LockingHelper
 {
-    private static $LOCKS_DIR = 'paynowLocks';
-    private static $LOCKS_PREFIX = 'paynowLock_';
+    private static $LOCKS_DIR = 'paynow-locks';
+    private static $LOCKS_PREFIX = 'paynow-lock_';
     private static $LOCKED_TIME = 6;
 
     /**
