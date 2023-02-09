@@ -54,6 +54,18 @@ class ConfigHelper extends AbstractHelper
     }
 
     /**
+     * Returns is extra logs enabled
+     *
+     * @param int|null $storeId
+     *
+     * @return bool
+     */
+    public function extraLogsEnabled(int $storeId = null): bool
+    {
+        return $this->getConfigData('extra_logs', DefaultConfigProvider::CODE, $storeId, true);
+    }
+
+    /**
      * Returns is module enabled
      *
      * @param int|null $storeId

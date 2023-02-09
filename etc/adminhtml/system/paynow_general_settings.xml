@@ -18,35 +18,40 @@
             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
             <config_path>payment/paynow_gateway/debug</config_path>
         </field>
-        <field id="sort_order" translate="label" type="text" sortOrder="4" showInDefault="1" showInWebsite="1" showInStore="1">
+        <field id="extra_logs" translate="label" type="select" sortOrder="4" showInDefault="1" showInWebsite="1" showInStore="0">
+            <label>Extra logs</label>
+            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+            <config_path>payment/paynow_gateway/extra_logs</config_path>
+        </field>
+        <field id="sort_order" translate="label" type="text" sortOrder="5" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Sort Order</label>
             <frontend_class>validate-number</frontend_class>
         </field>
-        <field id="retry_payment" translate="label" type="select" sortOrder="5" showInDefault="1" showInWebsite="1" showInStore="1">
+        <field id="retry_payment" translate="label" type="select" sortOrder="6" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Retry payment</label>
             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
             <config_path>payment/paynow_gateway/retry_payment</config_path>
             <comment>Select Yes if you want to allow retry payments for your customers.</comment>
         </field>
-        <field id="order_status_change" translate="label" type="select" sortOrder="6" showInDefault="1" showInWebsite="1" showInStore="1">
+        <field id="order_status_change" translate="label" type="select" sortOrder="7" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Change order status</label>
             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
             <config_path>payment/paynow_gateway/order_status_change</config_path>
             <comment>Select Yes if you want to allow change order status on during processing notifications.</comment>
         </field>
-        <field id="send_order_items" translate="label" type="select" sortOrder="7" showInDefault="1" showInWebsite="1" showInStore="1">
+        <field id="send_order_items" translate="label" type="select" sortOrder="8" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Send order items</label>
             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
             <config_path>payment/paynow_gateway/send_order_items</config_path>
             <comment>Select Yes if you want to send ordered products information: name, categories, quantity and unit price.</comment>
         </field>
-        <field id="use_payment_validity_time" translate="label" type="select" sortOrder="8" showInDefault="1" showInWebsite="1" showInStore="1">
+        <field id="use_payment_validity_time" translate="label" type="select" sortOrder="9" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Use payment validity time</label>
             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
             <config_path>payment/paynow_gateway/use_payment_validity</config_path>
             <comment>Select Yes if you want to limit the validity of the payment.</comment>
         </field>
-        <field id="payment_validity_time" translate="label" type="text" sortOrder="9" showInDefault="1" showInWebsite="1" showInStore="1">
+        <field id="payment_validity_time" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Payment validity time</label>
             <config_path>payment/paynow_gateway/payment_validity_time</config_path>
             <validate>validate-number validate-number-range number-range-60-864000</validate>
