@@ -88,13 +88,13 @@ class NotificationProcessor
             PaymentField::MODIFIED_AT            => $modifiedAt
         ];
 
-        if ($this->lockingHelper->isLocked($externalId)){
+        if ($this->lockingHelper->checkAndCreate($externalId)){
             for($i = 1; $i<=3; $i++){
                 sleep(1);
-                $isNotificationLocked = $this->lockingHelper->isLocked($externalId);
+                $isNotificationLocked = $this->lockingHelper->checkAndCreate($externalId);
                 if ($isNotificationLocked == false){
                     break;
-                }else if ($isNotificationLocked == 3){
+                }else if ($i == 3){
                     throw new NotificationRetryProcessing(
                         'Skipped processing. Previous notification is still processing.',
                         $this->context
