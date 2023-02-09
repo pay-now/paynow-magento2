@@ -48,16 +48,23 @@ class NotificationProcessor
      */
     private $orderRepository;
 
+    /**
+     * @var LockingHelper
+     */
+    private $lockingHelper;
+
     public function __construct(
         OrderFactory                            $orderFactory,
         Logger                                  $logger,
         ConfigHelper                            $configHelper,
-        OrderRepositoryInterface                $orderRepository
+        OrderRepositoryInterface                $orderRepository,
+        LockingHelper                           $lockingHelper
     ) {
         $this->orderFactory                   = $orderFactory;
         $this->logger                         = $logger;
         $this->configHelper                   = $configHelper;
         $this->orderRepository                = $orderRepository;
+        $this->lockingHelper                  = $lockingHelper;
     }
 
     /**
@@ -73,6 +80,7 @@ class NotificationProcessor
      */
     public function process($paymentId, $status, $externalId, $modifiedAt, $force = false)
     {
+
         $this->context = [
             PaymentField::PAYMENT_ID_FIELD_NAME  => $paymentId,
             PaymentField::EXTERNAL_ID_FIELD_NAME => $externalId,
@@ -80,17 +88,23 @@ class NotificationProcessor
             PaymentField::MODIFIED_AT            => $modifiedAt
         ];
 
+        if ($this->lockingHelper->isLocked($externalId)){
+            for($i = 1; $i<=3; $i++){
+                sleep(1);
+                $isNotificationLocked = $this->lockingHelper->isLocked($externalId);
+                if ($isNotificationLocked == false){
+                    break;
+                }else if ($isNotificationLocked == 3){
+                    throw new NotificationRetryProcessing(
+                        'Skipped processing. Previous notification is still processing.',
+                        $this->context
+                    );
+                }
+            }
+        }
+
         $isNew = $status == Status::STATUS_NEW;
         $isConfirmed = $status == Status::STATUS_CONFIRMED;
-
-        // Delay NEW status, in case when API sends notifications in bundle,
-        // status NEW should finish processing at the very end
-        // Delay CONFIRMED status, in case when API sends notifications in the same
-        // time as Magento retrieve status o
-        if ($isNew || (!$force && $isConfirmed)) {
-            // phpcs:ignore Magento2.Functions.DiscouragedFunction
-            sleep(3);
-        }
 
         /** @var Order */
         $this->order = $this->orderFactory->create()->loadByIncrementId($externalId);
