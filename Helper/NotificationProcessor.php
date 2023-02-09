@@ -132,7 +132,7 @@ class NotificationProcessor
             );
         }
 
-        if ($orderPaymentId != $paymentId && !$isNew && !$force) {
+        if ($orderPaymentId != $paymentId && !$isNew && !$force && !$isConfirmed) {
             $this->retryProcessingNTimes(
                 'Skipped processing. Order has another active payment.'
             );
@@ -147,7 +147,7 @@ class NotificationProcessor
             }
         }
 
-        if (!$this->isCorrectStatus($orderPaymentStatus, $status) && !$isNew && !$force) {
+        if (!$this->isCorrectStatus($orderPaymentStatus, $status) && !$isNew && !$force && !$isConfirmed) {
             $this->retryProcessingNTimes(
                 sprintf(
                     'Order status transition from %s to %s is incorrect.',
@@ -177,7 +177,7 @@ class NotificationProcessor
                 $this->paymentRejected();
                 break;
             case Status::STATUS_CONFIRMED:
-                $this->paymentConfirmed();
+                $this->paymentConfirmed($paymentId);
                 break;
             case Status::STATUS_ERROR:
                 $this->paymentError();
@@ -312,11 +312,14 @@ class NotificationProcessor
      * @return void
      * @throws \Magento\Framework\Exception\LocalizedException
      */
-    private function paymentConfirmed()
+    private function paymentConfirmed($paymentId = null)
     {
         if ($this->order->getPayment()->canCapture()) {
             $this->order->getPayment()->capture();
             $this->logger->info('Payment has been captured', $this->context);
+        } elseif(!is_null($paymentId)) {
+            $this->paymentNew($paymentId);
+            $this->paymentConfirmed();
         } else {
             $this->logger->warning('Payment has not been captured', $this->context);
         }
