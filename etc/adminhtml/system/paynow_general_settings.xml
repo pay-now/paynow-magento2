@@ -22,6 +22,7 @@
             <label>Extra logs</label>
             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
             <config_path>payment/paynow_gateway/extra_logs</config_path>
+            <comment>Attention: Enabling this setting will increase logs size. </comment>
         </field>
         <field id="sort_order" translate="label" type="text" sortOrder="5" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Sort Order</label>
