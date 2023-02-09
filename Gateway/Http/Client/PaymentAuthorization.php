@@ -10,6 +10,7 @@ use Paynow\PaymentGateway\Helper\PaymentField;
 use Paynow\PaymentGateway\Helper\PaymentHelper;
 use Paynow\PaymentGateway\Model\Logger\Logger;
 use Paynow\Service\Payment;
+use Paynow\Model\Payment\Status;
 
 /**
  * Class PaymentAuthorization
@@ -68,17 +69,29 @@ class PaymentAuthorization implements ClientInterface
                 PaymentField::PAYMENT_ID_FIELD_NAME => $apiResponseObject->getPaymentId(),
             ];
         } catch (PaynowException $exception) {
-            $this->logger->error(
-                $exception->getMessage(),
-                array_merge($loggerContext, [
-                    'service' => 'Payment',
-                    'action' => 'authorize'
-                ])
-            );
-            foreach ($exception->getErrors() as $error) {
-                $this->logger->debug($error->getType() . ' - ' . $error->getMessage(), $loggerContext);
+            if (
+                $exception->getCode() == 504 &&
+                isset($transferObject->getBody()[PaymentField::CONTINUE_URL_FIELD_NAME]) &&
+                isset($transferObject->getBody()[PaymentField::AUTHORIZATION_CODE])
+            ) {
+                return [
+                    PaymentField::STATUS_FIELD_NAME => Status::STATUS_NEW,
+                    PaymentField::PAYMENT_ID_FIELD_NAME => PaymentField::EXTERNAL_ID_FIELD_NAME . '_BLIK_TIME_OUT_ERROR',
+                    PaymentField::REDIRECT_URL_FIELD_NAME => $transferObject->getBody()[PaymentField::CONTINUE_URL_FIELD_NAME],
+                ];
+            } else {
+                $this->logger->error(
+                    $exception->getMessage(),
+                    array_merge($loggerContext, [
+                        'service' => 'Payment',
+                        'action' => 'authorize'
+                    ])
+                );
+                foreach ($exception->getErrors() as $error) {
+                    $this->logger->debug($error->getType() . ' - ' . $error->getMessage(), $loggerContext);
+                }
+                return ['errors' => $exception->getErrors()];
             }
-            return ['errors' => $exception->getErrors()];
         }
     }
 }
