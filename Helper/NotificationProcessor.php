@@ -338,9 +338,10 @@ class NotificationProcessor
         if ($this->order->getPayment()->canCapture()) {
             $this->order->getPayment()->capture();
             $this->logger->info('Payment has been captured', $this->context);
-        } elseif(!is_null($paymentId)) {
+        } elseif(!is_null($paymentId) && $this->order->getState() != Order::STATE_PROCESSING) {
             $this->paymentNew($paymentId);
             $this->paymentConfirmed();
+            $this->logger->info('Payment has been captured, but with full order reprocessing.', $this->context);
         } else {
             $this->logger->warning('Payment has not been captured', $this->context);
         }
