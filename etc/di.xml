@@ -133,6 +133,7 @@
             <argument name="environment" xsi:type="array">
                 <item name="payment/paynow_gateway/test_mode" xsi:type="string">1</item>
                 <item name="payment/paynow_gateway/debug" xsi:type="string">1</item>
+                <item name="payment/paynow_gateway/extra_logs" xsi:type="string">1</item>
             </argument>
             <argument name="sensitive" xsi:type="array">
                 <item name="payment/paynow_gateway/production_api_key" xsi:type="string">1</item>

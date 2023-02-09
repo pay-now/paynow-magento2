@@ -166,6 +166,10 @@ class NotificationProcessor
             $modifiedAt
         );
 
+        if ($this->configHelper->extraLogsEnabled()) {
+            $this->logger->debug('Notification passed validation', $this->context);
+        }
+
         switch ($status) {
             case Status::STATUS_NEW:
                 $this->paymentNew($paymentId);
@@ -191,6 +195,9 @@ class NotificationProcessor
         }
 
         $this->orderRepository->save($this->order);
+        if ($this->configHelper->extraLogsEnabled()) {
+            $this->logger->debug('Notification processed successfully', $this->context);
+        }
     }
 
     /**
