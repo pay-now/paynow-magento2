@@ -119,6 +119,7 @@ class NotificationProcessor
         $orderPaymentId = $paymentAdditionalInformation[PaymentField::PAYMENT_ID_FIELD_NAME];
         $orderPaymentStatus = $paymentAdditionalInformation[PaymentField::STATUS_FIELD_NAME];
         $orderPaymentStatusDate = $paymentAdditionalInformation[PaymentField::MODIFIED_AT] ?? '';
+        $orderProcessed = !in_array($this->order->getState(), [Order::STATE_PAYMENT_REVIEW, Order::STATE_PENDING_PAYMENT, Order::STATE_NEW]);
 
         $this->context += [
             'orderPaymentId'         => $orderPaymentId,
@@ -126,7 +127,7 @@ class NotificationProcessor
             'orderPaymentStatusDate' => $orderPaymentStatusDate,
         ];
 
-        if ($orderPaymentStatus == Status::STATUS_CONFIRMED) {
+        if ($orderProcessed) {
             if ($isConfirmed && $orderPaymentId != $paymentId) {
                 $this->addConfirmPaymentToOrderHistory($paymentId);
             }
@@ -333,15 +334,27 @@ class NotificationProcessor
      * @return void
      * @throws \Magento\Framework\Exception\LocalizedException
      */
-    private function paymentConfirmed($paymentId = null)
+    private function paymentConfirmed($paymentId)
+    {
+        if ($paymentId != $this->order->getPayment()->getLastTransId()) {
+            $this->context['lastPaymentId'] = $this->order->getPayment()->getLastTransId();
+            $this->context['forcedPaymentId'] = $paymentId;
+            $this->logger->info('Forcing capture procedure ', $this->context);
+            $this->paymentNew($paymentId);
+        }
+        $this->capturePayment();
+
+    }
+
+    /**
+     * @return void
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    private function capturePayment()
     {
         if ($this->order->getPayment()->canCapture()) {
             $this->order->getPayment()->capture();
             $this->logger->info('Payment has been captured', $this->context);
-        } elseif(!is_null($paymentId) && $this->order->getState() != Order::STATE_PROCESSING) {
-            $this->paymentNew($paymentId);
-            $this->paymentConfirmed();
-            $this->logger->info('Payment has been captured, but with full order reprocessing.', $this->context);
         } else {
             $this->logger->warning('Payment has not been captured', $this->context);
         }

@@ -76,7 +76,7 @@ class PaymentAuthorization implements ClientInterface
             ) {
                 return [
                     PaymentField::STATUS_FIELD_NAME => Status::STATUS_NEW,
-                    PaymentField::PAYMENT_ID_FIELD_NAME => PaymentField::EXTERNAL_ID_FIELD_NAME . '_BLIK_TIME_OUT_ERROR',
+                    PaymentField::PAYMENT_ID_FIELD_NAME => PaymentField::EXTERNAL_ID_FIELD_NAME.'_UNKNOWN' ,
                     PaymentField::REDIRECT_URL_FIELD_NAME => $transferObject->getBody()[PaymentField::CONTINUE_URL_FIELD_NAME],
                 ];
             } else {
