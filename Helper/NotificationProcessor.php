@@ -152,7 +152,7 @@ class NotificationProcessor
             );
         }
 
-        if (!empty($orderPaymentStatusDate) && $orderPaymentStatusDate > $modifiedAt) {
+        if (!empty($orderPaymentStatusDate) && $orderPaymentStatusDate > $modifiedAt && !$isConfirmed) {
             if (!$isNew || $orderPaymentId == $paymentId) {
                 throw new NotificationStopProcessing(
                     'Skipped processing. Order has newer status. Time travels are prohibited.',
