@@ -2,6 +2,7 @@
 
 namespace Paynow\PaymentGateway\Helper;
 
+use Magento\Framework\App\ObjectManager;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment\Transaction;
@@ -351,13 +352,19 @@ class NotificationProcessor
     private function paymentConfirmed($paymentId)
     {
         if ($paymentId != $this->order->getPayment()->getLastTransId()) {
+            // Prepare order for transaction capture
             $this->context['lastPaymentId'] = $this->order->getPayment()->getLastTransId();
             $this->context['forcedPaymentId'] = $paymentId;
             $this->logger->info('Forcing capture procedure ', $this->context);
-            $this->paymentAbandoned();
-            $this->orderRepository->save($this->order);
-            $this->paymentNew($paymentId);
-            $this->orderRepository->save($this->order);
+            $paymentTransactionHelper = ObjectManager::getInstance()->create(PaymentTransactionHelper::class);
+            $paymentTransactionHelper->changeTransactionId(
+                $this->order->getId(),
+                $this->order->getPayment()->getEntityId(),
+                $this->order->getPayment()->getLastTransId(),
+                $paymentId
+            );
+            $this->order->getPayment()->setLastTransId($paymentId);
+            $this->order = $this->orderRepository->save($this->order);
         }
         $this->capturePayment();
     }
