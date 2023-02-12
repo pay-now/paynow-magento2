@@ -52,12 +52,6 @@ class PaymentAuthorization implements ClientInterface
 
         try {
             $service = new Payment($this->client);
-
-            /** @var \GuzzleHttp\Client $httpClient */
-            $service->getClient()->getHttpClient()->setClient(new \GuzzleHttp\Client([
-                'timeout' => 10
-            ]));
-
             $apiResponseObject = $service->authorize(
                 $transferObject->getBody(),
                 $transferObject->getHeaders()[PaymentField::IDEMPOTENCY_KEY_FIELD_NAME]
