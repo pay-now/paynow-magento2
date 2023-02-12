@@ -82,7 +82,7 @@ class PaymentTransactionHelper
         if (!$transaction->getId()) {
             return;
         }
-        $transaction->setIsClosed(false);
+        $transaction->setIsClosed(true);
         $this->transactionRepository->save($transaction);
     }
 }
