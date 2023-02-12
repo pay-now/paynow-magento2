@@ -60,8 +60,28 @@ class PaymentTransactionHelper
             $paymentId,
             $oldTransactionId
         );
+        if (!$transaction->getId()) {
+            return;
+        }
+
         $transaction->setTxnId($newTransactionId);
         $transaction->setTxnType(TransactionInterface::TYPE_AUTH);
+        $transaction->setIsClosed(false);
+        $this->transactionRepository->save($transaction);
+    }
+
+    public function closeTransactionId($orderId, $paymentId, $oldTransactionId)
+    {
+        $transaction = $this->transactionFactory->create();
+        $transaction = $this->transactionResourceModel->loadObjectByTxnId(
+            $transaction,
+            $orderId,
+            $paymentId,
+            $oldTransactionId
+        );
+        if (!$transaction->getId()) {
+            return;
+        }
         $transaction->setIsClosed(false);
         $this->transactionRepository->save($transaction);
     }

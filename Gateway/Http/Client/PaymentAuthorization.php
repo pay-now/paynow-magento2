@@ -52,6 +52,12 @@ class PaymentAuthorization implements ClientInterface
 
         try {
             $service = new Payment($this->client);
+
+            /** @var \GuzzleHttp\Client $httpClient */
+            $service->getClient()->getHttpClient()->setClient(new \GuzzleHttp\Client([
+                'timeout' => 10
+            ]));
+
             $apiResponseObject = $service->authorize(
                 $transferObject->getBody(),
                 $transferObject->getHeaders()[PaymentField::IDEMPOTENCY_KEY_FIELD_NAME]
@@ -70,9 +76,12 @@ class PaymentAuthorization implements ClientInterface
             ];
         } catch (PaynowException $exception) {
             if (
-                $exception->getCode() == 504 &&
                 isset($transferObject->getBody()[PaymentField::CONTINUE_URL_FIELD_NAME]) &&
-                isset($transferObject->getBody()[PaymentField::AUTHORIZATION_CODE])
+                isset($transferObject->getBody()[PaymentField::AUTHORIZATION_CODE]) &&
+                (
+                    $exception->getCode() == 504 ||
+                    strpos($exception->getMessage(), 'cURL error 28') !== false
+                )
             ) {
                 return [
                     PaymentField::STATUS_FIELD_NAME => Status::STATUS_NEW,
