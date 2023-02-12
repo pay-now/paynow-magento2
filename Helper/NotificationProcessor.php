@@ -53,6 +53,13 @@ class NotificationProcessor
      */
     private $lockingHelper;
 
+    /**
+     * @param OrderFactory $orderFactory
+     * @param Logger $logger
+     * @param ConfigHelper $configHelper
+     * @param OrderRepositoryInterface $orderRepository
+     * @param LockingHelper $lockingHelper
+     */
     public function __construct(
         OrderFactory                            $orderFactory,
         Logger                                  $logger,
@@ -68,15 +75,16 @@ class NotificationProcessor
     }
 
     /**
-     * @param      $paymentId
-     * @param      $status
-     * @param      $externalId
-     * @param      $modifiedAt
-     * @param bool $force
+     * @param $paymentId
+     * @param $status
+     * @param $externalId
+     * @param $modifiedAt
+     * @param $force
+     * @return void
+     * @throws NotificationRetryProcessing
+     * @throws NotificationStopProcessing
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Magento\Framework\Exception\NoSuchEntityException
-     * @throws \Paynow\PaymentGateway\Model\Exception\NotificationRetryProcessing
-     * @throws \Paynow\PaymentGateway\Model\Exception\NotificationStopProcessing
      */
     public function process($paymentId, $status, $externalId, $modifiedAt, $force = false)
     {
@@ -88,6 +96,9 @@ class NotificationProcessor
             PaymentField::MODIFIED_AT            => $modifiedAt
         ];
 
+        if ($this->configHelper->extraLogsEnabled()) {
+            $this->logger->debug('Lock checking...', $this->context);
+        }
         if ($this->lockingHelper->checkAndCreate($externalId)){
             for($i = 1; $i<=3; $i++){
                 sleep(1);
@@ -101,6 +112,9 @@ class NotificationProcessor
                     );
                 }
             }
+        }
+        if ($this->configHelper->extraLogsEnabled()) {
+            $this->logger->debug('Lock passed successfully, notification validation starting.', $this->context);
         }
 
         $isNew = $status == Status::STATUS_NEW;
@@ -340,10 +354,12 @@ class NotificationProcessor
             $this->context['lastPaymentId'] = $this->order->getPayment()->getLastTransId();
             $this->context['forcedPaymentId'] = $paymentId;
             $this->logger->info('Forcing capture procedure ', $this->context);
+            $this->paymentAbandoned();
+            $this->orderRepository->save($this->order);
             $this->paymentNew($paymentId);
+            $this->orderRepository->save($this->order);
         }
         $this->capturePayment();
-
     }
 
     /**

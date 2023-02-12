@@ -11,6 +11,7 @@ use Magento\Store\Model\StoreManagerInterface;
 use Paynow\Exception\SignatureVerificationException;
 use Paynow\Notification;
 use Paynow\PaymentGateway\Helper\ConfigHelper;
+use Paynow\PaymentGateway\Helper\LockingHelper;
 use Paynow\PaymentGateway\Model\Exception\NotificationRetryProcessing;
 use Paynow\PaymentGateway\Model\Exception\NotificationStopProcessing;
 use Paynow\PaymentGateway\Helper\NotificationProcessor;
@@ -57,7 +58,12 @@ class Notifications extends Action
     private $logger;
 
     /**
-     * Redirect constructor.
+     * @var LockingHelper
+     */
+    private $lockingHelper;
+
+    /**
+     * Notifications constructor.
      *
      * @param Context $context
      * @param StoreManagerInterface $storeManager
@@ -66,6 +72,7 @@ class Notifications extends Action
      * @param PaymentHelper $paymentHelper
      * @param ConfigHelper $configHelper
      * @param OrderFactory $orderFactory
+     * @param LockingHelper $lockingHelper
      */
     public function __construct(
         Context               $context,
@@ -74,7 +81,8 @@ class Notifications extends Action
         Logger                $logger,
         PaymentHelper         $paymentHelper,
         ConfigHelper          $configHelper,
-        OrderFactory          $orderFactory
+        OrderFactory          $orderFactory,
+        LockingHelper         $lockingHelper
     ) {
         parent::__construct($context);
         $this->storeManager          = $storeManager;
@@ -83,6 +91,7 @@ class Notifications extends Action
         $this->paymentHelper         = $paymentHelper;
         $this->configHelper          = $configHelper;
         $this->orderFactory          = $orderFactory;
+        $this->lockingHelper         = $lockingHelper;
         if (interface_exists(\Magento\Framework\App\CsrfAwareActionInterface::class)) {
             $request = $this->getRequest();
             if ($request instanceof Http && $request->isPost()) {
@@ -130,28 +139,30 @@ class Notifications extends Action
                 $notificationData[PaymentField::EXTERNAL_ID_FIELD_NAME],
                 $notificationData[PaymentField::MODIFIED_AT] ?? ''
             );
+            $this->lockingHelper->delete($notificationData[PaymentField::EXTERNAL_ID_FIELD_NAME]);
         } catch (SignatureVerificationException $exception) {
             $this->logger->error(
                 'Error occurred handling notification: ' . $exception->getMessage(),
                 $notificationData
             );
+            $this->lockingHelper->delete($notificationData[PaymentField::EXTERNAL_ID_FIELD_NAME] ?? '');
             $this->getResponse()->setHttpResponseCode(400);
         } catch (NotificationStopProcessing | NotificationRetryProcessing $exception) {
             $responseCode = ($exception instanceof NotificationStopProcessing) ? 200 : 400;
             $exception->logContext['responseCode'] = $responseCode;
-
             $this->logger->debug(
                 $exception->logMessage,
                 $exception->logContext
             );
+            $this->lockingHelper->delete($notificationData[PaymentField::EXTERNAL_ID_FIELD_NAME] ?? '');
             $this->getResponse()->setHttpResponseCode($responseCode);
         } catch (\Exception $exception) {
             $notificationData['exeption'] = $exception->getMessage();
-
             $this->logger->debug(
                 'Payment status notification processor -> unknown error',
                 $notificationData
             );
+            $this->lockingHelper->delete($notificationData[PaymentField::EXTERNAL_ID_FIELD_NAME] ?? '');
             $this->getResponse()->setHttpResponseCode(400);
         }
     }

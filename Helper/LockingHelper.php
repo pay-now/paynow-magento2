@@ -13,7 +13,7 @@ class LockingHelper
 {
     private static $LOCKS_DIR = 'paynow-locks';
     private static $LOCKS_PREFIX = 'paynow-lock_';
-    private static $LOCKED_TIME = 6;
+    private static $LOCKED_TIME = 60;
 
     /**
      * @string
@@ -64,6 +64,21 @@ class LockingHelper
         } else {
             $this->create($externalId, $lockExists);
             return false;
+        }
+    }
+
+    /**
+     * @param $externalId
+     * @return void
+     */
+    public function delete($externalId)
+    {
+        if (empty($externalId)){
+            return;
+        }
+        $lockFilePath = $this->generateLockPath($externalId);
+        if (file_exists($lockFilePath)){
+            unlink($lockFilePath);
         }
     }
 
