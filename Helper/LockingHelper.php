@@ -13,7 +13,7 @@ class LockingHelper
 {
     private static $LOCKS_DIR = 'paynow-locks';
     private static $LOCKS_PREFIX = 'paynow-lock_';
-    private static $LOCKED_TIME = 60;
+    private static $LOCKED_TIME = 35;
 
     /**
      * @string
@@ -58,7 +58,7 @@ class LockingHelper
         $lockFilePath = $this->generateLockPath($externalId);
         $lockExists = file_exists($lockFilePath);
         if (
-            $lockExists && filemtime($lockFilePath) + self::$LOCKED_TIME > time()
+            $lockExists && (filemtime($lockFilePath) + self::$LOCKED_TIME) > time()
         ) {
             return true;
         } else {
@@ -89,7 +89,7 @@ class LockingHelper
             return;
         }
         foreach ($allLocksList as $lockFilePath) {
-            if (filemtime($lockFilePath) + self::$LOCKED_TIME < time()) {
+            if ((filemtime($lockFilePath) + self::$LOCKED_TIME) < time()) {
                 unlink($lockFilePath);
             }
         }

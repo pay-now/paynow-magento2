@@ -57,11 +57,6 @@ class Success extends Action
     private $paymentStatusService;
 
     /**
-     * @var LockingHelper
-     */
-    private $lockingHelper;
-
-    /**
      * Success constructor.
      *
      * @param Context $context
@@ -70,7 +65,6 @@ class Success extends Action
      * @param UrlInterface $urlBuilder
      * @param NotificationProcessor $notificationProcessor
      * @param PaymentStatusService $paymentStatusService
-     * @param LockingHelper $lockingHelper
      */
     public function __construct(
         Context $context,
@@ -79,7 +73,6 @@ class Success extends Action
         UrlInterface $urlBuilder,
         NotificationProcessor $notificationProcessor,
         PaymentStatusService $paymentStatusService,
-        LockingHelper         $lockingHelper
     ) {
         parent::__construct($context);
         $this->checkoutSession = $checkoutSession;
@@ -89,7 +82,6 @@ class Success extends Action
         $this->notificationProcessor = $notificationProcessor;
         $this->order = $this->checkoutSession->getLastRealOrder();
         $this->paymentStatusService = $paymentStatusService;
-        $this->lockingHelper = $lockingHelper;
     }
 
     /**
@@ -122,10 +114,8 @@ class Success extends Action
                 date("Y-m-d\TH:i:s"),
                 true
             );
-            $this->lockingHelper->delete($this->order->getIncrementId());
         } catch (\Exception $exception) {
             $this->logger->error($exception->getMessage(), $loggerContext);
-            $this->lockingHelper->delete($this->order->getIncrementId());
         }
     }
 

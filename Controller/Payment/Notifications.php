@@ -58,11 +58,6 @@ class Notifications extends Action
     private $logger;
 
     /**
-     * @var LockingHelper
-     */
-    private $lockingHelper;
-
-    /**
      * Notifications constructor.
      *
      * @param Context $context
@@ -72,7 +67,6 @@ class Notifications extends Action
      * @param PaymentHelper $paymentHelper
      * @param ConfigHelper $configHelper
      * @param OrderFactory $orderFactory
-     * @param LockingHelper $lockingHelper
      */
     public function __construct(
         Context               $context,
@@ -81,8 +75,7 @@ class Notifications extends Action
         Logger                $logger,
         PaymentHelper         $paymentHelper,
         ConfigHelper          $configHelper,
-        OrderFactory          $orderFactory,
-        LockingHelper         $lockingHelper
+        OrderFactory          $orderFactory
     ) {
         parent::__construct($context);
         $this->storeManager          = $storeManager;
@@ -91,7 +84,6 @@ class Notifications extends Action
         $this->paymentHelper         = $paymentHelper;
         $this->configHelper          = $configHelper;
         $this->orderFactory          = $orderFactory;
-        $this->lockingHelper         = $lockingHelper;
         if (interface_exists(\Magento\Framework\App\CsrfAwareActionInterface::class)) {
             $request = $this->getRequest();
             if ($request instanceof Http && $request->isPost()) {
@@ -104,7 +96,8 @@ class Notifications extends Action
     /**
      * Process payment status notification
      *
-     * @return void
+     * @return \Magento\Framework\App\ResponseInterface|\Magento\Framework\Controller\ResultInterface|void
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
     public function execute()
     {
@@ -139,13 +132,11 @@ class Notifications extends Action
                 $notificationData[PaymentField::EXTERNAL_ID_FIELD_NAME],
                 $notificationData[PaymentField::MODIFIED_AT] ?? ''
             );
-            $this->lockingHelper->delete($notificationData[PaymentField::EXTERNAL_ID_FIELD_NAME]);
         } catch (SignatureVerificationException $exception) {
             $this->logger->error(
                 'Error occurred handling notification: ' . $exception->getMessage(),
                 $notificationData
             );
-            $this->lockingHelper->delete($notificationData[PaymentField::EXTERNAL_ID_FIELD_NAME] ?? '');
             $this->getResponse()->setHttpResponseCode(400);
         } catch (NotificationStopProcessing | NotificationRetryProcessing $exception) {
             $responseCode = ($exception instanceof NotificationStopProcessing) ? 200 : 400;
@@ -154,7 +145,6 @@ class Notifications extends Action
                 $exception->logMessage,
                 $exception->logContext
             );
-            $this->lockingHelper->delete($notificationData[PaymentField::EXTERNAL_ID_FIELD_NAME] ?? '');
             $this->getResponse()->setHttpResponseCode($responseCode);
         } catch (\Exception $exception) {
             $notificationData['exeption'] = $exception->getMessage();
@@ -162,7 +152,6 @@ class Notifications extends Action
                 'Payment status notification processor -> unknown error',
                 $notificationData
             );
-            $this->lockingHelper->delete($notificationData[PaymentField::EXTERNAL_ID_FIELD_NAME] ?? '');
             $this->getResponse()->setHttpResponseCode(400);
         }
     }

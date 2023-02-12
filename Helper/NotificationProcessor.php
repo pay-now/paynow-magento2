@@ -20,7 +20,7 @@ use Paynow\PaymentGateway\Model\Logger\Logger;
 class NotificationProcessor
 {
     /**
-     * @var Magento\Sales\Model\OrderFactory
+     * @var OrderFactory
      */
     private $orderFactory;
 
@@ -73,6 +73,7 @@ class NotificationProcessor
         $this->configHelper                   = $configHelper;
         $this->orderRepository                = $orderRepository;
         $this->lockingHelper                  = $lockingHelper;
+        set_time_limit(30);
     }
 
     /**
@@ -89,7 +90,6 @@ class NotificationProcessor
      */
     public function process($paymentId, $status, $externalId, $modifiedAt, $force = false)
     {
-
         $this->context = [
             PaymentField::PAYMENT_ID_FIELD_NAME  => $paymentId,
             PaymentField::EXTERNAL_ID_FIELD_NAME => $externalId,
@@ -201,9 +201,9 @@ class NotificationProcessor
         }
 
         switch ($status) {
-//            case Status::STATUS_NEW:
-//                $this->paymentNew($paymentId);
-//                break;
+            case Status::STATUS_NEW:
+                $this->paymentNew($paymentId);
+                break;
             case Status::STATUS_PENDING:
                 $this->paymentPending();
                 break;
@@ -228,6 +228,7 @@ class NotificationProcessor
         if ($this->configHelper->extraLogsEnabled()) {
             $this->logger->debug('Notification processed successfully', $this->context);
         }
+        $this->lockingHelper->delete($externalId);
     }
 
     /**
@@ -354,8 +355,8 @@ class NotificationProcessor
         if ($paymentId != $this->order->getPayment()->getLastTransId()) {
             // Prepare order for transaction capture
             $this->context['lastPaymentId'] = $this->order->getPayment()->getLastTransId();
-            $this->context['forcedPaymentId'] = $paymentId;
-            $this->logger->info('Forcing capture procedure ', $this->context);
+            $this->context['newPaymentId'] = $paymentId;
+            $this->logger->info('Transaction id renaming ', $this->context);
             $paymentTransactionHelper = ObjectManager::getInstance()->create(PaymentTransactionHelper::class);
             $paymentTransactionHelper->changeTransactionId(
                 $this->order->getId(),
