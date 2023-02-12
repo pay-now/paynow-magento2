@@ -124,6 +124,7 @@ class NotificationProcessor
         /** @var Order */
         $this->order = $this->orderFactory->create()->loadByIncrementId($externalId);
         if (!$this->order->getId()) {
+            $this->lockingHelper->delete($externalId);
             throw new NotificationRetryProcessing(
                 'Skipped processing. Order not found.',
                 $this->context
@@ -146,6 +147,7 @@ class NotificationProcessor
             if ($isConfirmed && $orderPaymentId != $paymentId) {
                 $this->addConfirmPaymentToOrderHistory($paymentId);
             }
+            $this->lockingHelper->delete($externalId);
             throw new NotificationStopProcessing(
                 'Skipped processing. Order has paid status.',
                 $this->context
@@ -153,6 +155,7 @@ class NotificationProcessor
         }
 
         if ($orderPaymentStatus == $status && $orderPaymentId == $paymentId) {
+            $this->lockingHelper->delete($externalId);
             throw new NotificationStopProcessing(
                 sprintf(
                     'Skipped processing. Transition status (%s) already consumed.',
@@ -170,6 +173,7 @@ class NotificationProcessor
 
         if (!empty($orderPaymentStatusDate) && $orderPaymentStatusDate > $modifiedAt && !$isConfirmed) {
             if (!$isNew || $orderPaymentId == $paymentId) {
+                $this->lockingHelper->delete($externalId);
                 throw new NotificationStopProcessing(
                     'Skipped processing. Order has newer status. Time travels are prohibited.',
                     $this->context
@@ -273,6 +277,7 @@ class NotificationProcessor
 
         $this->context['statusCounter'] = $history[$historyKey];
 
+        $this->lockingHelper->delete($this->context[PaymentField::EXTERNAL_ID_FIELD_NAME]);
         if ($history[$historyKey] >= $counter) {
             throw new NotificationStopProcessing($message, $this->context);
         } else {
