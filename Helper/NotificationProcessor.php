@@ -124,7 +124,7 @@ class NotificationProcessor
         /** @var Order */
         $this->order = $this->orderFactory->create()->loadByIncrementId($externalId);
         if (!$this->order->getId()) {
-            throw new NotificationStopProcessing(
+            throw new NotificationRetryProcessing(
                 'Skipped processing. Order not found.',
                 $this->context
             );
@@ -201,9 +201,9 @@ class NotificationProcessor
         }
 
         switch ($status) {
-            case Status::STATUS_NEW:
-                $this->paymentNew($paymentId);
-                break;
+//            case Status::STATUS_NEW:
+//                $this->paymentNew($paymentId);
+//                break;
             case Status::STATUS_PENDING:
                 $this->paymentPending();
                 break;
