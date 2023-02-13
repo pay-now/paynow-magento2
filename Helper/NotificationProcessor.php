@@ -108,7 +108,7 @@ class NotificationProcessor
                 $isNotificationLocked = $this->lockingHelper->checkAndCreate($externalId);
                 if ($isNotificationLocked == false) {
                     break;
-                } else if ($i == 3) {
+                } elseif ($i == 3) {
                     throw new NotificationRetryProcessing(
                         'Skipped processing. Previous notification is still processing.',
                         $this->context
