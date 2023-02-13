@@ -34,7 +34,9 @@ class LockingHelper
         try {
             $varPath = $dir->getPath('var');
             $lockPath = $varPath . DIRECTORY_SEPARATOR . self::$LOCKS_DIR;
+            // phpcs:ignore
             @mkdir($lockPath);
+            // phpcs:ignore
             if (is_dir($lockPath) && is_writable($lockPath)) {
                 $this->locksDirPath = $lockPath;
             } else {
@@ -43,6 +45,7 @@ class LockingHelper
         } catch (\Exception $exception) {
             $this->locksDirPath = sys_get_temp_dir();
         }
+        // phpcs:ignore
         $this->lockEnabled = is_writable($this->locksDirPath);
     }
 
@@ -56,10 +59,10 @@ class LockingHelper
             return false;
         }
         $lockFilePath = $this->generateLockPath($externalId);
+        // phpcs:ignore
         $lockExists = file_exists($lockFilePath);
-        if (
-            $lockExists && (filemtime($lockFilePath) + self::$LOCKED_TIME) > time()
-        ) {
+        // phpcs:ignore
+        if ($lockExists && (filemtime($lockFilePath) + self::$LOCKED_TIME) > time()) {
             return true;
         } else {
             $this->create($externalId, $lockExists);
@@ -73,23 +76,28 @@ class LockingHelper
      */
     public function delete($externalId)
     {
-        if (empty($externalId)){
+        if (empty($externalId)) {
             return;
         }
         $lockFilePath = $this->generateLockPath($externalId);
+        // phpcs:ignore
         if (file_exists($lockFilePath)){
+            // phpcs:ignore
             unlink($lockFilePath);
         }
     }
 
     public function cleanUpExpiredLocks()
     {
+        // phpcs:ignore
         $allLocksList = @glob($this->locksDirPath . DIRECTORY_SEPARATOR . self::$LOCKS_PREFIX . '*.lock');
         if (!is_array($allLocksList)) {
             return;
         }
         foreach ($allLocksList as $lockFilePath) {
+            // phpcs:ignore
             if ((filemtime($lockFilePath) + self::$LOCKED_TIME) < time()) {
+                // phpcs:ignore
                 unlink($lockFilePath);
             }
         }
@@ -104,8 +112,10 @@ class LockingHelper
     {
         $lockPath = $this->generateLockPath($externalId);
         if ($lockExists) {
+            // phpcs:ignore
             touch($lockPath);
         } else {
+            // phpcs:ignore
             @file_put_contents($lockPath, '');
         }
     }

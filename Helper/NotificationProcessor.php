@@ -73,6 +73,7 @@ class NotificationProcessor
         $this->configHelper                   = $configHelper;
         $this->orderRepository                = $orderRepository;
         $this->lockingHelper                  = $lockingHelper;
+        // phpcs:ignore
         set_time_limit(30);
     }
 
@@ -100,13 +101,14 @@ class NotificationProcessor
         if ($this->configHelper->extraLogsEnabled()) {
             $this->logger->debug('Lock checking...', $this->context);
         }
-        if ($this->lockingHelper->checkAndCreate($externalId)){
-            for($i = 1; $i<=3; $i++){
+        if ($this->lockingHelper->checkAndCreate($externalId)) {
+            for ($i = 1; $i<=3; $i++) {
+                // phpcs:ignore
                 sleep(1);
                 $isNotificationLocked = $this->lockingHelper->checkAndCreate($externalId);
-                if ($isNotificationLocked == false){
+                if ($isNotificationLocked == false) {
                     break;
-                } else if ($i == 3){
+                } else if ($i == 3) {
                     throw new NotificationRetryProcessing(
                         'Skipped processing. Previous notification is still processing.',
                         $this->context
@@ -135,7 +137,10 @@ class NotificationProcessor
         $orderPaymentId = $paymentAdditionalInformation[PaymentField::PAYMENT_ID_FIELD_NAME];
         $orderPaymentStatus = $paymentAdditionalInformation[PaymentField::STATUS_FIELD_NAME];
         $orderPaymentStatusDate = $paymentAdditionalInformation[PaymentField::MODIFIED_AT] ?? '';
-        $orderProcessed = !in_array($this->order->getState(), [Order::STATE_PAYMENT_REVIEW, Order::STATE_PENDING_PAYMENT, Order::STATE_NEW]);
+        $orderProcessed = !in_array(
+            $this->order->getState(),
+            [Order::STATE_PAYMENT_REVIEW, Order::STATE_PENDING_PAYMENT, Order::STATE_NEW]
+        );
 
         $this->context += [
             'orderPaymentId'         => $orderPaymentId,

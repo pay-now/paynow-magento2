@@ -69,18 +69,18 @@ class PaymentAuthorization implements ClientInterface
                 PaymentField::PAYMENT_ID_FIELD_NAME => $apiResponseObject->getPaymentId(),
             ];
         } catch (PaynowException $exception) {
-            if (
-                isset($transferObject->getBody()[PaymentField::CONTINUE_URL_FIELD_NAME]) &&
+            if (isset($transferObject->getBody()[PaymentField::CONTINUE_URL_FIELD_NAME]) &&
                 isset($transferObject->getBody()[PaymentField::AUTHORIZATION_CODE]) &&
                 (
                     $exception->getCode() == 504 ||
                     strpos($exception->getMessage(), 'cURL error 28') !== false
-                )
-            ) {
+                )) {
                 return [
                     PaymentField::STATUS_FIELD_NAME => Status::STATUS_NEW,
-                    PaymentField::PAYMENT_ID_FIELD_NAME =>  $transferObject->getBody()[PaymentField::EXTERNAL_ID_FIELD_NAME].'_UNKNOWN' ,
-                    PaymentField::REDIRECT_URL_FIELD_NAME => $transferObject->getBody()[PaymentField::CONTINUE_URL_FIELD_NAME],
+                    PaymentField::PAYMENT_ID_FIELD_NAME =>
+                        $transferObject->getBody()[PaymentField::EXTERNAL_ID_FIELD_NAME].'_UNKNOWN' ,
+                    PaymentField::REDIRECT_URL_FIELD_NAME =>
+                        $transferObject->getBody()[PaymentField::CONTINUE_URL_FIELD_NAME],
                 ];
             } else {
                 $this->logger->error(

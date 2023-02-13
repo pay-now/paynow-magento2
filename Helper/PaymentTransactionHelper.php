@@ -37,8 +37,7 @@ class PaymentTransactionHelper
         TransactionRepositoryInterface $transactionRepository,
         TransactionFactory             $transactionFactory,
         Transaction                    $transactionResourceModel
-    )
-    {
+    ) {
         $this->transactionRepository = $transactionRepository;
         $this->transactionFactory = $transactionFactory;
         $this->transactionResourceModel = $transactionResourceModel;
