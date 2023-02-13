@@ -66,7 +66,11 @@ class Status extends Action
         }
         $allPayments = $order->getAllPayments();
         $lastPaymentId = end($allPayments)->getAdditionalInformation(PaymentField::PAYMENT_ID_FIELD_NAME);
-        $status = $this->paymentStatusService->getStatus($lastPaymentId);
+        if ($lastPaymentId == $order->getIncrementId() . '_UNKNOWN') {
+            $status =  \Paynow\Model\Payment\Status::STATUS_PENDING;
+        } else {
+            $status = $this->paymentStatusService->getStatus($lastPaymentId);
+        }
 
         if ($status) {
             return $resultJson->setData([

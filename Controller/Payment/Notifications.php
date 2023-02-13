@@ -11,6 +11,7 @@ use Magento\Store\Model\StoreManagerInterface;
 use Paynow\Exception\SignatureVerificationException;
 use Paynow\Notification;
 use Paynow\PaymentGateway\Helper\ConfigHelper;
+use Paynow\PaymentGateway\Helper\LockingHelper;
 use Paynow\PaymentGateway\Model\Exception\NotificationRetryProcessing;
 use Paynow\PaymentGateway\Model\Exception\NotificationStopProcessing;
 use Paynow\PaymentGateway\Helper\NotificationProcessor;
@@ -57,7 +58,7 @@ class Notifications extends Action
     private $logger;
 
     /**
-     * Redirect constructor.
+     * Notifications constructor.
      *
      * @param Context $context
      * @param StoreManagerInterface $storeManager
@@ -95,7 +96,8 @@ class Notifications extends Action
     /**
      * Process payment status notification
      *
-     * @return void
+     * @return \Magento\Framework\App\ResponseInterface|\Magento\Framework\Controller\ResultInterface|void
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
     public function execute()
     {
@@ -139,7 +141,6 @@ class Notifications extends Action
         } catch (NotificationStopProcessing | NotificationRetryProcessing $exception) {
             $responseCode = ($exception instanceof NotificationStopProcessing) ? 200 : 400;
             $exception->logContext['responseCode'] = $responseCode;
-
             $this->logger->debug(
                 $exception->logMessage,
                 $exception->logContext
@@ -147,7 +148,6 @@ class Notifications extends Action
             $this->getResponse()->setHttpResponseCode($responseCode);
         } catch (\Exception $exception) {
             $notificationData['exeption'] = $exception->getMessage();
-
             $this->logger->debug(
                 'Payment status notification processor -> unknown error',
                 $notificationData

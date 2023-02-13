@@ -2,6 +2,7 @@
 
 namespace Paynow\PaymentGateway\Helper;
 
+use Magento\Framework\App\ObjectManager;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment\Transaction;
@@ -19,7 +20,7 @@ use Paynow\PaymentGateway\Model\Logger\Logger;
 class NotificationProcessor
 {
     /**
-     * @var Magento\Sales\Model\OrderFactory
+     * @var OrderFactory
      */
     private $orderFactory;
 
@@ -48,28 +49,45 @@ class NotificationProcessor
      */
     private $orderRepository;
 
+    /**
+     * @var LockingHelper
+     */
+    private $lockingHelper;
+
+    /**
+     * @param OrderFactory $orderFactory
+     * @param Logger $logger
+     * @param ConfigHelper $configHelper
+     * @param OrderRepositoryInterface $orderRepository
+     * @param LockingHelper $lockingHelper
+     */
     public function __construct(
         OrderFactory                            $orderFactory,
         Logger                                  $logger,
         ConfigHelper                            $configHelper,
-        OrderRepositoryInterface                $orderRepository
+        OrderRepositoryInterface                $orderRepository,
+        LockingHelper                           $lockingHelper
     ) {
         $this->orderFactory                   = $orderFactory;
         $this->logger                         = $logger;
         $this->configHelper                   = $configHelper;
         $this->orderRepository                = $orderRepository;
+        $this->lockingHelper                  = $lockingHelper;
+        // phpcs:ignore
+        set_time_limit(30);
     }
 
     /**
-     * @param      $paymentId
-     * @param      $status
-     * @param      $externalId
-     * @param      $modifiedAt
-     * @param bool $force
+     * @param $paymentId
+     * @param $status
+     * @param $externalId
+     * @param $modifiedAt
+     * @param $force
+     * @return void
+     * @throws NotificationRetryProcessing
+     * @throws NotificationStopProcessing
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Magento\Framework\Exception\NoSuchEntityException
-     * @throws \Paynow\PaymentGateway\Model\Exception\NotificationRetryProcessing
-     * @throws \Paynow\PaymentGateway\Model\Exception\NotificationStopProcessing
      */
     public function process($paymentId, $status, $externalId, $modifiedAt, $force = false)
     {
@@ -80,22 +98,36 @@ class NotificationProcessor
             PaymentField::MODIFIED_AT            => $modifiedAt
         ];
 
+        if ($this->configHelper->extraLogsEnabled()) {
+            $this->logger->debug('Lock checking...', $this->context);
+        }
+        if ($this->lockingHelper->checkAndCreate($externalId)) {
+            for ($i = 1; $i<=3; $i++) {
+                // phpcs:ignore
+                sleep(1);
+                $isNotificationLocked = $this->lockingHelper->checkAndCreate($externalId);
+                if ($isNotificationLocked == false) {
+                    break;
+                } elseif ($i == 3) {
+                    throw new NotificationRetryProcessing(
+                        'Skipped processing. Previous notification is still processing.',
+                        $this->context
+                    );
+                }
+            }
+        }
+        if ($this->configHelper->extraLogsEnabled()) {
+            $this->logger->debug('Lock passed successfully, notification validation starting.', $this->context);
+        }
+
         $isNew = $status == Status::STATUS_NEW;
         $isConfirmed = $status == Status::STATUS_CONFIRMED;
-
-        // Delay NEW status, in case when API sends notifications in bundle,
-        // status NEW should finish processing at the very end
-        // Delay CONFIRMED status, in case when API sends notifications in the same
-        // time as Magento retrieve status o
-        if ($isNew || (!$force && $isConfirmed)) {
-            // phpcs:ignore Magento2.Functions.DiscouragedFunction
-            sleep(3);
-        }
 
         /** @var Order */
         $this->order = $this->orderFactory->create()->loadByIncrementId($externalId);
         if (!$this->order->getId()) {
-            throw new NotificationStopProcessing(
+            $this->lockingHelper->delete($externalId);
+            throw new NotificationRetryProcessing(
                 'Skipped processing. Order not found.',
                 $this->context
             );
@@ -105,6 +137,10 @@ class NotificationProcessor
         $orderPaymentId = $paymentAdditionalInformation[PaymentField::PAYMENT_ID_FIELD_NAME];
         $orderPaymentStatus = $paymentAdditionalInformation[PaymentField::STATUS_FIELD_NAME];
         $orderPaymentStatusDate = $paymentAdditionalInformation[PaymentField::MODIFIED_AT] ?? '';
+        $orderProcessed = !in_array(
+            $this->order->getState(),
+            [Order::STATE_PAYMENT_REVIEW, Order::STATE_PENDING_PAYMENT, Order::STATE_NEW]
+        );
 
         $this->context += [
             'orderPaymentId'         => $orderPaymentId,
@@ -112,10 +148,11 @@ class NotificationProcessor
             'orderPaymentStatusDate' => $orderPaymentStatusDate,
         ];
 
-        if ($orderPaymentStatus == Status::STATUS_CONFIRMED) {
+        if ($orderProcessed) {
             if ($isConfirmed && $orderPaymentId != $paymentId) {
                 $this->addConfirmPaymentToOrderHistory($paymentId);
             }
+            $this->lockingHelper->delete($externalId);
             throw new NotificationStopProcessing(
                 'Skipped processing. Order has paid status.',
                 $this->context
@@ -123,6 +160,7 @@ class NotificationProcessor
         }
 
         if ($orderPaymentStatus == $status && $orderPaymentId == $paymentId) {
+            $this->lockingHelper->delete($externalId);
             throw new NotificationStopProcessing(
                 sprintf(
                     'Skipped processing. Transition status (%s) already consumed.',
@@ -132,14 +170,15 @@ class NotificationProcessor
             );
         }
 
-        if ($orderPaymentId != $paymentId && !$isNew && !$force) {
+        if ($orderPaymentId != $paymentId && !$isNew && !$force && !$isConfirmed) {
             $this->retryProcessingNTimes(
                 'Skipped processing. Order has another active payment.'
             );
         }
 
-        if (!empty($orderPaymentStatusDate) && $orderPaymentStatusDate > $modifiedAt) {
+        if (!empty($orderPaymentStatusDate) && $orderPaymentStatusDate > $modifiedAt && !$isConfirmed) {
             if (!$isNew || $orderPaymentId == $paymentId) {
+                $this->lockingHelper->delete($externalId);
                 throw new NotificationStopProcessing(
                     'Skipped processing. Order has newer status. Time travels are prohibited.',
                     $this->context
@@ -147,7 +186,7 @@ class NotificationProcessor
             }
         }
 
-        if (!$this->isCorrectStatus($orderPaymentStatus, $status) && !$isNew && !$force) {
+        if (!$this->isCorrectStatus($orderPaymentStatus, $status) && !$isNew && !$force && !$isConfirmed) {
             $this->retryProcessingNTimes(
                 sprintf(
                     'Order status transition from %s to %s is incorrect.',
@@ -166,6 +205,10 @@ class NotificationProcessor
             $modifiedAt
         );
 
+        if ($this->configHelper->extraLogsEnabled()) {
+            $this->logger->debug('Notification passed validation', $this->context);
+        }
+
         switch ($status) {
             case Status::STATUS_NEW:
                 $this->paymentNew($paymentId);
@@ -177,7 +220,7 @@ class NotificationProcessor
                 $this->paymentRejected();
                 break;
             case Status::STATUS_CONFIRMED:
-                $this->paymentConfirmed();
+                $this->paymentConfirmed($paymentId);
                 break;
             case Status::STATUS_ERROR:
                 $this->paymentError();
@@ -191,6 +234,10 @@ class NotificationProcessor
         }
 
         $this->orderRepository->save($this->order);
+        if ($this->configHelper->extraLogsEnabled()) {
+            $this->logger->debug('Notification processed successfully', $this->context);
+        }
+        $this->lockingHelper->delete($externalId);
     }
 
     /**
@@ -235,6 +282,7 @@ class NotificationProcessor
 
         $this->context['statusCounter'] = $history[$historyKey];
 
+        $this->lockingHelper->delete($this->context[PaymentField::EXTERNAL_ID_FIELD_NAME]);
         if ($history[$historyKey] >= $counter) {
             throw new NotificationStopProcessing($message, $this->context);
         } else {
@@ -244,6 +292,14 @@ class NotificationProcessor
 
     private function paymentNew($paymentId)
     {
+        /** @var PaymentTransactionHelper $paymentTransactionHelper */
+        $paymentTransactionHelper = ObjectManager::getInstance()->create(PaymentTransactionHelper::class);
+        $paymentTransactionHelper->closeTransactionId(
+            $this->order->getId(),
+            $this->order->getPayment()->getEntityId(),
+            $this->order->getIncrementId() . '_UNKNOWN'
+        );
+
         $payment = $this->order->getPayment();
 
         $payment
@@ -312,7 +368,34 @@ class NotificationProcessor
      * @return void
      * @throws \Magento\Framework\Exception\LocalizedException
      */
-    private function paymentConfirmed()
+    private function paymentConfirmed($paymentId)
+    {
+        if ($paymentId != $this->order->getPayment()->getLastTransId()) {
+            // Prepare order for transaction capture
+            $this->context['lastPaymentId'] = $this->order->getPayment()->getLastTransId();
+            $this->context['newPaymentId'] = $paymentId;
+            $this->logger->info('Force capture: closing last transsation.', $this->context);
+
+            /** @var PaymentTransactionHelper $paymentTransactionHelper */
+            $paymentTransactionHelper = ObjectManager::getInstance()->create(PaymentTransactionHelper::class);
+            $paymentTransactionHelper->closeTransactionId(
+                $this->order->getId(),
+                $this->order->getPayment()->getEntityId(),
+                $this->order->getPayment()->getLastTransId()
+            );
+
+            $this->logger->info('Force capture: creating new transaction.', $this->context);
+            $this->paymentNew($paymentId);
+            $this->order = $this->orderRepository->save($this->order);
+        }
+        $this->capturePayment();
+    }
+
+    /**
+     * @return void
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    private function capturePayment()
     {
         if ($this->order->getPayment()->canCapture()) {
             $this->order->getPayment()->capture();
