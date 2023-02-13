@@ -72,7 +72,7 @@ class Success extends Action
         Logger $logger,
         UrlInterface $urlBuilder,
         NotificationProcessor $notificationProcessor,
-        PaymentStatusService $paymentStatusService,
+        PaymentStatusService $paymentStatusService
     ) {
         parent::__construct($context);
         $this->checkoutSession = $checkoutSession;
