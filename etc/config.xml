@@ -6,6 +6,7 @@
             <paynow_gateway>
                 <active>1</active>
                 <debug>1</debug>
+                <extra_logs>1</extra_logs>
                 <order_status_change>1</order_status_change>
                 <can_authorize>1</can_authorize>
                 <can_capture>1</can_capture>
@@ -31,6 +32,7 @@
             <paynow_blik_gateway>
                 <active>1</active>
                 <debug>1</debug>
+                <extra_logs>1</extra_logs>
                 <order_status_change>1</order_status_change>
                 <currency>PLN</currency>
                 <is_gateway>1</is_gateway>

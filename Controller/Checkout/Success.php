@@ -8,6 +8,7 @@ use Magento\Framework\App\Action\Context;
 use Magento\Framework\Controller\Result\Redirect as ResponseRedirect;
 use Magento\Framework\UrlInterface;
 use Magento\Sales\Model\Order;
+use Paynow\PaymentGateway\Helper\LockingHelper;
 use Paynow\PaymentGateway\Helper\NotificationProcessor;
 use Paynow\PaymentGateway\Helper\PaymentField;
 use Paynow\PaymentGateway\Helper\PaymentStatusService;
@@ -56,7 +57,8 @@ class Success extends Action
     private $paymentStatusService;
 
     /**
-     * Redirect constructor.
+     * Success constructor.
+     *
      * @param Context $context
      * @param CheckoutSession $checkoutSession
      * @param Logger $logger

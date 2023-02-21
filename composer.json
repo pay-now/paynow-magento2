@@ -2,8 +2,22 @@
   "name": "pay-now/paynow-magento2",
   "description": "Module for Paynow payments",
   "type": "magento2-module",
-  "version": "1.3.4",
+  "version": "1.4.0",
   "license": "MIT",
+  "config": {
+    "allow-plugins": {
+      "dealerdirect/phpcodesniffer-composer-installer": true,
+      "laminas/laminas-dependency-plugin": true,
+      "magento/*": true,
+      "php-http/discovery": true,
+      "magento/composer-root-update-plugin": true,
+      "magento/composer-dependency-version-audit-plugin": true,
+      "magento/inventory-composer-installer": true,
+      "magento/magento-composer-installer": true
+    },
+    "preferred-install": "dist",
+    "sort-packages": true
+  },
   "keywords": [
     "paynow",
     "mbank",
