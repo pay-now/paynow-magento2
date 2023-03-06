@@ -3,6 +3,7 @@
 namespace Paynow\PaymentGateway\Helper;
 
 use Magento\Framework\Filesystem\DirectoryList;
+use Paynow\PaymentGateway\Model\Logger\Logger;
 
 /**
  * Class LockingHelper
@@ -27,8 +28,9 @@ class LockingHelper
 
     /**
      * @param DirectoryList $dir
+     * @param Logger $logger
      */
-    public function __construct(DirectoryList $dir)
+    public function __construct(DirectoryList $dir, Logger $logger)
     {
         // Setup locks dir
         try {
@@ -47,6 +49,9 @@ class LockingHelper
         }
         // phpcs:ignore
         $this->lockEnabled = is_writable($this->locksDirPath);
+        if ($this->lockEnabled == false) {
+            $logger->critical('Locking mechanism disabled.', ['locksDirPath' => $this->locksDirPath]);
+        }
     }
 
     /**
