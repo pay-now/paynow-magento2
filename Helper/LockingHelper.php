@@ -12,7 +12,7 @@ use Magento\Framework\Filesystem\DirectoryList;
 class LockingHelper
 {
     private static $LOCKS_DIR = 'paynow-locks';
-    private static $LOCKS_PREFIX = 'paynow-lock_';
+    private static $LOCKS_PREFIX = 'paynow-lock-';
     private static $LOCKED_TIME = 35;
 
     /**
@@ -126,6 +126,6 @@ class LockingHelper
      */
     private function generateLockPath($externalId)
     {
-        return $this->locksDirPath . DIRECTORY_SEPARATOR . self::$LOCKS_PREFIX . $externalId . '.lock';
+        return $this->locksDirPath . DIRECTORY_SEPARATOR . self::$LOCKS_PREFIX . md5($externalId) . '.lock';
     }
 }
