@@ -126,6 +126,7 @@ class LockingHelper
      */
     private function generateLockPath($externalId)
     {
+        // phpcs:ignore
         return $this->locksDirPath . DIRECTORY_SEPARATOR . self::$LOCKS_PREFIX . md5($externalId) . '.lock';
     }
 }

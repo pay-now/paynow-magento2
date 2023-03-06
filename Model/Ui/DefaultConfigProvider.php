@@ -34,7 +34,8 @@ class DefaultConfigProvider extends ConfigProvider implements ConfigProviderInte
         return [
             'payment' => [
                 self::CODE => [
-                    'isActive'       => $this->configHelper->isActive() && $this->configHelper->isConfigured(),
+                    'isActive'       => $this->configHelper->isActive()
+                        && $this->configHelper->isConfigured(),
                     'logoPath'       => 'https://static.paynow.pl/brand/paynow_logo_black.png',
                     'redirectUrl'    => $this->getRedirectUrl(),
                     'paymentMethods' => $paymentMethods
