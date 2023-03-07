@@ -22,6 +22,11 @@ class LockingHelper
     public $locksDirPath;
 
     /**
+     * @var Logger
+     */
+    public $logger;
+
+    /**
      * @var bool
      */
     public $lockEnabled = true;
@@ -121,7 +126,10 @@ class LockingHelper
             touch($lockPath);
         } else {
             // phpcs:ignore
-            @file_put_contents($lockPath, '');
+           $fileSaved = @file_put_contents($lockPath, '');
+           if ($fileSaved === false){
+               $this->logger->critical('Locking failed.', ['externalId' => $externalId, 'lockPath' => $lockPath]);
+           }
         }
     }
 
