@@ -3,6 +3,7 @@
 namespace Paynow\PaymentGateway\Helper;
 
 use Magento\Framework\Filesystem\DirectoryList;
+use Paynow\PaymentGateway\Model\Logger\Logger;
 
 /**
  * Class LockingHelper
@@ -12,7 +13,7 @@ use Magento\Framework\Filesystem\DirectoryList;
 class LockingHelper
 {
     private static $LOCKS_DIR = 'paynow-locks';
-    private static $LOCKS_PREFIX = 'paynow-lock_';
+    private static $LOCKS_PREFIX = 'paynow-lock-';
     private static $LOCKED_TIME = 35;
 
     /**
@@ -21,14 +22,20 @@ class LockingHelper
     public $locksDirPath;
 
     /**
+     * @var Logger
+     */
+    public $logger;
+
+    /**
      * @var bool
      */
     public $lockEnabled = true;
 
     /**
      * @param DirectoryList $dir
+     * @param Logger $logger
      */
-    public function __construct(DirectoryList $dir)
+    public function __construct(DirectoryList $dir, Logger $logger)
     {
         // Setup locks dir
         try {
@@ -47,6 +54,9 @@ class LockingHelper
         }
         // phpcs:ignore
         $this->lockEnabled = is_writable($this->locksDirPath);
+        if ($this->lockEnabled == false) {
+            $logger->critical('Locking mechanism disabled.', ['locksDirPath' => $this->locksDirPath]);
+        }
     }
 
     /**
@@ -116,7 +126,10 @@ class LockingHelper
             touch($lockPath);
         } else {
             // phpcs:ignore
-            @file_put_contents($lockPath, '');
+           $fileSaved = @file_put_contents($lockPath, '');
+            if ($fileSaved === false) {
+                $this->logger->critical('Locking failed', ['externalId' => $externalId, 'lockPath' => $lockPath]);
+            }
         }
     }
 
@@ -126,6 +139,7 @@ class LockingHelper
      */
     private function generateLockPath($externalId)
     {
-        return $this->locksDirPath . DIRECTORY_SEPARATOR . self::$LOCKS_PREFIX . $externalId . '.lock';
+        // phpcs:ignore
+        return $this->locksDirPath . DIRECTORY_SEPARATOR . self::$LOCKS_PREFIX . md5($externalId) . '.lock';
     }
 }
