@@ -127,9 +127,9 @@ class LockingHelper
         } else {
             // phpcs:ignore
            $fileSaved = @file_put_contents($lockPath, '');
-           if ($fileSaved === false){
-               $this->logger->critical('Locking failed.', ['externalId' => $externalId, 'lockPath' => $lockPath]);
-           }
+            if ($fileSaved === false) {
+               $this->logger->critical('Locking failed', ['externalId' => $externalId, 'lockPath' => $lockPath]);
+            }
         }
     }
 
