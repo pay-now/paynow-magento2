@@ -104,7 +104,11 @@ class Success extends Action
     {
         $allPayments = $this->order->getAllPayments();
         $lastPaymentId = end($allPayments)->getAdditionalInformation(PaymentField::PAYMENT_ID_FIELD_NAME);
-        $status = $this->paymentStatusService->getStatus($lastPaymentId);
+        if ($lastPaymentId == $this->order->getIncrementId() . '_UNKNOWN') {
+            $status =  \Paynow\Model\Payment\Status::STATUS_PENDING;
+        } else {
+            $status = $this->paymentStatusService->getStatus($lastPaymentId);
+        }
         $loggerContext = [PaymentField::PAYMENT_ID_FIELD_NAME => $lastPaymentId];
         try {
             $this->notificationProcessor->process(
