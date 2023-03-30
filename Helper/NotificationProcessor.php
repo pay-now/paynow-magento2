@@ -366,11 +366,10 @@ class NotificationProcessor
             // Prepare order for transaction capture
             $this->context['lastPaymentId'] = $this->order->getPayment()->getLastTransId();
             $this->context['newPaymentId'] = $paymentId;
-            $this->logger->info('Force capture: closing last transaction.', $this->context);
 
             /** @var PaymentTransactionHelper $paymentTransactionHelper */
             $paymentTransactionHelper = ObjectManager::getInstance()->create(PaymentTransactionHelper::class);
-            $this->logger->info('Force capture: last transaction is unknown - changing txnId', $this->context);
+            $this->logger->info('Force capture: changing last transaction Id', $this->context);
             $paymentTransactionHelper->changeTransactionId(
                 $this->order->getId(),
                 $this->order->getPayment()->getEntityId(),
