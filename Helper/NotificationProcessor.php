@@ -292,14 +292,6 @@ class NotificationProcessor
 
     private function paymentNew($paymentId)
     {
-        /** @var PaymentTransactionHelper $paymentTransactionHelper */
-        $paymentTransactionHelper = ObjectManager::getInstance()->create(PaymentTransactionHelper::class);
-        $paymentTransactionHelper->closeTransactionId(
-            $this->order->getId(),
-            $this->order->getPayment()->getEntityId(),
-            $this->order->getIncrementId() . '_UNKNOWN'
-        );
-
         $payment = $this->order->getPayment();
 
         $payment
@@ -374,18 +366,17 @@ class NotificationProcessor
             // Prepare order for transaction capture
             $this->context['lastPaymentId'] = $this->order->getPayment()->getLastTransId();
             $this->context['newPaymentId'] = $paymentId;
-            $this->logger->info('Force capture: closing last transsation.', $this->context);
 
             /** @var PaymentTransactionHelper $paymentTransactionHelper */
             $paymentTransactionHelper = ObjectManager::getInstance()->create(PaymentTransactionHelper::class);
-            $paymentTransactionHelper->closeTransactionId(
+            $this->logger->info('Force capture: changing last transaction Id', $this->context);
+            $paymentTransactionHelper->changeTransactionId(
                 $this->order->getId(),
                 $this->order->getPayment()->getEntityId(),
-                $this->order->getPayment()->getLastTransId()
+                $this->order->getPayment()->getLastTransId(),
+                $paymentId
             );
-
-            $this->logger->info('Force capture: creating new transaction.', $this->context);
-            $this->paymentNew($paymentId);
+            $this->order->getPayment()->setLastTransId($paymentId);
             $this->order = $this->orderRepository->save($this->order);
         }
         $this->capturePayment();
