@@ -3,6 +3,8 @@
 namespace Paynow\PaymentGateway\Helper;
 
 use Magento\Framework\App\ObjectManager;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment\Transaction;
@@ -11,6 +13,7 @@ use Paynow\Model\Payment\Status;
 use Paynow\PaymentGateway\Model\Exception\NotificationRetryProcessing;
 use Paynow\PaymentGateway\Model\Exception\NotificationStopProcessing;
 use Paynow\PaymentGateway\Model\Logger\Logger;
+use Magento\Framework\Event\ManagerInterface as EventManager;
 
 /**
  * Class NotificationProcessor
@@ -55,24 +58,32 @@ class NotificationProcessor
     private $lockingHelper;
 
     /**
+     * @var EventManager
+     */
+    private $eventManager;
+
+    /**
      * @param OrderFactory $orderFactory
      * @param Logger $logger
      * @param ConfigHelper $configHelper
      * @param OrderRepositoryInterface $orderRepository
      * @param LockingHelper $lockingHelper
+     * @param EventManager $eventManager
      */
     public function __construct(
         OrderFactory                            $orderFactory,
         Logger                                  $logger,
         ConfigHelper                            $configHelper,
         OrderRepositoryInterface                $orderRepository,
-        LockingHelper                           $lockingHelper
+        LockingHelper                           $lockingHelper,
+        EventManager                            $eventManager
     ) {
         $this->orderFactory                   = $orderFactory;
         $this->logger                         = $logger;
         $this->configHelper                   = $configHelper;
         $this->orderRepository                = $orderRepository;
         $this->lockingHelper                  = $lockingHelper;
+        $this->eventManager                   = $eventManager;
         // phpcs:ignore
         set_time_limit(30);
     }
@@ -86,8 +97,8 @@ class NotificationProcessor
      * @return void
      * @throws NotificationRetryProcessing
      * @throws NotificationStopProcessing
-     * @throws \Magento\Framework\Exception\LocalizedException
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
      */
     public function process($paymentId, $status, $externalId, $modifiedAt, $force = false)
     {
@@ -233,15 +244,19 @@ class NotificationProcessor
                 break;
         }
 
-        $this->orderRepository->save($this->order);
+        $order = $this->orderRepository->save($this->order);
         if ($this->configHelper->extraLogsEnabled()) {
             $this->logger->debug('Notification processed successfully', $this->context);
         }
         $this->lockingHelper->delete($externalId);
+        $this->eventManager->dispatch('paynow_paymentgateway_notification_processed',
+            ['order' => $order, 'paynowPaymentStatus' => $status]
+        );
     }
 
     /**
      * @param $paymentId
+     * @return void
      */
     protected function addConfirmPaymentToOrderHistory($paymentId): void
     {
@@ -255,8 +270,11 @@ class NotificationProcessor
     }
 
     /**
-     * @throws \Paynow\PaymentGateway\Model\Exception\NotificationRetryProcessing
-     * @throws \Paynow\PaymentGateway\Model\Exception\NotificationStopProcessing
+     * @param $message
+     * @param $counter
+     * @return mixed
+     * @throws NotificationRetryProcessing
+     * @throws NotificationStopProcessing
      */
     private function retryProcessingNTimes($message, $counter = 3)
     {
@@ -290,6 +308,11 @@ class NotificationProcessor
         }
     }
 
+    /**
+     * @param $paymentId
+     * @return void
+     * @throws NoSuchEntityException
+     */
     private function paymentNew($paymentId)
     {
         /** @var PaymentTransactionHelper $paymentTransactionHelper */
@@ -330,6 +353,10 @@ class NotificationProcessor
         }
     }
 
+    /**
+     * @return void
+     * @throws NoSuchEntityException
+     */
     private function paymentPending()
     {
         $message = __(
@@ -349,6 +376,7 @@ class NotificationProcessor
 
     /**
      * @return void
+     * @throws NoSuchEntityException
      */
     private function paymentAbandoned()
     {
@@ -365,8 +393,10 @@ class NotificationProcessor
     }
 
     /**
+     * @param $paymentId
      * @return void
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
      */
     private function paymentConfirmed($paymentId)
     {
@@ -393,7 +423,7 @@ class NotificationProcessor
 
     /**
      * @return void
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws LocalizedException
      */
     private function capturePayment()
     {
@@ -407,13 +437,13 @@ class NotificationProcessor
 
     /**
      * @return void
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @throws NoSuchEntityException
      */
     private function paymentRejected()
     {
         $message = __(
             'Payment has not been authorized by the buyer. Transaction ID: '
-        ) . (string)$this->order->getPayment()->getAdditionalInformation(
+        ) . $this->order->getPayment()->getAdditionalInformation(
             PaymentField::PAYMENT_ID_FIELD_NAME
         );
         if ($this->configHelper->isOrderStatusChangeActive()) {
