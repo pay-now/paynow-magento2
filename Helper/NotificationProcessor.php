@@ -249,7 +249,8 @@ class NotificationProcessor
             $this->logger->debug('Notification processed successfully', $this->context);
         }
         $this->lockingHelper->delete($externalId);
-        $this->eventManager->dispatch('paynow_paymentgateway_notification_processed', ['order' => $order, 'paynowPaymentStatus' => $status]);
+        $this->eventManager->dispatch('paynow_paymentgateway_notification_processed',
+            ['order' => $order, 'paynowPaymentStatus' => $status]);
     }
 
     /**
