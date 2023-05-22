@@ -250,7 +250,8 @@ class NotificationProcessor
         }
         $this->lockingHelper->delete($externalId);
         $this->eventManager->dispatch(
-            'paynow_paymentgateway_notification_processed', ['order' => $order, 'paynowPaymentStatus' => $status]
+            'paynow_paymentgateway_notification_processed',
+            ['order' => $order, 'paynowPaymentStatus' => $status]
         );
     }
 
