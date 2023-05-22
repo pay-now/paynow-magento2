@@ -7,4 +7,9 @@
             </argument>
         </arguments>
     </type>
+    <type name="Paynow\PaymentGateway\Helper\PaymentHelper">
+        <arguments>
+            <argument name="urlBuilder" xsi:type="object">Magento\Framework\Url</argument>
+        </arguments>
+    </type>
 </config>
