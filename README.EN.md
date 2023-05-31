@@ -31,6 +31,7 @@ You can install our plugin through Composer:
 composer require pay-now/paynow-magento2
 bin/magento module:enable Paynow_PaymentGateway
 bin/magento setup:upgrade
+bin/magento setup:di:compile
 ```
 
 ## Configuration
