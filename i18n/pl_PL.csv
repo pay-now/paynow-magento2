@@ -73,3 +73,4 @@ Information,Informacje
 "BLIK code has expired", "Kod BLIK jest nieaktualny"
 "BLIK code already used", "Kod BLIK był wcześniej wykorzystany"
 "Transaction confirmed, but order already paid. Transaction ID: ", "Płatność zakończona sukcesem, jednak zamówienie juz jest opłacone. ID transakcji: "
+"Incorrect API/Signature key format.", "Nieprawidłowy format klucza API/Signature."
