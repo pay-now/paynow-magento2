@@ -24,11 +24,10 @@
                     </div>
                 </div>
             </div>
+            <!-- ko if: getGDPRNotices() -->
+            <div data-bind="template: 'Paynow_PaymentGateway/payment/data_processing_info'"></div>
+            <!--/ko-->
         </div>
-
-        <!-- ko if: getGDPRNotices() -->
-        <div data-bind="template: 'Paynow_PaymentGateway/payment/data_processing_info'"></div>
-        <!--/ko-->
 
         <!-- ko foreach: getRegion('messages') -->
         <!-- ko template: getTemplate() --><!-- /ko -->
