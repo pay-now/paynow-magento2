@@ -1,6 +1,7 @@
 .paynow-payment-options div {
     flex-wrap: wrap;
     display: flex;
+    padding: 1rem;
 }
 
 .paynow-payment-option {
