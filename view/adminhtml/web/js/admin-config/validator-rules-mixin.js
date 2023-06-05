@@ -6,8 +6,8 @@ define([
         $.validator.addMethod(
             'validate-api-credentials',
             function (value) {
-                let thisRegex = new RegExp('/^[[:xdigit:]]{8}(?:\-[[:xdigit:]]{4}){3}\-[[:xdigit:]]{12}$/i');
-                return !(thisRegex.test(value));
+                let thisRegex = new RegExp(/^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/);
+                return thisRegex.test(value);
             },
             $.mage.__('Incorrect API/Signature key format.')
         );
