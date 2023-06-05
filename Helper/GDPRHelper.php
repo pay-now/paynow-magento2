@@ -72,7 +72,7 @@ class GDPRHelper
         $gdpr_notices = $this->cache->load($cacheKey);
         if (!$gdpr_notices) {
             $gdpr_notices = $this->retrieve();
-            foreach ($gdpr_notices as $notice) {
+            foreach ($gdpr_notices ?? [] as $notice) {
                 $notices[] = [
                     'title' => $notice->getTitle(),
                     'content' => $notice->getContent()
@@ -88,7 +88,7 @@ class GDPRHelper
             $this->logger->info("Retrieving GDPR notices from cache");
             $unserialized = $this->serializer->unserialize($gdpr_notices);
             if ($unserialized) {
-                foreach ($unserialized as $notice) {
+                foreach ($unserialized ?? [] as $notice) {
                     $notices[] = [
                         'title' => $notice["title"],
                         'content' => $notice["content"]
