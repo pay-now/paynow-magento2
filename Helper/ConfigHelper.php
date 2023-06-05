@@ -218,7 +218,7 @@ class ConfigHelper extends AbstractHelper
         if ($flag) {
             return $this->scopeConfig->isSetFlag($path, ScopeInterface::SCOPE_STORE, $storeId);
         } else {
-            return trim($this->scopeConfig->getValue($path, ScopeInterface::SCOPE_STORE, $storeId));
+            return trim($this->scopeConfig->getValue($path, ScopeInterface::SCOPE_STORE, $storeId) ?? '');
         }
     }
 

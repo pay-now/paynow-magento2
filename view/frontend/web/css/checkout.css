@@ -3,6 +3,11 @@
     display: flex;
 }
 
+.paynow-payment-options .paynow-data-processing-info {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
 .paynow-payment-option {
     margin: 1%;
     flex-basis: 18%;
