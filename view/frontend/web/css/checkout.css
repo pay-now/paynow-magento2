@@ -1,7 +1,11 @@
 .paynow-payment-options div {
     flex-wrap: wrap;
     display: flex;
-    padding: 1rem;
+}
+
+.paynow-payment-options .paynow-data-processing-info {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
 }
 
 .paynow-payment-option {
