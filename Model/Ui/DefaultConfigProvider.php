@@ -33,7 +33,6 @@ class DefaultConfigProvider extends ConfigProvider implements ConfigProviderInte
 
         $GDPRNotices = $this->GDPRHelper->getNotices();
 
-
         return [
             'payment' => [
                 self::CODE => [
@@ -42,7 +41,7 @@ class DefaultConfigProvider extends ConfigProvider implements ConfigProviderInte
                     'logoPath'       => 'https://static.paynow.pl/brand/paynow_logo_black.png',
                     'redirectUrl'    => $this->getRedirectUrl(),
                     'paymentMethods' => $paymentMethods,
-                    'GDPRNotices' => $GDPRNotices,
+                    'GDPRNotices'    => $GDPRNotices,
                 ]
             ]
         ];
