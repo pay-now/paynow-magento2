@@ -31,6 +31,9 @@ class DefaultConfigProvider extends ConfigProvider implements ConfigProviderInte
             $paymentMethods = $this->paymentMethodsHelper->getAvailable($currencyCode, $grandTotal);
         }
 
+        $GDPRNotices = $this->GDPRHelper->getNotices();
+
+
         return [
             'payment' => [
                 self::CODE => [
@@ -38,7 +41,8 @@ class DefaultConfigProvider extends ConfigProvider implements ConfigProviderInte
                         && $this->configHelper->isConfigured(),
                     'logoPath'       => 'https://static.paynow.pl/brand/paynow_logo_black.png',
                     'redirectUrl'    => $this->getRedirectUrl(),
-                    'paymentMethods' => $paymentMethods
+                    'paymentMethods' => $paymentMethods,
+                    'GDPRNotices' => $GDPRNotices,
                 ]
             ]
         ];

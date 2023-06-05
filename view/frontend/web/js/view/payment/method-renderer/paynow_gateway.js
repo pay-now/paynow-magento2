@@ -70,7 +70,7 @@ define(
                 return this.getCode() === this.isChecked();
             },
             isBlikGatewayActive: function () {
-              return window.checkoutConfig.payment.paynow_blik_gateway.isActive;
+                return window.checkoutConfig.payment.paynow_blik_gateway.isActive;
             },
             setPaymentMethod: function (paymentMethod) {
                 if (paymentMethod.enabled) {
@@ -78,6 +78,9 @@ define(
                     $('.paynow-payment-option').removeClass('active');
                     $('#payment_method_' + paymentMethod.id).addClass('active');
                 }
+            },
+            getGDPRNotices: function () {
+                return window.checkoutConfig.payment.paynow_gateway.GDPRNotices;
             },
             getData: function () {
                 return {
