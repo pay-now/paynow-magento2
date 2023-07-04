@@ -4,14 +4,18 @@ namespace Paynow\PaymentGateway\Controller\Payment;
 
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
+use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Controller\Result\Redirect as ResponseRedirect;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order\Payment;
+use Paynow\Model\Payment\Status;
 use Paynow\PaymentGateway\Helper\ConfigHelper;
 use Paynow\PaymentGateway\Helper\PaymentField;
 use Paynow\PaymentGateway\Helper\PaymentHelper;
+use Paynow\PaymentGateway\Helper\PaymentStatusService;
+use Paynow\PaymentGateway\Helper\PaymentTransactionHelper;
 use Paynow\PaymentGateway\Model\Logger\Logger;
 
 /**
@@ -90,8 +94,44 @@ class Retry extends Action
             return $this->redirectResult;
         }
 
-        $this->authorizeNewPayment($order);
+        $currentPayment = $order->getPayment();
+        $currentPaymentId = $currentPayment->getAdditionalInformation(PaymentField::PAYMENT_ID_FIELD_NAME) ?? '';
+        if (
+            in_array(
+                $currentPayment->getAdditionalInformation(PaymentField::STATUS_FIELD_NAME) ?? '',
+                [
+                    Status::STATUS_NEW,
+                    Status::STATUS_PENDING
+                ]
+            )
+            && !empty($currentPaymentId)
+        ) {
+            $paymentStatusService = ObjectManager::getInstance()->create(PaymentStatusService::class);
+            $statusFromApi = $paymentStatusService->getStatus($currentPaymentId);
+            $currentPaymentRedirectUrl = $currentPayment->getAdditionalInformation(PaymentField::REDIRECT_URL_FIELD_NAME);
+            if (
+                in_array(
+                    $statusFromApi,
+                    [
+                        Status::STATUS_NEW,
+                        Status::STATUS_PENDING
+                    ]
+                )
+                && is_string($currentPaymentRedirectUrl)
+            ) {
+                $this->redirectResult->setUrl($currentPaymentRedirectUrl);
+                $this->logger->info(
+                    'Redirecting for retry payment (without starting a new one) to payment provider page',
+                    [
+                        PaymentField::EXTERNAL_ID_FIELD_NAME => $order->getRealOrderId(),
+                        PaymentField::PAYMENT_ID_FIELD_NAME => $currentPaymentId
+                    ]
+                );
+                return $this->redirectResult;
+            }
+        }
 
+        $this->authorizeNewPayment($order);
         return $this->redirectResult;
     }
 
@@ -111,7 +151,7 @@ class Retry extends Action
         if ($redirectUrl) {
             $this->addPayment($order->getPayment(), $order, $paymentAuthorization);
             $this->logger->info(
-                'Redirecting for retry payment to payment provider page',
+                'Redirecting for retry payment (with starting a new one) to payment provider page',
                 [
                     PaymentField::EXTERNAL_ID_FIELD_NAME => $order->getRealOrderId(),
                     PaymentField::PAYMENT_ID_FIELD_NAME => $paymentId
@@ -129,8 +169,17 @@ class Retry extends Action
      */
     private function addPayment(Payment $payment, OrderInterface $order, $paymentAuthorization)
     {
-        $payment->setIsTransactionPending(true)
-            ->setTransactionId($paymentAuthorization[PaymentField::PAYMENT_ID_FIELD_NAME])
+
+        $paymentId = $paymentAuthorization[PaymentField::PAYMENT_ID_FIELD_NAME];
+        /** @var PaymentTransactionHelper $paymentTransactionHelper */
+        $paymentTransactionHelper = ObjectManager::getInstance()->create(PaymentTransactionHelper::class);
+        $paymentTransactionHelper->changeTransactionId(
+            $order->getId(),
+            $order->getPayment()->getEntityId(),
+            $order->getPayment()->getLastTransId(),
+            $paymentId
+        );
+        $payment->setLastTransId($paymentId)
             ->setAdditionalInformation(
                 PaymentField::PAYMENT_ID_FIELD_NAME,
                 $paymentAuthorization->getAdditionalInformation(PaymentField::PAYMENT_ID_FIELD_NAME)
@@ -139,7 +188,7 @@ class Retry extends Action
                 PaymentField::STATUS_FIELD_NAME,
                 $paymentAuthorization->getAdditionalInformation(PaymentField::STATUS_FIELD_NAME)
             )
-            ->setIsTransactionClosed(false);
+            ->setIsTransactionPending(true);
 
         $order->setPayment($payment);
         $this->orderRepository->save($order);
