@@ -60,12 +60,13 @@ class Retry extends Action
      * @param Logger $logger
      */
     public function __construct(
-        Context $context,
+        Context                  $context,
         OrderRepositoryInterface $orderRepository,
-        ConfigHelper $configHelper,
-        PaymentHelper $paymentHelper,
-        Logger $logger
-    ) {
+        ConfigHelper             $configHelper,
+        PaymentHelper            $paymentHelper,
+        Logger                   $logger
+    )
+    {
         parent::__construct($context);
         $this->orderRepository = $orderRepository;
         $this->configHelper = $configHelper;
@@ -100,17 +101,11 @@ class Retry extends Action
         $currentPayment = $order->getPayment();
         $currentPaymentId = $currentPayment->getAdditionalInformation(PaymentField::PAYMENT_ID_FIELD_NAME) ?? '';
         $currentPaymentStatus = $currentPayment->getAdditionalInformation(PaymentField::STATUS_FIELD_NAME) ?? '';
-        if (
-            $this->checkIfPaymentStatusIsPending($currentPaymentStatus)
-            && !empty($currentPaymentId)
-        ) {
+        if ($this->checkIfPaymentStatusIsPending($currentPaymentStatus) && !empty($currentPaymentId)) {
             $paymentStatusService = ObjectManager::getInstance()->create(PaymentStatusService::class);
             $refreshedCurrentPaymentStatus = $paymentStatusService->getStatus($currentPaymentId) ?? '';
             $currentPaymentRedirectUrl = $currentPayment->getAdditionalInformation(PaymentField::REDIRECT_URL_FIELD_NAME);
-            if (
-                $this->checkIfPaymentStatusIsPending($refreshedCurrentPaymentStatus)
-                && is_string($currentPaymentRedirectUrl)
-            ) {
+            if ($this->checkIfPaymentStatusIsPending($refreshedCurrentPaymentStatus) && is_string($currentPaymentRedirectUrl)) {
                 $this->redirectResult->setUrl($currentPaymentRedirectUrl);
                 $this->logger->info(
                     'Redirecting for retry payment (without starting a new one) to payment provider page',
