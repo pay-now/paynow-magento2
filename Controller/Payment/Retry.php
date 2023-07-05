@@ -7,6 +7,7 @@ use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Controller\Result\Redirect as ResponseRedirect;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order\Payment;
@@ -75,6 +76,8 @@ class Retry extends Action
 
     /**
      * @return ResponseRedirect
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
      */
     public function execute()
     {
@@ -96,27 +99,16 @@ class Retry extends Action
 
         $currentPayment = $order->getPayment();
         $currentPaymentId = $currentPayment->getAdditionalInformation(PaymentField::PAYMENT_ID_FIELD_NAME) ?? '';
+        $currentPaymentStatus = $currentPayment->getAdditionalInformation(PaymentField::STATUS_FIELD_NAME) ?? '';
         if (
-            in_array(
-                $currentPayment->getAdditionalInformation(PaymentField::STATUS_FIELD_NAME) ?? '',
-                [
-                    Status::STATUS_NEW,
-                    Status::STATUS_PENDING
-                ]
-            )
+            $this->checkIfPaymentStatusIsPending($currentPaymentStatus)
             && !empty($currentPaymentId)
         ) {
             $paymentStatusService = ObjectManager::getInstance()->create(PaymentStatusService::class);
-            $statusFromApi = $paymentStatusService->getStatus($currentPaymentId);
+            $refreshedCurrentPaymentStatus = $paymentStatusService->getStatus($currentPaymentId) ?? '';
             $currentPaymentRedirectUrl = $currentPayment->getAdditionalInformation(PaymentField::REDIRECT_URL_FIELD_NAME);
             if (
-                in_array(
-                    $statusFromApi,
-                    [
-                        Status::STATUS_NEW,
-                        Status::STATUS_PENDING
-                    ]
-                )
+                $this->checkIfPaymentStatusIsPending($refreshedCurrentPaymentStatus)
                 && is_string($currentPaymentRedirectUrl)
             ) {
                 $this->redirectResult->setUrl($currentPaymentRedirectUrl);
@@ -139,6 +131,8 @@ class Retry extends Action
      * Authorize new payment and set redirect url
      *
      * @param OrderInterface $order
+     * @return void
+     * @throws LocalizedException
      */
     private function authorizeNewPayment(OrderInterface $order)
     {
@@ -192,5 +186,20 @@ class Retry extends Action
 
         $order->setPayment($payment);
         $this->orderRepository->save($order);
+    }
+
+    /**
+     * @param string $status
+     * @return string
+     */
+    private function checkIfPaymentStatusIsPending(string $status): string
+    {
+        return in_array(
+            $status,
+            [
+                Status::STATUS_NEW,
+                Status::STATUS_PENDING
+            ]
+        );
     }
 }
