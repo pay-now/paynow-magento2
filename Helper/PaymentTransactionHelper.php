@@ -53,20 +53,39 @@ class PaymentTransactionHelper
     public function changeTransactionId($orderId, $paymentId, $oldTransactionId, $newTransactionId)
     {
         $transaction = $this->transactionFactory->create();
-        $transaction = $this->transactionResourceModel->loadObjectByTxnId(
+
+        $newTransaction = $this->transactionResourceModel->loadObjectByTxnId(
+            $transaction,
+            $orderId,
+            $paymentId,
+            $newTransactionId
+        );
+
+        $currentTransaction = $this->transactionResourceModel->loadObjectByTxnId(
             $transaction,
             $orderId,
             $paymentId,
             $oldTransactionId
         );
-        if (!$transaction->getId()) {
+
+        if ($newTransaction->getId()) {
+            $newTransaction->setIsClosed(false);
+            $this->transactionRepository->save($newTransaction);
+
+            if ($currentTransaction->getId()) {
+                $this->transactionRepository->delete($currentTransaction);
+            }
             return;
         }
 
-        $transaction->setTxnId($newTransactionId);
-        $transaction->setTxnType(TransactionInterface::TYPE_AUTH);
-        $transaction->setIsClosed(false);
-        $this->transactionRepository->save($transaction);
+        if (!$currentTransaction->getId()) {
+            return;
+        }
+
+        $currentTransaction->setTxnId($newTransactionId);
+        $currentTransaction->setTxnType(TransactionInterface::TYPE_AUTH);
+        $currentTransaction->setIsClosed(false);
+        $this->transactionRepository->save($currentTransaction);
     }
 
     public function closeTransactionId($orderId, $paymentId, $oldTransactionId)
