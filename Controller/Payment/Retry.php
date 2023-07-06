@@ -65,8 +65,7 @@ class Retry extends Action
         ConfigHelper             $configHelper,
         PaymentHelper            $paymentHelper,
         Logger                   $logger
-    )
-    {
+    ) {
         parent::__construct($context);
         $this->orderRepository = $orderRepository;
         $this->configHelper = $configHelper;
@@ -105,7 +104,10 @@ class Retry extends Action
             $paymentStatusService = ObjectManager::getInstance()->create(PaymentStatusService::class);
             $refreshedCurrentPaymentStatus = $paymentStatusService->getStatus($currentPaymentId) ?? '';
             $currentPaymentRedirectUrl = $currentPayment->getAdditionalInformation(PaymentField::REDIRECT_URL_FIELD_NAME);
-            if ($this->checkIfPaymentStatusIsPending($refreshedCurrentPaymentStatus) && is_string($currentPaymentRedirectUrl)) {
+            if (
+                $this->checkIfPaymentStatusIsPending($refreshedCurrentPaymentStatus)
+                && is_string($currentPaymentRedirectUrl)
+            ) {
                 $this->redirectResult->setUrl($currentPaymentRedirectUrl);
                 $this->logger->info(
                     'Redirecting for retry payment (without starting a new one) to payment provider page',
