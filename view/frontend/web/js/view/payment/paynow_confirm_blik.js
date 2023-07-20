@@ -7,6 +7,7 @@ define([
     'use strict';
     return Component.extend({
         initialize: function (config) {
+            url.setBaseUrl(ko.observable(config.baseUrl));
             this._super();
             self = this;
             this.INTERVAL = 5000;
