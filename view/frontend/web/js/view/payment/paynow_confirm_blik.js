@@ -15,7 +15,7 @@ define([
             this.paymentStatus = ko.observable(config.paymentStatus);
             this.paymentStatusLabel = ko.observable(config.paymentStatusLabel);
             this.paymentId =  ko.observable(config.paymentId);
-            url.setBaseUrl(ko.observable(config.baseUrl));
+            url.setBaseUrl(BASE_URL);
 
             this.fetchNewData();
             setTimeout(() => {
