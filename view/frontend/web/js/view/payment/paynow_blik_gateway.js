@@ -26,7 +26,7 @@ define(
 
         return Component.extend({
             defaults: {
-                template: 'Paynow_PaymentGateway/payment/paynow_blik_gateway',
+                template: 'Paynow_PaymentGateway/payment/paynow_blik_gateway'
             },
             blikCodeValue: ko.observable(''),
             getCode: function () {
