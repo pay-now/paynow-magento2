@@ -111,7 +111,12 @@ class GDPRHelper
                 ->getNotices($this->paymentHelper->getStoreLocale())
                 ->getAll();
         } catch (PaynowException $exception) {
-            $this->logger->error($exception->getMessage());
+            $this->logger->warning("Retrieving GDPR notices - ".$exception->getMessage(),
+                [
+                    'code' => $exception->getCode(),
+                    'errors' => $exception->getErrors()
+                ]
+            );
         }
 
         return null;
