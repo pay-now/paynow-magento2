@@ -104,6 +104,10 @@ class Notifications extends Action
         $payload          = $this->getRequest()->getContent();
         $notificationData = json_decode($payload, true);
         $this->logger->debug("Received payment status notification", $notificationData);
+        if ($notificationData == null) {
+            $this->logger->error("Received invalid payment status notification", ['payload' => $payload]);
+            return;
+        }
 
         $storeId      = $this->storeManager->getStore()->getId();
         $order        = $this->orderFactory->create()
@@ -147,9 +151,13 @@ class Notifications extends Action
             );
             $this->getResponse()->setHttpResponseCode($responseCode);
         } catch (\Exception $exception) {
-            $notificationData['exeption'] = $exception->getMessage();
-            $this->logger->debug(
-                'Payment status notification processor -> unknown error',
+            $notificationData['exception'] = [
+                'message' => $exception->getMessage(),
+                'file' => $exception->getFile(),
+                'line' => $exception->line(),
+            ];
+            $this->logger->error(
+                'Error occurred handling notification',
                 $notificationData
             );
             $this->getResponse()->setHttpResponseCode(400);

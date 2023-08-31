@@ -12,6 +12,8 @@ use Paynow\PaymentGateway\Helper\LockingHelper;
 use Paynow\PaymentGateway\Helper\NotificationProcessor;
 use Paynow\PaymentGateway\Helper\PaymentField;
 use Paynow\PaymentGateway\Helper\PaymentStatusService;
+use Paynow\PaymentGateway\Model\Exception\NotificationRetryProcessing;
+use Paynow\PaymentGateway\Model\Exception\NotificationStopProcessing;
 use Paynow\PaymentGateway\Model\Logger\Logger;
 
 /**
@@ -118,8 +120,18 @@ class Success extends Action
                 date("Y-m-d\TH:i:s"),
                 true
             );
+        } catch (NotificationStopProcessing | NotificationRetryProcessing $exception) {
+            $this->logger->debug($exception->logMessage, $exception->logContext);
         } catch (\Exception $exception) {
-            $this->logger->error($exception->getMessage(), $loggerContext);
+            $loggerContext['exception'] = [
+                'message' => $exception->getMessage(),
+                'file' => $exception->getFile(),
+                'line' => $exception->line(),
+            ];
+            $this->logger->error(
+                'Error occurred handling notification',
+                $loggerContext
+            );
         }
     }
 
