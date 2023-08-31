@@ -60,7 +60,7 @@ class PaymentMethodsHelper
             $methods      = $payment->getPaymentMethods($currency, $amount)->getAll();
             $isBlikActive = $this->configHelper->isBlikActive();
 
-            foreach ($methods as $paymentMethod) {
+            foreach ($methods ?? [] as $paymentMethod) {
                 if (! (Type::BLIK === $paymentMethod->getType() && $isBlikActive)) {
                     $paymentMethodsArray[] = [
                         'id'          => $paymentMethod->getId(),
