@@ -85,7 +85,6 @@ class GDPRHelper
                 1440
             );
         } else {
-            $this->logger->info("Retrieving GDPR notices from cache");
             $unserialized = $this->serializer->unserialize($gdpr_notices);
             if ($unserialized) {
                 foreach ($unserialized ?? [] as $notice) {
@@ -106,12 +105,17 @@ class GDPRHelper
     private function retrieve(): ?array
     {
         try {
-            $this->logger->info("Retrieving GDPR notices");
             return (new DataProcessing($this->client))
                 ->getNotices($this->paymentHelper->getStoreLocale())
                 ->getAll();
         } catch (PaynowException $exception) {
-            $this->logger->error($exception->getMessage());
+            $this->logger->error("Error occurred retrieving GDPR notices.",
+                [
+                    'message' => $exception->getMessage(),
+                    'code' => $exception->getCode(),
+                    'errors' => $exception->getErrors()
+                ]
+            );
         }
 
         return null;
