@@ -11,6 +11,7 @@ class PaymentField
 {
     const AMOUNT_FIELD_NAME = 'amount';
     const BUYER_EMAIL_FIELD_NAME = 'email';
+    const BUYER_EXTERNAL_ID = 'externalId';
     const BUYER_FIELD_NAME = 'buyer';
     const BUYER_FIRSTNAME_FIELD_NAME = 'firstName';
     const BUYER_LASTNAME_FIELD_NAME = 'lastName';

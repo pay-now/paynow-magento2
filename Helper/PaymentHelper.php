@@ -300,4 +300,21 @@ class PaymentHelper extends AbstractHelper
                 ]
             );
     }
+
+    /**
+     * @param string $identifier
+     * @param $storeId
+     * @return string
+     * @throws NoSuchEntityException
+     */
+    public function generateBuyerExternalId(string $identifier, $storeId = null): string
+    {
+        if ($storeId === null) {
+            $storeId = $this->storeManager->getStore()->getId();
+        }
+
+        $isTestMode = $this->configHelper->isTestMode($storeId);
+
+        return md5($identifier . $this->configHelper->getSignatureKey($storeId, $isTestMode));
+    }
 }

@@ -60,6 +60,11 @@ class AuthorizeRequest extends AbstractRequest implements BuilderInterface
             PaymentField::CONTINUE_URL_FIELD_NAME => $this->helper->getContinueUrl()
         ];
 
+        if ($this->order->getCustomerId()) {
+            $request['body'][PaymentField::BUYER_FIELD_NAME][PaymentField::BUYER_EXTERNAL_ID] = $this->helper
+                ->generateBuyerExternalId($this->order->getCustomerId(), $this->order->getStoreId());
+        }
+
         if ($this->payment->hasAdditionalInformation(PaymentDataAssignObserver::PAYMENT_METHOD_ID)
             && ! empty($this->payment->getAdditionalInformation(PaymentDataAssignObserver::PAYMENT_METHOD_ID))) {
             $request['body'][PaymentField::PAYMENT_METHOD_ID] = $this->payment
