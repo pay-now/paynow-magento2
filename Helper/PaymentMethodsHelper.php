@@ -61,7 +61,7 @@ class PaymentMethodsHelper
             $isBlikActive = $this->configHelper->isBlikActive();
 
             foreach ($methods as $paymentMethod) {
-                if (! (Type::BLIK === $paymentMethod->getType() && $isBlikActive)) {
+                if (!(Type::BLIK === $paymentMethod->getType() && $isBlikActive) && Type::CARD !== $paymentMethod->getType()) {
                     $paymentMethodsArray[] = [
                         'id'          => $paymentMethod->getId(),
                         'name'        => $paymentMethod->getName(),
@@ -99,6 +99,36 @@ class PaymentMethodsHelper
             $paymentMethods = $payment->getPaymentMethods($currency, $amount)->getOnlyBlik();
 
             if (! empty($paymentMethods)) {
+                return $paymentMethods[0];
+            }
+        } catch (PaynowException $exception) {
+            $this->logger->error($exception->getMessage());
+        }
+
+        return null;
+    }
+
+    /**
+     * Returns payment methods array
+     *
+     * @param string|null $currency
+     * @param float|null $amount
+     *
+     * @return PaymentMethod
+     * @throws NoSuchEntityException
+     */
+    public function getCardPaymentMethod(?string $currency = null, ?float $amount = null)
+    {
+        if (!$this->configHelper->isConfigured()) {
+            return null;
+        }
+
+        try {
+            $payment        = new Payment($this->paymentHelper->initializePaynowClient());
+            $amount         = $this->paymentHelper->formatAmount($amount);
+            $paymentMethods = $payment->getPaymentMethods($currency, $amount)->getOnlyCards();
+
+            if (!empty($paymentMethods)) {
                 return $paymentMethods[0];
             }
         } catch (PaynowException $exception) {

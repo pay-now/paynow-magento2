@@ -15,6 +15,8 @@ class PaymentDataAssignObserver extends AbstractDataAssignObserver
 {
     const PAYMENT_METHOD_ID = 'payment_method_id';
 
+    const PAYMENT_METHOD_TOKEN = 'payment_method_token';
+
     const BLIK_CODE = 'blik_code';
 
     /**
@@ -22,6 +24,7 @@ class PaymentDataAssignObserver extends AbstractDataAssignObserver
      */
     protected $additionalInformationList = [
         self::PAYMENT_METHOD_ID,
+        self::PAYMENT_METHOD_TOKEN,
         self::BLIK_CODE
     ];
 

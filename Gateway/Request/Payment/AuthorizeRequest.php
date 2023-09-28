@@ -71,6 +71,12 @@ class AuthorizeRequest extends AbstractRequest implements BuilderInterface
                 ->getAdditionalInformation(PaymentDataAssignObserver::PAYMENT_METHOD_ID);
         }
 
+        if ($this->payment->hasAdditionalInformation(PaymentDataAssignObserver::PAYMENT_METHOD_TOKEN)
+            && ! empty($this->payment->getAdditionalInformation(PaymentDataAssignObserver::PAYMENT_METHOD_TOKEN))) {
+            $request['body'][PaymentField::PAYMENT_METHOD_TOKEN] = $this->payment
+                ->getAdditionalInformation(PaymentDataAssignObserver::PAYMENT_METHOD_TOKEN);
+        }
+
         if ($this->config->isSendOrderItemsActive()) {
             $orderItems = $this->helper->getOrderItems($this->order);
             if (! empty($orderItems)) {
