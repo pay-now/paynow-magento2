@@ -12,7 +12,8 @@ define(
         'use strict';
         const config = window.checkoutConfig.payment,
             paynow_main = 'paynow_gateway',
-            paynow_blik = 'paynow_blik_gateway';
+            paynow_blik = 'paynow_blik_gateway',
+            paynow_card = 'paynow_card_gateway';
 
         if (config[paynow_main].isActive) {
             rendererList.push(
@@ -28,6 +29,15 @@ define(
                 {
                     type: 'paynow_blik_gateway',
                     component: 'Paynow_PaymentGateway/js/view/payment/paynow_blik_gateway'
+                }
+            );
+        }
+
+        if (config[paynow_card].isActive) {
+            rendererList.push(
+                {
+                    type: 'paynow_card_gateway',
+                    component: 'Paynow_PaymentGateway/js/view/payment/paynow_card_gateway'
                 }
             );
         }

@@ -18,6 +18,7 @@ use Magento\Payment\Gateway\Data\OrderAdapterInterface;
 use Magento\Sales\Model\Order;
 use Magento\Store\Model\StoreManagerInterface;
 use Paynow\Client;
+use Paynow\Configuration;
 use Paynow\Environment;
 use Paynow\Model\Payment\Status;
 use Paynow\PaymentGateway\Model\Logger\Logger;
@@ -159,7 +160,8 @@ class PaymentHelper extends AbstractHelper
             $this->configHelper->getApiKey($storeId, $isTestMode),
             $this->configHelper->getSignatureKey($storeId, $isTestMode),
             $isTestMode ? Environment::SANDBOX : Environment::PRODUCTION,
-            $this->getApplicationName()
+            $this->getApplicationName(),
+            Configuration::API_VERSION_V3
         );
     }
 
@@ -299,5 +301,22 @@ class PaymentHelper extends AbstractHelper
                     Status::STATUS_ERROR
                 ]
             );
+    }
+
+    /**
+     * @param string $identifier
+     * @param $storeId
+     * @return string
+     * @throws NoSuchEntityException
+     */
+    public function generateBuyerExternalId(string $identifier, $storeId = null): string
+    {
+        if ($storeId === null) {
+            $storeId = $this->storeManager->getStore()->getId();
+        }
+
+        $isTestMode = $this->configHelper->isTestMode($storeId);
+
+        return md5($identifier . $this->configHelper->getSignatureKey($storeId, $isTestMode));
     }
 }
