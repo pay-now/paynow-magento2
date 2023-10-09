@@ -57,7 +57,8 @@ class PaymentMethodsHelper
         try {
             $payment      = new Payment($this->paymentHelper->initializePaynowClient());
             $amount       = $this->paymentHelper->formatAmount($amount);
-            $methods      = $payment->getPaymentMethods($currency, $amount)->getAll();
+            $applePayEnabled = htmlspecialchars($_COOKIE['applePayEnabled'] ?? '0') === '1';
+            $methods      = $payment->getPaymentMethods($currency, $amount, $applePayEnabled)->getAll();
             $isBlikActive = $this->configHelper->isBlikActive();
 
             foreach ($methods ?? [] as $paymentMethod) {

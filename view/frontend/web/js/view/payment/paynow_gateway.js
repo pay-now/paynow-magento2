@@ -32,6 +32,16 @@ define(
             );
         }
         /** Add view logic here if needed */
-        return Component.extend({});
+        return Component.extend({
+            initialize: function () {
+                let applePayEnabled = false;
+
+                if (window.ApplePaySession) {
+                    applePayEnabled = window.ApplePaySession.canMakePayments();
+                }
+
+                document.cookie = 'applePayEnabled=' + (applePayEnabled ? '1' : '0');
+            }
+        });
     }
 );
