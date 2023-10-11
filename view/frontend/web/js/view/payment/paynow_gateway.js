@@ -34,6 +34,7 @@ define(
         /** Add view logic here if needed */
         return Component.extend({
             initialize: function () {
+                this._super();
                 let applePayEnabled = false;
 
                 if (window.ApplePaySession) {
