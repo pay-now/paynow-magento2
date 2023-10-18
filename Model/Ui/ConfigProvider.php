@@ -5,6 +5,7 @@ namespace Paynow\PaymentGateway\Model\Ui;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\UrlInterface;
+use Magento\Framework\View\Asset\Repository as AssetRepository;
 use Paynow\PaymentGateway\Helper\ConfigHelper;
 use Paynow\PaymentGateway\Helper\GDPRHelper;
 use Paynow\PaymentGateway\Helper\PaymentHelper;
@@ -54,6 +55,11 @@ class ConfigProvider
      */
     protected $checkoutSession;
 
+    /**
+     * @var
+     */
+    protected $assetRepository;
+
     public function __construct(
         UrlInterface $urlBuilder,
         RequestInterface $request,
@@ -61,7 +67,8 @@ class ConfigProvider
         PaymentMethodsHelper $paymentMethodsHelper,
         GDPRHelper $GDPRHelper,
         ConfigHelper $configHelper,
-        CheckoutSession $checkoutSession
+        CheckoutSession $checkoutSession,
+        AssetRepository $assetRepository
     ) {
         $this->urlBuilder           = $urlBuilder;
         $this->request              = $request;
@@ -70,6 +77,7 @@ class ConfigProvider
         $this->configHelper         = $configHelper;
         $this->checkoutSession      = $checkoutSession;
         $this->GDPRHelper = $GDPRHelper;
+        $this->assetRepository = $assetRepository;
     }
 
     /**
@@ -97,5 +105,14 @@ class ConfigProvider
     protected function getRequest(): RequestInterface
     {
         return $this->request;
+    }
+
+    /**
+     * @param string $name
+     * @return string
+     */
+    protected function getImageUrl(string $name): string
+    {
+        return $this->assetRepository->getUrl('Paynow_PaymentGateway::images/' . $name);
     }
 }

@@ -27,6 +27,15 @@
                             <p class="paynow-payment-card-details-card-name"><span data-bind="i18n: 'Card:'"></span> <span data-bind="text: $data.name"></span></p>
                             <p class="paynow-payment-card-details-expiration"><span data-bind="i18n: 'Expires:'"></span> <span data-bind="text: $data.expirationDate"></span></p>
                         </div>
+                        <div class="paynow-payment-card-menu">
+                            <button class="paynow-payment-card-menu-button" type="button">
+                                <img data-bind="attr: {src: getDotsPath()}" alt="three dots icon">
+                            </button>
+                            <button
+                                class="paynow-payment-card-remove --hidden" type="button"
+                                data-bind="i18n: 'Remove card', click: $parent.removeInstrument.bind($parent)"
+                            ></button>
+                        </div>
                     </div>
                 </div>
                 <div class="paynow-payment-option-card" id="paynow-payment-option-card-create-new" data-bind="click: setPaymentMethodToken('paynow-payment-option-card-create-new')">

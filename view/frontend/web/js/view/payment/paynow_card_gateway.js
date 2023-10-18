@@ -20,7 +20,8 @@ define(
         selectPaymentMethodAction,
         customer,
         checkoutData,
-        additionalValidators
+        additionalValidators,
+        url
     ) {
         'use strict';
 
@@ -29,6 +30,10 @@ define(
                 template: 'Paynow_PaymentGateway/payment/paynow_card_gateway',
                 instruments: window.checkoutConfig.payment.paynow_card_gateway.instruments,
                 paymentMethodToken: null,
+            },
+            initialize: function (config) {
+                this._super();
+                url.setBaseUrl(BASE_URL);
             },
             getCode: function () {
                 return 'paynow_card_gateway';
@@ -64,6 +69,9 @@ define(
             afterPlaceOrder: function () {
                 window.location.replace(window.checkoutConfig.payment.paynow_card_gateway.redirectUrl);
             },
+            getDotsPath: function () {
+                return window.checkoutConfig.payment.paynow_card_gateway.dotsPath;
+            },
             getLogoPath: function () {
                 return window.checkoutConfig.payment.paynow_card_gateway.logoPath;
             },
@@ -89,6 +97,28 @@ define(
                     $('.paynow-payment-option-card').removeClass('active');
                     $('#' + instrument).addClass('active');
                 }
+            },
+            removeInstrument: function (instrument) {
+                const cardMethodOption = $('#' + instrument.token);
+
+                cardMethodOption.addClass('loading');
+                $.ajax({
+                    url: url.build('paynow/payment/remove-instrument'),
+                    dataType: 'json',
+                    data: {
+                        'savedInstrumentToken': instrument.token
+                    },
+                    success: function (data) {
+                        if (data.success === true) {
+                            cardMethodOption.remove();
+                        } else {
+                            cardMethodOption.removeClass('loading');
+                        }
+                    },
+                    error: function () {
+                        cardMethodOption.removeClass('loading');
+                    }
+                });
             },
             getData: function () {
                 const paymentMethodId = window.checkoutConfig.payment.paynow_card_gateway.paymentMethodId
