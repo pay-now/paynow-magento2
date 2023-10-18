@@ -3,6 +3,8 @@
 namespace Paynow\PaymentGateway\Helper;
 
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Quote\Model\Quote;
+use Magento\Customer\Model\Session;
 use Paynow\Exception\PaynowException;
 use Paynow\Model\PaymentMethods\PaymentMethod;
 use Paynow\Model\PaymentMethods\Type;
@@ -31,11 +33,29 @@ class PaymentMethodsHelper
      */
     private $configHelper;
 
-    public function __construct(PaymentHelper $paymentHelper, Logger $logger, ConfigHelper $configHelper)
-    {
+    /**
+     * @var Quote
+     */
+    private $quote;
+
+    /**
+     * @var Session
+     */
+    private $customerSession;
+
+    public function __construct(
+        PaymentHelper $paymentHelper,
+        Logger $logger,
+        ConfigHelper
+        $configHelper,
+        Quote $quote,
+        Session $customerSession
+    ) {
         $this->paymentHelper = $paymentHelper;
         $this->logger        = $logger;
         $this->configHelper  = $configHelper;
+        $this->quote         = $quote;
+        $this->customerSession = $customerSession;
     }
 
     /**
@@ -57,7 +77,10 @@ class PaymentMethodsHelper
         try {
             $payment      = new Payment($this->paymentHelper->initializePaynowClient());
             $amount       = $this->paymentHelper->formatAmount($amount);
-            $methods      = $payment->getPaymentMethods($currency, $amount)->getAll();
+            $idempotencyKey = KeysGenerator::generateIdempotencyKey(KeysGenerator::generateExternalIdFromQuoteId($this->quote->getId()));
+            $customerId = $this->customerSession->getCustomer()->getId();
+            $buyerExternalId = $customerId ? $this->paymentHelper->generateBuyerExternalId($customerId) : null;
+            $methods      = $payment->getPaymentMethods($currency, $amount, $idempotencyKey, $buyerExternalId)->getAll();
             $isBlikActive = $this->configHelper->isBlikActive();
 
             foreach ($methods ?? [] as $paymentMethod) {
@@ -96,7 +119,10 @@ class PaymentMethodsHelper
         try {
             $payment        = new Payment($this->paymentHelper->initializePaynowClient());
             $amount         = $this->paymentHelper->formatAmount($amount);
-            $paymentMethods = $payment->getPaymentMethods($currency, $amount)->getOnlyBlik();
+            $idempotencyKey = KeysGenerator::generateIdempotencyKey(KeysGenerator::generateExternalIdFromQuoteId($this->quote->getId()));
+            $customerId = $this->customerSession->getCustomer()->getId();
+            $buyerExternalId = $customerId ? $this->paymentHelper->generateBuyerExternalId($customerId) : null;
+            $paymentMethods = $payment->getPaymentMethods($currency, $amount, $idempotencyKey, $buyerExternalId)->getOnlyBlik();
 
             if (! empty($paymentMethods)) {
                 return $paymentMethods[0];
@@ -126,7 +152,10 @@ class PaymentMethodsHelper
         try {
             $payment        = new Payment($this->paymentHelper->initializePaynowClient());
             $amount         = $this->paymentHelper->formatAmount($amount);
-            $paymentMethods = $payment->getPaymentMethods($currency, $amount)->getOnlyCards();
+            $idempotencyKey = KeysGenerator::generateIdempotencyKey(KeysGenerator::generateExternalIdFromQuoteId($this->quote->getId()));
+            $customerId = $this->customerSession->getCustomer()->getId();
+            $buyerExternalId = $customerId ? $this->paymentHelper->generateBuyerExternalId($customerId) : null;
+            $paymentMethods = $payment->getPaymentMethods($currency, $amount, $idempotencyKey, $buyerExternalId)->getOnlyCards();
 
             if (!empty($paymentMethods)) {
                 return $paymentMethods[0];
