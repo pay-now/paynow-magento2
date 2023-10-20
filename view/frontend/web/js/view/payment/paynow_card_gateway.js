@@ -103,7 +103,7 @@ define(
 
                 cardMethodOption.addClass('loading');
                 $.ajax({
-                    url: url.build('paynow/payment/remove-instrument'),
+                    url: url.build('paynow/payment/removeInstrument'),
                     dataType: 'json',
                     data: {
                         'savedInstrumentToken': instrument.token
@@ -119,6 +119,9 @@ define(
                         cardMethodOption.removeClass('loading');
                     }
                 });
+            },
+            toggleMiniMenu: function (instrument) {
+                $('#' + instrument.token + ' .paynow-payment-card-remove').toggleClass('--hidden');
             },
             getData: function () {
                 const paymentMethodId = window.checkoutConfig.payment.paynow_card_gateway.paymentMethodId

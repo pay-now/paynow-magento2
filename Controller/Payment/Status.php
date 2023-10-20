@@ -69,7 +69,7 @@ class Status extends Action
         if ($lastPaymentId == $order->getIncrementId() . '_UNKNOWN') {
             $status =  \Paynow\Model\Payment\Status::STATUS_PENDING;
         } else {
-            $status = $this->paymentStatusService->getStatus($lastPaymentId);
+            $status = $this->paymentStatusService->getStatus($lastPaymentId, $order->getOrderIncrementId());
         }
 
         if ($status) {

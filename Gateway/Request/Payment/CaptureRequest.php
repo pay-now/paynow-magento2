@@ -4,6 +4,7 @@ namespace Paynow\PaymentGateway\Gateway\Request\Payment;
 
 use Magento\Payment\Gateway\Request\BuilderInterface;
 use Paynow\PaymentGateway\Gateway\Request\AbstractRequest;
+use Paynow\PaymentGateway\Helper\KeysGenerator;
 use Paynow\PaymentGateway\Helper\PaymentField;
 
 /**
@@ -23,6 +24,10 @@ class CaptureRequest extends AbstractRequest implements BuilderInterface
 
         $request['body'] = [
             PaymentField::PAYMENT_ID_FIELD_NAME => $this->payment->getLastTransId()
+        ];
+
+        $request['headers'] = [
+            PaymentField::IDEMPOTENCY_KEY_FIELD_NAME => KeysGenerator::generateIdempotencyKey($this->order->getOrderIncrementId())
         ];
 
         return $request;
