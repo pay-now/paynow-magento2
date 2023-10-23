@@ -109,7 +109,7 @@ class Success extends Action
         if ($lastPaymentId == $this->order->getIncrementId() . '_UNKNOWN') {
             $status =  \Paynow\Model\Payment\Status::STATUS_PENDING;
         } else {
-            $status = $this->paymentStatusService->getStatus($lastPaymentId, $this->order->getOrderIncrementId());
+            $status = $this->paymentStatusService->getStatus($lastPaymentId, $this->order->getIncrementId());
         }
         $loggerContext = [PaymentField::PAYMENT_ID_FIELD_NAME => $lastPaymentId];
         try {
