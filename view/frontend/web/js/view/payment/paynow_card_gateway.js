@@ -34,6 +34,12 @@ define(
             initialize: function (config) {
                 this._super();
                 url.setBaseUrl(BASE_URL);
+
+                $(document).on('click', function (e) {
+                    if (!$(e.target).is('.paynow-payment-card-remove') && !$(e.target).is('.paynow-payment-card-menu-button')) {
+                        $('.paynow-payment-card-remove').addClass('--hidden')
+                    }
+                });
             },
             getCode: function () {
                 return 'paynow_card_gateway';
@@ -69,8 +75,8 @@ define(
             afterPlaceOrder: function () {
                 window.location.replace(window.checkoutConfig.payment.paynow_card_gateway.redirectUrl);
             },
-            getDotsPath: function () {
-                return window.checkoutConfig.payment.paynow_card_gateway.dotsPath;
+            getDefaultCardImagePath: function () {
+                return window.checkoutConfig.payment.paynow_card_gateway.defaultCartImage;
             },
             getLogoPath: function () {
                 return window.checkoutConfig.payment.paynow_card_gateway.logoPath;
