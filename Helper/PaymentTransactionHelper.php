@@ -52,17 +52,15 @@ class PaymentTransactionHelper
      */
     public function changeTransactionId($orderId, $paymentId, $oldTransactionId, $newTransactionId)
     {
-        $transaction = $this->transactionFactory->create();
-
         $newTransaction = $this->transactionResourceModel->loadObjectByTxnId(
-            $transaction,
+            $this->transactionFactory->create(),
             $orderId,
             $paymentId,
             $newTransactionId
         );
 
         $currentTransaction = $this->transactionResourceModel->loadObjectByTxnId(
-            $transaction,
+            $this->transactionFactory->create(),
             $orderId,
             $paymentId,
             $oldTransactionId
