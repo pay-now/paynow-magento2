@@ -23,7 +23,8 @@ class PaymentMethodsToHide implements OptionSourceInterface
         Type::BLIK => self::BLIK,
         Type::PBL => self::PBL,
         Type::CARD => self::CARD,
-        Type::GOOGLE_PAY => self::DIGITAL_WALLET
+        Type::GOOGLE_PAY => self::DIGITAL_WALLET,
+        Type::APPLE_PAY => self::DIGITAL_WALLET
     ];
 
     public function toOptionArray()

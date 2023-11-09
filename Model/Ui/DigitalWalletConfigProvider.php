@@ -5,7 +5,6 @@ namespace Paynow\PaymentGateway\Model\Ui;
 use Magento\Checkout\Model\ConfigProviderInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
-use Paynow\Model\PaymentMethods\Type;
 use Paynow\PaymentGateway\Model\Config\Source\PaymentMethodsToHide;
 
 /**
@@ -30,14 +29,14 @@ class DigitalWalletConfigProvider extends ConfigProvider implements ConfigProvid
 
         $isActive = $this->configHelper->isActive() &&
             $this->configHelper->isConfigured() &&
-            $this->configHelper->isPaymentMethodsActive()
-            && !in_array(PaymentMethodsToHide::PAYMENT_TYPE_TO_CONFIG_MAP[Type::PBL], $this->configHelper->getPaymentMethodsToHide());;
-
-        $paymentMethods = [];
-        if ($isActive) {
-            $paymentMethods = $this->paymentMethodsHelper->getDigitalWalletsPaymentMethods($currencyCode, $grandTotal);
+            $this->configHelper->isPaymentMethodsActive();
+        $paymentMethods = $this->paymentMethodsHelper->getDigitalWalletsPaymentMethods($currencyCode, $grandTotal);
+        foreach ($paymentMethods as $paymentMethod) {
+            if (in_array(PaymentMethodsToHide::PAYMENT_TYPE_TO_CONFIG_MAP[$paymentMethod->getType()], $this->configHelper->getPaymentMethodsToHide())) {
+                $isActive = false;
+                break;
+            }
         }
-
         $GDPRNotices = $this->GDPRHelper->getNotices();
 
         return [

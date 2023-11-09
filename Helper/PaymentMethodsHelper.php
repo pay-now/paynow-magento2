@@ -5,6 +5,7 @@ namespace Paynow\PaymentGateway\Helper;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Paynow\Exception\PaynowException;
 use Paynow\Model\PaymentMethods\PaymentMethod;
+use Paynow\Model\PaymentMethods\Type;
 use Paynow\PaymentGateway\Model\Config\Source\PaymentMethodsToHide;
 use Paynow\PaymentGateway\Model\Logger\Logger;
 use Paynow\Service\Payment;
@@ -182,9 +183,16 @@ class PaymentMethodsHelper
         try {
             $payment = new Payment($this->paymentHelper->initializePaynowClient());
             $amount = $this->paymentHelper->formatAmount($amount);
-            $paymentMethods = $payment->getPaymentMethods($currency, $amount)->getOnlyGooglePay();
-
-            return $paymentMethods;
+            $paymentMethods = $payment->getPaymentMethods($currency, $amount)->getAll();
+            $digitalWalletsPaymentMethods = [];
+            if (! empty($paymentMethods)) {
+                foreach ($paymentMethods as $item) {
+                    if (Type::GOOGLE_PAY === $item->getType() || Type::APPLE_PAY === $item->getType()) {
+                        $digitalWalletsPaymentMethods[] = $item;
+                    }
+                }
+            }
+            return $digitalWalletsPaymentMethods;
         } catch (PaynowException $exception) {
             $this->logger->error($exception->getMessage());
         }
