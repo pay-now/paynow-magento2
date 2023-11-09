@@ -5,16 +5,17 @@ namespace Paynow\PaymentGateway\Model\Ui;
 use Magento\Checkout\Model\ConfigProviderInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
-use Paynow\Model\PaymentMethods\AuthorizationType;
+use Paynow\PaymentGateway\Model\Config\Source\PaymentMethodsToHide;
 
 /**
- * Class BlikConfigProvider
+ * Class CardConfigProvider
  *
  * @package Paynow\PaymentGateway\Model\Ui
  */
-class BlikConfigProvider extends ConfigProvider implements ConfigProviderInterface
+class CardConfigProvider extends ConfigProvider implements ConfigProviderInterface
 {
-    const CODE = 'paynow_blik_gateway';
+
+    const CODE = 'paynow_card_gateway';
 
     /**
      * @return \array[][]
@@ -25,24 +26,22 @@ class BlikConfigProvider extends ConfigProvider implements ConfigProviderInterfa
     {
         $grandTotal = $this->checkoutSession->getQuote()->getGrandTotal();
         $currencyCode = $this->checkoutSession->getQuote()->getCurrency()->getQuoteCurrencyCode();
-        $blikPaymentMethod = $this->paymentMethodsHelper->getBlikPaymentMethod($currencyCode, $grandTotal);
+        $cardPaymentMethod = $this->paymentMethodsHelper->getCardPaymentMethod($currencyCode, $grandTotal);
         $isActive = $this->configHelper->isActive()
             && $this->configHelper->isConfigured()
-            && $blikPaymentMethod
-            && $blikPaymentMethod->isEnabled();
+            && $cardPaymentMethod
+            && $cardPaymentMethod->isEnabled()
+            && !in_array(PaymentMethodsToHide::PAYMENT_TYPE_TO_CONFIG_MAP[$cardPaymentMethod->getType()], $this->configHelper->getPaymentMethodsToHide());
         $GDPRNotices = $this->GDPRHelper->getNotices();
-        $isWhiteLabel = $blikPaymentMethod && $blikPaymentMethod->getAuthorizationType() === AuthorizationType::CODE;
 
         return [
             'payment' => [
                 self::CODE => [
                     'isActive' => $isActive,
-                    'logoPath' => $blikPaymentMethod ? $blikPaymentMethod->getImage() : null,
+                    'logoPath' => $cardPaymentMethod ? $cardPaymentMethod->getImage() : null,
                     'redirectUrl' => $this->getRedirectUrl(),
-                    'paymentMethodId' => $blikPaymentMethod ? $blikPaymentMethod->getId() : null,
-                    'GDPRNotices' => $GDPRNotices,
-                    'isWhiteLabel' => $isWhiteLabel,
-                    'blikConfirmUrl' => $this->getConfirmBlikUrl()
+                    'paymentMethodId' => $cardPaymentMethod ? $cardPaymentMethod->getId() : null,
+                    'GDPRNotices' => $GDPRNotices
                 ]
             ]
         ];
