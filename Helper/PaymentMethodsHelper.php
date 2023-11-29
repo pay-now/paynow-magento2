@@ -80,7 +80,8 @@ class PaymentMethodsHelper
             $idempotencyKey = KeysGenerator::generateIdempotencyKey(KeysGenerator::generateExternalIdFromQuoteId($this->quote->getId()));
             $customerId = $this->customerSession->getCustomer()->getId();
             $buyerExternalId = $customerId ? $this->paymentHelper->generateBuyerExternalId($customerId) : null;
-            $methods      = $payment->getPaymentMethods($currency, $amount, $idempotencyKey, $buyerExternalId)->getAll();
+            $applePayEnabled = htmlspecialchars($_COOKIE['applePayEnabled'] ?? '0') === '1';
+            $methods      = $payment->getPaymentMethods($currency, $amount, $applePayEnabled, $idempotencyKey, $buyerExternalId)->getAll();
             $isBlikActive = $this->configHelper->isBlikActive();
 
             foreach ($methods ?? [] as $paymentMethod) {
