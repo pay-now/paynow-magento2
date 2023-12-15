@@ -16,7 +16,7 @@
                     Paynow\PaymentGateway\Model\Ui\DigitalWalletConfigProvider
                 </item>
                 <item name="paynow_pbl_gateway_config_provider" xsi:type="object">
-                    Paynow\PaymentGateway\Model\Ui\PblConfigProvider.php
+                    Paynow\PaymentGateway\Model\Ui\PblConfigProvider
                 </item>
             </argument>
         </arguments>
