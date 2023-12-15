@@ -3,9 +3,12 @@
 namespace Paynow\PaymentGateway\Model\Ui;
 
 use Magento\Checkout\Model\ConfigProviderInterface;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Paynow\PaymentGateway\Model\Config\Source\PaymentMethodsToHide;
 
 /**
- * Class ConfigProvider
+ * Class CardConfigProvider
  *
  * @package Paynow\PaymentGateway\Model\Ui
  */
@@ -16,7 +19,9 @@ class CardConfigProvider extends ConfigProvider implements ConfigProviderInterfa
     /**
      * Returns configuration
      *
-     * @return array
+	 * @return \array[][]
+	 * @throws LocalizedException
+	 * @throws NoSuchEntityException
      */
     public function getConfig(): array
     {
@@ -26,7 +31,8 @@ class CardConfigProvider extends ConfigProvider implements ConfigProviderInterfa
         $isActive          = $this->configHelper->isActive()
                              && $this->configHelper->isConfigured()
                              && $cardPaymentMethod
-                             && $cardPaymentMethod->isEnabled();
+                             && $cardPaymentMethod->isEnabled()
+							 && !in_array(PaymentMethodsToHide::PAYMENT_TYPE_TO_CONFIG_MAP[$cardPaymentMethod->getType()], $this->configHelper->getPaymentMethodsToHide());
         $GDPRNotices = $this->GDPRHelper->getNotices();
         $instruments = [];
 
@@ -46,14 +52,14 @@ class CardConfigProvider extends ConfigProvider implements ConfigProviderInterfa
         return [
             'payment' => [
                 self::CODE => [
-                    'isActive'        => $isActive,
+                    'isActive' => $isActive,
                     'defaultCartImage' => $this->getImageUrl('card-default.svg'),
-                    'logoPath'        => $cardPaymentMethod ? $cardPaymentMethod->getImage() : null,
-                    'redirectUrl'     => $this->getRedirectUrl(),
+                    'logoPath' => $cardPaymentMethod ? $cardPaymentMethod->getImage() : null,
+                    'redirectUrl' => $this->getRedirectUrl(),
                     'paymentMethodId' => $cardPaymentMethod ? $cardPaymentMethod->getId(): null,
-                    'GDPRNotices'     => $GDPRNotices,
-                    'instruments'     => $instruments,
-                    'hasInstruments'  => !empty($instruments),
+                    'GDPRNotices' => $GDPRNotices,
+                    'instruments' => $instruments,
+                    'hasInstruments' => !empty($instruments),
 					'removeCardErrorMessage' => __('An error occurred while deleting the saved card.'),
                 ]
             ]

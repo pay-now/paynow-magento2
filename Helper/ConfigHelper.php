@@ -83,23 +83,6 @@ class ConfigHelper extends AbstractHelper
     }
 
     /**
-     * Returns is BLIK payments enabled
-     *
-     * @param int|null $storeId
-     *
-     * @return bool
-     * @throws NoSuchEntityException
-     */
-    public function isBlikActive(int $storeId = null)
-    {
-        if ($storeId === null) {
-            $storeId = $this->storeManager->getStore()->getId();
-        }
-
-        return $this->getConfigData('show_separated_blik', DefaultConfigProvider::CODE, $storeId, true);
-    }
-
-    /**
      * Returns are visible payments methods
      *
      * @param int|null $storeId
@@ -201,6 +184,24 @@ class ConfigHelper extends AbstractHelper
         return (int)$this->getConfigData('payment_validity_time', DefaultConfigProvider::CODE, $storeId, false);
     }
 
+
+    /**
+     * Returns payment methods to hide
+     *
+     * @param null $storeId
+     *
+     * @return array
+     * @throws NoSuchEntityException
+     */
+    public function getPaymentMethodsToHide($storeId = null)
+    {
+        if ($storeId === null) {
+            $storeId = $this->storeManager->getStore()->getId();
+        }
+
+        return $this->getConfigData('hide_payment_methods', DefaultConfigProvider::CODE, $storeId, false);
+    }
+
     /**
      * Returns information from payment configuration
      *
@@ -209,7 +210,7 @@ class ConfigHelper extends AbstractHelper
      * @param $storeId
      * @param bool|false $flag
      *
-     * @return bool|string
+     * @return bool|string|array
      */
     public function getConfigData($field, $paymentMethodCode, $storeId, bool $flag)
     {
@@ -218,7 +219,11 @@ class ConfigHelper extends AbstractHelper
         if ($flag) {
             return $this->scopeConfig->isSetFlag($path, ScopeInterface::SCOPE_STORE, $storeId);
         } else {
-            return trim($this->scopeConfig->getValue($path, ScopeInterface::SCOPE_STORE, $storeId) ?? '');
+            $value = $this->scopeConfig->getValue($path, ScopeInterface::SCOPE_STORE, $storeId) ?? '';
+            if (is_array($value)) {
+                return $value;
+            }
+            return trim($value);
         }
     }
 

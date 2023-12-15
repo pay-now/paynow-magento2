@@ -8,6 +8,7 @@ use Magento\Customer\Model\Session;
 use Paynow\Exception\PaynowException;
 use Paynow\Model\PaymentMethods\PaymentMethod;
 use Paynow\Model\PaymentMethods\Type;
+use Paynow\PaymentGateway\Model\Config\Source\PaymentMethodsToHide;
 use Paynow\PaymentGateway\Model\Logger\Logger;
 use Paynow\Service\Payment;
 
@@ -82,10 +83,10 @@ class PaymentMethodsHelper
             $buyerExternalId = $customerId ? $this->paymentHelper->generateBuyerExternalId($customerId) : null;
             $applePayEnabled = htmlspecialchars($_COOKIE['applePayEnabled'] ?? '0') === '1';
             $methods      = $payment->getPaymentMethods($currency, $amount, $applePayEnabled, $idempotencyKey, $buyerExternalId)->getAll();
-            $isBlikActive = $this->configHelper->isBlikActive();
+			$hiddenPaymentMethods = $this->configHelper->getPaymentMethodsToHide();
 
             foreach ($methods ?? [] as $paymentMethod) {
-                if (!(Type::BLIK === $paymentMethod->getType() && $isBlikActive) && Type::CARD !== $paymentMethod->getType()) {
+                if (in_array(PaymentMethodsToHide::PAYMENT_TYPE_TO_CONFIG_MAP[$paymentMethod->getType()] ?? '', $hiddenPaymentMethods, true)) {
                     $paymentMethodsArray[] = [
                         'id'          => $paymentMethod->getId(),
                         'name'        => $paymentMethod->getName(),
@@ -112,7 +113,7 @@ class PaymentMethodsHelper
     }
 
     /**
-     * Returns payment methods array
+     * Returns payment method for Blik
      *
      * @param string|null $currency
      * @param float|null $amount
@@ -196,4 +197,64 @@ class PaymentMethodsHelper
 
         return null;
     }
+
+    /**
+     * Returns payment methods array for PBLs
+     *
+     * @param string|null $currency
+     * @param float|null $amount
+     *
+     * @return PaymentMethod[]
+     * @throws NoSuchEntityException
+     */
+    public function getPblPaymentMethods(?string $currency = null, ?float $amount = null)
+    {
+        if (!$this->configHelper->isConfigured()) {
+            return null;
+        }
+
+        try {
+            $payment = new Payment($this->paymentHelper->initializePaynowClient());
+            $amount = $this->paymentHelper->formatAmount($amount);
+            return $payment->getPaymentMethods($currency, $amount)->getOnlyPbls();
+        } catch (PaynowException $exception) {
+            $this->logger->error($exception->getMessage());
+        }
+        return null;
+    }
+
+    /**
+     * Returns payment methods array
+     *
+     * @param string|null $currency
+     * @param float|null $amount
+     *
+     * @return PaymentMethod[]
+     * @throws NoSuchEntityException
+     */
+    public function getDigitalWalletsPaymentMethods(?string $currency = null, ?float $amount = null)
+    {
+        if (!$this->configHelper->isConfigured()) {
+            return null;
+        }
+
+        try {
+            $payment = new Payment($this->paymentHelper->initializePaynowClient());
+            $amount = $this->paymentHelper->formatAmount($amount);
+            $paymentMethods = $payment->getPaymentMethods($currency, $amount)->getAll();
+            $digitalWalletsPaymentMethods = [];
+            if (! empty($paymentMethods)) {
+                foreach ($paymentMethods as $item) {
+                    if (Type::GOOGLE_PAY === $item->getType() || Type::APPLE_PAY === $item->getType()) {
+                        $digitalWalletsPaymentMethods[] = $item;
+                    }
+                }
+            }
+            return $digitalWalletsPaymentMethods;
+        } catch (PaynowException $exception) {
+            $this->logger->error($exception->getMessage());
+        }
+        return null;
+    }
+
 }

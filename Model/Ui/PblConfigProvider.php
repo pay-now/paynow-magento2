@@ -5,21 +5,18 @@ namespace Paynow\PaymentGateway\Model\Ui;
 use Magento\Checkout\Model\ConfigProviderInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Paynow\Model\PaymentMethods\Type;
+use Paynow\PaymentGateway\Model\Config\Source\PaymentMethodsToHide;
 
-/**
- * Class ConfigProvider
- *
- * @package Paynow\PaymentGateway\Model\Ui
- */
-class DefaultConfigProvider extends ConfigProvider implements ConfigProviderInterface
+class PblConfigProvider extends ConfigProvider implements ConfigProviderInterface
 {
-    const CODE = 'paynow_gateway';
+
+    const CODE = 'paynow_pbl_gateway';
 
     /**
-     * Returns configuration
-     *
-     * @return array
-     * @throws NoSuchEntityException|LocalizedException
+     * @return \array[][]
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
      */
     public function getConfig(): array
     {
@@ -28,12 +25,14 @@ class DefaultConfigProvider extends ConfigProvider implements ConfigProviderInte
 
         $isActive = $this->configHelper->isActive() &&
             $this->configHelper->isConfigured() &&
-            !$this->configHelper->isPaymentMethodsActive();
+            $this->configHelper->isPaymentMethodsActive()
+            && !in_array(PaymentMethodsToHide::PAYMENT_TYPE_TO_CONFIG_MAP[Type::PBL], $this->configHelper->getPaymentMethodsToHide());;
 
         $paymentMethods = [];
         if ($isActive) {
-            $paymentMethods = $this->paymentMethodsHelper->getAvailable($currencyCode, $grandTotal);
+            $paymentMethods = $this->paymentMethodsHelper->getPblPaymentMethods($currencyCode, $grandTotal);
         }
+
         $GDPRNotices = $this->GDPRHelper->getNotices();
 
         return [
