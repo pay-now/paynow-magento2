@@ -193,13 +193,19 @@ class ConfigHelper extends AbstractHelper
      * @return array
      * @throws NoSuchEntityException
      */
-    public function getPaymentMethodsToHide($storeId = null)
-    {
+    public function getPaymentMethodsToHide($storeId = null): array
+	{
         if ($storeId === null) {
             $storeId = $this->storeManager->getStore()->getId();
         }
 
-        return $this->getConfigData('hide_payment_methods', DefaultConfigProvider::CODE, $storeId, false);
+		$data = $this->getConfigData('hide_payment_methods', DefaultConfigProvider::CODE, $storeId, false);
+
+		if (is_array($data)) {
+			return $data;
+		} else {
+			return [];
+		}
     }
 
     /**
