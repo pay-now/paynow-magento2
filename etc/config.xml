@@ -61,10 +61,10 @@
                 <order_status_change>1</order_status_change>
                 <currency>PLN</currency>
                 <is_gateway>1</is_gateway>
-                <model>PaynowBlikPaymentGatewayFacade</model>
+                <model>DigitalWalletPaymentGatewayFacade</model>
                 <payment_action>authorize</payment_action>
                 <sort_order>1</sort_order>
-                <title>Blik with paynow.pl</title>
+                <title>Digital wallets with paynow.pl</title>
                 <group>paynow_group</group>
             </paynow_digital_wallet_gateway>
             <paynow_pbl_gateway>
@@ -74,10 +74,10 @@
                 <order_status_change>1</order_status_change>
                 <currency>PLN</currency>
                 <is_gateway>1</is_gateway>
-                <model>PaynowBlikPaymentGatewayFacade</model>
+                <model>PblPaymentGatewayFacade</model>
                 <payment_action>authorize</payment_action>
                 <sort_order>1</sort_order>
-                <title>Blik with paynow.pl</title>
+                <title>Pbl with paynow.pl</title>
                 <group>paynow_group</group>
             </paynow_pbl_gateway>
         </payment>
