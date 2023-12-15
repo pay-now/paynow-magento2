@@ -32,7 +32,7 @@ class DigitalWalletConfigProvider extends ConfigProvider implements ConfigProvid
             $this->configHelper->isPaymentMethodsActive();
         $paymentMethods = $this->paymentMethodsHelper->getDigitalWalletsPaymentMethods($currencyCode, $grandTotal);
         foreach ($paymentMethods as $paymentMethod) {
-            if (in_array(PaymentMethodsToHide::PAYMENT_TYPE_TO_CONFIG_MAP[$paymentMethod->getType()], $this->configHelper->getPaymentMethodsToHide())) {
+            if (in_array(PaymentMethodsToHide::PAYMENT_TYPE_TO_CONFIG_MAP[$paymentMethod['type'] ?? ''] ?? '', $this->configHelper->getPaymentMethodsToHide())) {
                 $isActive = false;
                 break;
             }

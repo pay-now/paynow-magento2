@@ -219,7 +219,20 @@ class PaymentMethodsHelper
 			$customerId = $this->customerSession->getCustomer()->getId();
 			$buyerExternalId = $customerId ? $this->paymentHelper->generateBuyerExternalId($customerId) : null;
             $amount = $this->paymentHelper->formatAmount($amount);
-            return $payment->getPaymentMethods($currency, $amount, false, $idempotencyKey, $buyerExternalId)->getOnlyPbls();
+			$methods = $payment->getPaymentMethods($currency, $amount, false, $idempotencyKey, $buyerExternalId)->getOnlyPbls();
+
+			$paymentMethodsArray = [];
+			foreach ($methods ?? [] as $paymentMethod) {
+				$paymentMethodsArray[] = [
+					'id'          => $paymentMethod->getId(),
+					'name'        => $paymentMethod->getName(),
+					'description' => $paymentMethod->getDescription(),
+					'image'       => $paymentMethod->getImage(),
+					'enabled'     => $paymentMethod->isEnabled()
+				];
+			}
+
+            return $paymentMethodsArray;
         } catch (PaynowException $exception) {
 			$this->logger->error(
 				$exception->getMessage(),
@@ -263,7 +276,14 @@ class PaymentMethodsHelper
             if (! empty($paymentMethods)) {
                 foreach ($paymentMethods as $item) {
                     if (Type::GOOGLE_PAY === $item->getType() || Type::APPLE_PAY === $item->getType()) {
-                        $digitalWalletsPaymentMethods[] = $item;
+                        $digitalWalletsPaymentMethods[] = [
+							'id'          => $item->getId(),
+							'name'        => $item->getName(),
+							'description' => $item->getDescription(),
+							'image'       => $item->getImage(),
+							'enabled'     => $item->isEnabled(),
+							'type'		  => $item->getType()
+						];
                     }
                 }
             }
