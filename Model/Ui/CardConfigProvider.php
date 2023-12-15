@@ -54,6 +54,7 @@ class CardConfigProvider extends ConfigProvider implements ConfigProviderInterfa
                     'GDPRNotices'     => $GDPRNotices,
                     'instruments'     => $instruments,
                     'hasInstruments'  => !empty($instruments),
+					'removeCardErrorMessage' => __('An error occurred while deleting the saved card.'),
                 ]
             ]
         ];

@@ -46,7 +46,7 @@ class PaymentCapture implements ClientInterface
             $service = new Payment($this->client);
             $apiResponseObject = $service->status(
                 $request[PaymentField::PAYMENT_ID_FIELD_NAME],
-                $transferObject->getHeaders()[PaymentField::IDEMPOTENCY_KEY_FIELD_NAME]
+                $transferObject->getHeaders()[PaymentField::IDEMPOTENCY_KEY_FIELD_NAME] ?? null
             );
             $response = [
                 PaymentField::STATUS_FIELD_NAME => $apiResponseObject->getStatus(),

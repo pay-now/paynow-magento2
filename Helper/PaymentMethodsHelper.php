@@ -96,7 +96,16 @@ class PaymentMethodsHelper
                 }
             }
         } catch (PaynowException $exception) {
-            $this->logger->error($exception->getMessage());
+			$this->logger->error(
+				$exception->getMessage(),
+				[
+					'service' => 'Payment',
+					'action' => 'getPaymentMethods',
+					'currency' => $currency,
+					'amount' => $amount,
+					'code' => $exception->getCode(),
+				]
+			);
         }
 
         return $paymentMethodsArray;
@@ -129,7 +138,17 @@ class PaymentMethodsHelper
                 return $paymentMethods[0];
             }
         } catch (PaynowException $exception) {
-            $this->logger->error($exception->getMessage());
+			$this->logger->error(
+				$exception->getMessage(),
+				[
+					'service' => 'Payment',
+					'action' => 'getPaymentMethods',
+					'paymentMethod' => 'BLIK',
+					'currency' => $currency,
+					'amount' => $amount,
+					'code' => $exception->getCode(),
+				]
+			);
         }
 
         return null;
@@ -162,7 +181,17 @@ class PaymentMethodsHelper
                 return $paymentMethods[0];
             }
         } catch (PaynowException $exception) {
-            $this->logger->error($exception->getMessage());
+            $this->logger->error(
+				$exception->getMessage(),
+				[
+					'service' => 'Payment',
+					'action' => 'getPaymentMethods',
+					'paymentMethod' => 'card',
+					'currency' => $currency,
+					'amount' => $amount,
+					'code' => $exception->getCode(),
+				]
+			);
         }
 
         return null;

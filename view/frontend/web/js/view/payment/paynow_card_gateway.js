@@ -81,6 +81,9 @@ define(
             getLogoPath: function () {
                 return window.checkoutConfig.payment.paynow_card_gateway.logoPath;
             },
+            getRemoveCardErrorMessage: function () {
+                return window.checkoutConfig.payment.paynow_card_gateway.removeCardErrorMessage;
+            },
             hasInstruments: function () {
                 return window.checkoutConfig.payment.paynow_card_gateway.hasInstruments;
             },
@@ -119,12 +122,23 @@ define(
                             cardMethodOption.remove();
                         } else {
                             cardMethodOption.removeClass('loading');
+                            this.showRemoveSavedInstrumentErrorMessage(instrument.token);
                         }
                     },
                     error: function () {
                         cardMethodOption.removeClass('loading');
+                        this.showRemoveSavedInstrumentErrorMessage(instrument.token);
                     }
                 });
+            },
+            showRemoveSavedInstrumentErrorMessage: function (instrumentToken) {
+                const errorMessageWrapper = $('#wrapper-' + instrumentToken + ' .paynow-payment-card-error');
+
+                errorMessageWrapper.text(this.getRemoveCardErrorMessage());
+
+                setTimeout(() => {
+                    errorMessageWrapper.text('');
+                }, 5000)
             },
             toggleMiniMenu: function (instrument) {
                 $('#' + instrument.token + ' .paynow-payment-card-remove').toggleClass('--hidden');

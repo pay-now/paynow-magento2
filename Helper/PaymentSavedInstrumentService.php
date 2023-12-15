@@ -58,7 +58,16 @@ class PaymentSavedInstrumentService
             $buyerExternalId = $customerId ? $this->paymentHelper->generateBuyerExternalId($customerId) : null;
             (new Payment($this->paymentHelper->initializePaynowClient()))->removeSavedInstrument($buyerExternalId, $token, $idempotencyKey);
         } catch (\Exception $exception) {
-            $this->logger->error($exception->getMessage());
+            $this->logger->error(
+				$exception->getMessage(),
+				[
+					'service' => 'Payment',
+					'action' => 'removeSavedInstrument',
+					'token' => $token,
+					'file' => $exception->getFile(),
+					'line' => $exception->getLine()
+				]
+			);
         }
     }
 }

@@ -160,8 +160,7 @@ class PaymentHelper extends AbstractHelper
             $this->configHelper->getApiKey($storeId, $isTestMode),
             $this->configHelper->getSignatureKey($storeId, $isTestMode),
             $isTestMode ? Environment::SANDBOX : Environment::PRODUCTION,
-            $this->getApplicationName(),
-            Configuration::API_VERSION_V3
+            $this->getApplicationName()
         );
     }
 

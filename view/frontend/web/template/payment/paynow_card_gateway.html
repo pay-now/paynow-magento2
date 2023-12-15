@@ -14,31 +14,34 @@
         <div class="paynow-payment-options-card" data-bind="visible: isButtonActive()">
             <span data-bind="i18n: 'Select a saved card or enter new card details:'"></span>
             <div>
-                <div data-bind="visible: isButtonActive(), foreach: instruments">
-                    <div class="paynow-payment-option-card" data-bind="css: {'disabled': $data.isExpired}, attr: {'id': $data.token }, click: $parent.setPaymentMethodToken.bind($parent)">
-                        <div class="paynow-payment-card-image">
-                            <img data-bind="attr: {src: $data.image, alt: $data.brand}">
+                <!-- ko foreach: instruments -->
+                    <div data-bind="visible: isButtonActive(), attr: {'id': 'wrapper-' + $data.token }">
+                        <div class="paynow-payment-option-card" data-bind="css: {'disabled': $data.isExpired}, attr: {'id': $data.token }, click: $parent.setPaymentMethodToken.bind($parent)">
+                            <div class="paynow-payment-card-image">
+                                <img data-bind="attr: {src: $data.image, alt: $data.brand}">
+                            </div>
+                            <div class="paynow-payment-card-details" data-bind="if: $data.isExpired">
+                                <p class="paynow-payment-card-details-card-name paynow-expired"><span data-bind="i18n: 'Card:'"></span> <span data-bind="text: $data.name"></span></p>
+                                <p class="paynow-payment-card-details-expiration paynow-expired"><span data-bind="i18n: 'Expired:'"></span> <span data-bind="text: $data.expirationDate"></span></p>
+                            </div>
+                            <div class="paynow-payment-card-details" data-bind="if: $data.isExpired !== true">
+                                <p class="paynow-payment-card-details-card-name"><span data-bind="i18n: 'Card:'"></span> <span data-bind="text: $data.name"></span></p>
+                                <p class="paynow-payment-card-details-expiration"><span data-bind="i18n: 'Expires:'"></span> <span data-bind="text: $data.expirationDate"></span></p>
+                            </div>
+                            <div class="paynow-payment-card-menu">
+                                <button
+                                    class="paynow-payment-card-menu-button" type="button"
+                                    data-bind="i18n: 'remove', click: $parent.toggleMiniMenu.bind($parent)"
+                                ></button>
+                                <button
+                                    class="paynow-payment-card-remove --hidden" type="button"
+                                    data-bind="i18n: 'Remove card', click: $parent.removeInstrument.bind($parent)"
+                                ></button>
+                            </div>
                         </div>
-                        <div class="paynow-payment-card-details" data-bind="if: $data.isExpired">
-                            <p class="paynow-payment-card-details-card-name paynow-expired"><span data-bind="i18n: 'Card:'"></span> <span data-bind="text: $data.name"></span></p>
-                            <p class="paynow-payment-card-details-expiration paynow-expired"><span data-bind="i18n: 'Expired:'"></span> <span data-bind="text: $data.expirationDate"></span></p>
-                        </div>
-                        <div class="paynow-payment-card-details" data-bind="if: $data.isExpired !== true">
-                            <p class="paynow-payment-card-details-card-name"><span data-bind="i18n: 'Card:'"></span> <span data-bind="text: $data.name"></span></p>
-                            <p class="paynow-payment-card-details-expiration"><span data-bind="i18n: 'Expires:'"></span> <span data-bind="text: $data.expirationDate"></span></p>
-                        </div>
-                        <div class="paynow-payment-card-menu">
-                            <button
-                                class="paynow-payment-card-menu-button" type="button"
-                                data-bind="i18n: 'remove', click: $parent.toggleMiniMenu.bind($parent)"
-                            ></button>
-                            <button
-                                class="paynow-payment-card-remove --hidden" type="button"
-                                data-bind="i18n: 'Remove card', click: $parent.removeInstrument.bind($parent)"
-                            ></button>
-                        </div>
+                        <span class="paynow-payment-card-error"></span>
                     </div>
-                </div>
+                <!-- /ko -->
                 <div class="paynow-payment-option-card" id="paynow-payment-option-card-create-new" data-bind="click: setPaymentMethodToken('paynow-payment-option-card-create-new')">
                     <div class="paynow-payment-card-image">
                         <img data-bind="attr: {src: getDefaultCardImagePath()}" alt="Card default icon">
