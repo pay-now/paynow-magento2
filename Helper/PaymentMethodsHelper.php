@@ -133,7 +133,7 @@ class PaymentMethodsHelper
             $idempotencyKey = KeysGenerator::generateIdempotencyKey(KeysGenerator::generateExternalIdFromQuoteId($this->quote->getId()));
             $customerId = $this->customerSession->getCustomer()->getId();
             $buyerExternalId = $customerId ? $this->paymentHelper->generateBuyerExternalId($customerId) : null;
-            $paymentMethods = $payment->getPaymentMethods($currency, $amount, $idempotencyKey, $buyerExternalId)->getOnlyBlik();
+            $paymentMethods = $payment->getPaymentMethods($currency, $amount, false, $idempotencyKey, $buyerExternalId)->getOnlyBlik();
 
             if (! empty($paymentMethods)) {
                 return $paymentMethods[0];
@@ -176,7 +176,7 @@ class PaymentMethodsHelper
             $idempotencyKey = KeysGenerator::generateIdempotencyKey(KeysGenerator::generateExternalIdFromQuoteId($this->quote->getId()));
             $customerId = $this->customerSession->getCustomer()->getId();
             $buyerExternalId = $customerId ? $this->paymentHelper->generateBuyerExternalId($customerId) : null;
-            $paymentMethods = $payment->getPaymentMethods($currency, $amount, $idempotencyKey, $buyerExternalId)->getOnlyCards();
+            $paymentMethods = $payment->getPaymentMethods($currency, $amount, false, $idempotencyKey, $buyerExternalId)->getOnlyCards();
 
             if (!empty($paymentMethods)) {
                 return $paymentMethods[0];
@@ -215,10 +215,23 @@ class PaymentMethodsHelper
 
         try {
             $payment = new Payment($this->paymentHelper->initializePaynowClient());
+			$idempotencyKey = KeysGenerator::generateIdempotencyKey(KeysGenerator::generateExternalIdFromQuoteId($this->quote->getId()));
+			$customerId = $this->customerSession->getCustomer()->getId();
+			$buyerExternalId = $customerId ? $this->paymentHelper->generateBuyerExternalId($customerId) : null;
             $amount = $this->paymentHelper->formatAmount($amount);
-            return $payment->getPaymentMethods($currency, $amount)->getOnlyPbls();
+            return $payment->getPaymentMethods($currency, $amount, false, $idempotencyKey, $buyerExternalId)->getOnlyPbls();
         } catch (PaynowException $exception) {
-            $this->logger->error($exception->getMessage());
+			$this->logger->error(
+				$exception->getMessage(),
+				[
+					'service' => 'Payment',
+					'action' => 'getPaymentMethods',
+					'paymentMethod' => 'pbl',
+					'currency' => $currency,
+					'amount' => $amount,
+					'code' => $exception->getCode(),
+				]
+			);
         }
         return null;
     }
@@ -241,7 +254,11 @@ class PaymentMethodsHelper
         try {
             $payment = new Payment($this->paymentHelper->initializePaynowClient());
             $amount = $this->paymentHelper->formatAmount($amount);
-            $paymentMethods = $payment->getPaymentMethods($currency, $amount)->getAll();
+			$idempotencyKey = KeysGenerator::generateIdempotencyKey(KeysGenerator::generateExternalIdFromQuoteId($this->quote->getId()));
+			$customerId = $this->customerSession->getCustomer()->getId();
+			$buyerExternalId = $customerId ? $this->paymentHelper->generateBuyerExternalId($customerId) : null;
+			$applePayEnabled = htmlspecialchars($_COOKIE['applePayEnabled'] ?? '0') === '1';
+            $paymentMethods = $payment->getPaymentMethods($currency, $amount, $applePayEnabled, $idempotencyKey, $buyerExternalId)->getAll();
             $digitalWalletsPaymentMethods = [];
             if (! empty($paymentMethods)) {
                 foreach ($paymentMethods as $item) {
@@ -252,7 +269,17 @@ class PaymentMethodsHelper
             }
             return $digitalWalletsPaymentMethods;
         } catch (PaynowException $exception) {
-            $this->logger->error($exception->getMessage());
+			$this->logger->error(
+				$exception->getMessage(),
+				[
+					'service' => 'Payment',
+					'action' => 'getPaymentMethods',
+					'paymentMethod' => 'digitalWallets',
+					'currency' => $currency,
+					'amount' => $amount,
+					'code' => $exception->getCode(),
+				]
+			);
         }
         return null;
     }
