@@ -4,6 +4,7 @@ namespace Paynow\PaymentGateway\Helper;
 
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Serialize\SerializerInterface;
+use Magento\Quote\Model\Quote;
 use Paynow\Client;
 use Paynow\Exception\PaynowException;
 use Paynow\PaymentGateway\Model\Cache\GDPRNoticesCache;
@@ -39,6 +40,10 @@ class GDPRHelper
      * @var SerializerInterface
      */
     private $serializer;
+    /**
+     * @var Quote
+     */
+    private $quote;
 
     /**
      * DataProcessingNotesHelper constructor.
@@ -46,19 +51,21 @@ class GDPRHelper
      * @param Logger $logger
      * @param GDPRNoticesCache $cache
      * @param SerializerInterface $serializer
-     * @throws NoSuchEntityException
+     * @param Quote $quote
      */
     public function __construct(
         PaymentHelper $paymentHelper,
         Logger $logger,
         GDPRNoticesCache $cache,
-        SerializerInterface $serializer
+        SerializerInterface $serializer,
+        Quote $quote
     ) {
         $this->paymentHelper = $paymentHelper;
         $this->logger = $logger;
         $this->cache = $cache;
         $this->serializer = $serializer;
         $this->client = $this->paymentHelper->initializePaynowClient();
+        $this->quote = $quote;
     }
 
     /**
@@ -105,8 +112,9 @@ class GDPRHelper
     private function retrieve(): ?array
     {
         try {
+            $idempotencyKey = KeysGenerator::generateIdempotencyKey(KeysGenerator::generateExternalIdFromQuoteId($this->quote->getId()));
             return (new DataProcessing($this->client))
-                ->getNotices($this->paymentHelper->getStoreLocale())
+                ->getNotices($this->paymentHelper->getStoreLocale(), $idempotencyKey)
                 ->getAll();
         } catch (PaynowException $exception) {
             $this->logger->error("Error occurred retrieving GDPR notices.",

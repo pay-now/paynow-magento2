@@ -3,10 +3,13 @@
 namespace Paynow\PaymentGateway\Model\Ui;
 
 use Magento\Checkout\Model\ConfigProviderInterface;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Paynow\Model\PaymentMethods\AuthorizationType;
+use Paynow\PaymentGateway\Model\Config\Source\PaymentMethodsToHide;
 
 /**
- * Class ConfigProvider
+ * Class BlikConfigProvider
  *
  * @package Paynow\PaymentGateway\Model\Ui
  */
@@ -15,30 +18,30 @@ class BlikConfigProvider extends ConfigProvider implements ConfigProviderInterfa
     const CODE = 'paynow_blik_gateway';
 
     /**
-     * Returns configuration
-     *
-     * @return array
+     * @return \array[][]
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
      */
     public function getConfig(): array
     {
-        $grandTotal        = $this->checkoutSession->getQuote()->getGrandTotal();
-        $currencyCode      = $this->checkoutSession->getQuote()->getCurrency()->getQuoteCurrencyCode();
+        $grandTotal = $this->checkoutSession->getQuote()->getGrandTotal();
+        $currencyCode = $this->checkoutSession->getQuote()->getCurrency()->getQuoteCurrencyCode();
         $blikPaymentMethod = $this->paymentMethodsHelper->getBlikPaymentMethod($currencyCode, $grandTotal);
-        $isActive          = $this->configHelper->isActive()
-                             && $this->configHelper->isConfigured()
-                             && $this->configHelper->isBlikActive()
-                             && $blikPaymentMethod
-                             && $blikPaymentMethod->isEnabled();
+        $isActive = $this->configHelper->isActive()
+            && $this->configHelper->isConfigured()
+            && $blikPaymentMethod
+            && $blikPaymentMethod->isEnabled()
+            && !in_array(PaymentMethodsToHide::PAYMENT_TYPE_TO_CONFIG_MAP[$blikPaymentMethod->getType()], $this->configHelper->getPaymentMethodsToHide());
         $GDPRNotices = $this->GDPRHelper->getNotices();
         $isWhiteLabel = $blikPaymentMethod && $blikPaymentMethod->getAuthorizationType() === AuthorizationType::CODE;
 
         return [
             'payment' => [
                 self::CODE => [
-                    'isActive'        => $isActive,
-                    'logoPath'        => $blikPaymentMethod ? $blikPaymentMethod->getImage() : null,
-                    'redirectUrl'     => $this->getRedirectUrl(),
-                    'paymentMethodId' => $blikPaymentMethod ? $blikPaymentMethod->getId(): null,
+                    'isActive' => $isActive,
+                    'logoPath' => $blikPaymentMethod ? $blikPaymentMethod->getImage() : null,
+                    'redirectUrl' => $this->getRedirectUrl(),
+                    'paymentMethodId' => $blikPaymentMethod ? $blikPaymentMethod->getId() : null,
                     'GDPRNotices' => $GDPRNotices,
                     'isWhiteLabel' => $isWhiteLabel,
                     'blikConfirmUrl' => $this->getConfirmBlikUrl()

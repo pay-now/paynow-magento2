@@ -11,6 +11,7 @@ class PaymentField
 {
     const AMOUNT_FIELD_NAME = 'amount';
     const BUYER_EMAIL_FIELD_NAME = 'email';
+    const BUYER_EXTERNAL_ID = 'externalId';
     const BUYER_FIELD_NAME = 'buyer';
     const BUYER_FIRSTNAME_FIELD_NAME = 'firstName';
     const BUYER_LASTNAME_FIELD_NAME = 'lastName';
@@ -23,6 +24,7 @@ class PaymentField
     const IS_PAYMENT_RETRY_FIELD_NAME = 'isRetry';
     const PAYMENT_ID_FIELD_NAME = 'paymentId';
     const PAYMENT_METHOD_ID = 'paymentMethodId';
+    const PAYMENT_METHOD_TOKEN = 'paymentMethodToken';
     const REDIRECT_URL_FIELD_NAME = 'redirectUrl';
     const STATUS_FIELD_NAME = 'status';
     const ORDER_ITEMS = 'orderItems';
