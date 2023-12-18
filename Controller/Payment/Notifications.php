@@ -154,7 +154,7 @@ class Notifications extends Action
             $notificationData['exception'] = [
                 'message' => $exception->getMessage(),
                 'file' => $exception->getFile(),
-                'line' => $exception->line(),
+                'line' => $exception->getLine(),
             ];
             $this->logger->error(
                 'Error occurred handling notification',
