@@ -1,0 +1,91 @@
+<div class="payment-method" data-bind="css: {'_active': isPaymentMethodActive()}">
+    <div class="payment-method-title field choice">
+        <input type="radio"
+               name="payment[method]"
+               class="radio"
+               data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()"/>
+        <label data-bind="attr: {'for': getCode()}" class="label">
+            <img data-bind="attr: {src: getLogoPath(), alt: $t('BLIK payment'), width: 80}" class="payment-icon"/>
+            <span data-bind="i18n: 'Card payment'"></span>
+        </label>
+    </div>
+    <div class="payment-method-content">
+        <!-- ko if: hasInstruments() -->
+        <div class="paynow-payment-options-card" data-bind="visible: isButtonActive()">
+            <span data-bind="i18n: 'Select a saved card or enter new card details:'"></span>
+            <div>
+                <!-- ko foreach: instruments -->
+                    <div data-bind="attr: {'id': 'wrapper-' + $data.token }">
+                        <div class="paynow-payment-option-card" data-bind="css: {'disabled': $data.isExpired}, attr: {'id': $data.token }, click: $parent.setPaymentMethodToken.bind($parent)">
+                            <div class="paynow-payment-card-image">
+                                <img data-bind="attr: {src: $data.image, alt: $data.brand}">
+                            </div>
+                            <div class="paynow-payment-card-details" data-bind="if: $data.isExpired">
+                                <p class="paynow-payment-card-details-card-name paynow-expired"><span data-bind="i18n: 'Card:'"></span> <span data-bind="text: $data.name"></span></p>
+                                <p class="paynow-payment-card-details-expiration paynow-expired"><span data-bind="i18n: 'Expired:'"></span> <span data-bind="text: $data.expirationDate"></span></p>
+                            </div>
+                            <div class="paynow-payment-card-details" data-bind="if: $data.isExpired !== true">
+                                <p class="paynow-payment-card-details-card-name"><span data-bind="i18n: 'Card:'"></span> <span data-bind="text: $data.name"></span></p>
+                                <p class="paynow-payment-card-details-expiration"><span data-bind="i18n: 'Expires:'"></span> <span data-bind="text: $data.expirationDate"></span></p>
+                            </div>
+                            <div class="paynow-payment-card-menu">
+                                <button
+                                    class="paynow-payment-card-menu-button" type="button"
+                                    data-bind="i18n: 'remove', click: $parent.toggleMiniMenu.bind($parent)"
+                                ></button>
+                                <button
+                                    class="paynow-payment-card-remove --hidden" type="button"
+                                    data-bind="i18n: 'Remove card', click: $parent.removeInstrument.bind($parent)"
+                                ></button>
+                            </div>
+                        </div>
+                        <span class="paynow-payment-card-error"></span>
+                    </div>
+                <!-- /ko -->
+                <div class="paynow-payment-option-card" id="paynow-payment-option-card-create-new" data-bind="click: setPaymentMethodToken('paynow-payment-option-card-create-new')">
+                    <div class="paynow-payment-card-image">
+                        <img data-bind="attr: {src: getDefaultCardImagePath()}" alt="Card default icon">
+                    </div>
+                    <div class="paynow-payment-card-details">
+                        <p class="paynow-payment-card-details-card-name"><span data-bind="i18n: 'Enter your new card details'"></span></p>
+                        <p class="paynow-payment-card-details-expiration"><span data-bind="i18n: 'You can save it in the next step'"></span></p>
+                    </div>
+                </div>
+            </div>
+            <!-- ko if: getGDPRNotices() -->
+            <div data-bind="template: 'Paynow_PaymentGateway/payment/data_processing_info'"></div>
+            <!--/ko-->
+        </div>
+        <!--/ko-->
+
+        <!-- ko foreach: getRegion('messages') -->
+        <!-- ko template: getTemplate() --><!-- /ko -->
+        <!--/ko-->
+
+        <div class="payment-method-billing-address">
+            <!-- ko foreach: $parent.getRegion(getBillingAddressFormName()) -->
+            <!-- ko template: getTemplate() --><!-- /ko -->
+            <!--/ko-->
+        </div>
+
+        <div class="checkout-agreements-block">
+            <!-- ko foreach: $parent.getRegion('before-place-order') -->
+            <!-- ko template: getTemplate() --><!-- /ko -->
+            <!--/ko-->
+        </div>
+
+        <div class="actions-toolbar">
+            <div class="primary">
+                <button class="action primary checkout"
+                        type="submit"
+                        data-bind="click: placeOrder,
+                        attr: {title: $t('Place Order')},
+                        css: {disabled: !isPlaceOrderActionAllowed()},
+                        enable: isButtonActive()"
+                        disabled>
+                    <span data-bind="i18n: 'Place Order'"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

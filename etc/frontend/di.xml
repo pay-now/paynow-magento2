@@ -6,7 +6,18 @@
                 <item name="paynow_gateway_config_provider" xsi:type="object">
                     Paynow\PaymentGateway\Model\Ui\DefaultConfigProvider
                 </item>
-                <item name="paynow_blik_gateway_config_provider" xsi:type="object">Paynow\PaymentGateway\Model\Ui\BlikConfigProvider</item>
+                <item name="paynow_blik_gateway_config_provider" xsi:type="object">
+                    Paynow\PaymentGateway\Model\Ui\BlikConfigProvider
+                </item>
+                <item name="paynow_card_gateway_config_provider" xsi:type="object">
+                    Paynow\PaymentGateway\Model\Ui\CardConfigProvider
+                </item>
+                <item name="paynow_digital_wallet_gateway" xsi:type="object">
+                    Paynow\PaymentGateway\Model\Ui\DigitalWalletConfigProvider
+                </item>
+                <item name="paynow_pbl_gateway_config_provider" xsi:type="object">
+                    Paynow\PaymentGateway\Model\Ui\PblConfigProvider
+                </item>
             </argument>
         </arguments>
     </type>

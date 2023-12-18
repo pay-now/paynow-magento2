@@ -32,14 +32,16 @@ class PaymentStatusService
 
     /**
      * @param $paymentId
+     * @param $orderReferenceId
      * @return string|void
      */
-    public function getStatus($paymentId)
+    public function getStatus($paymentId, $orderReferenceId)
     {
         $loggerContext = [PaymentField::PAYMENT_ID_FIELD_NAME => $paymentId];
 
         try {
-            $paymentStatusObject  = (new Payment($this->paymentHelper->initializePaynowClient()))->status($paymentId);
+            $idempotencyKey = KeysGenerator::generateIdempotencyKey($orderReferenceId);
+            $paymentStatusObject  = (new Payment($this->paymentHelper->initializePaynowClient()))->status($paymentId, $idempotencyKey);
             $status = $paymentStatusObject->getStatus();
             $this->logger->debug(
                 "Retrieved status response",
