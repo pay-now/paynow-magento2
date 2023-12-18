@@ -12,7 +12,7 @@
         <field id="hide_payment_methods" translate="label" type="multiselect" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Hide payment methods</label>
             <source_model>Paynow\PaymentGateway\Model\Config\Source\PaymentMethodsToHide</source_model>
-            <config_path>payment/paynow_gateway/payment_methods</config_path>
+            <config_path>payment/paynow_gateway/hide_payment_methods</config_path>
             <comment>Select payment methods which you want to hide on checkout page.</comment>
         </field>
     </group>
