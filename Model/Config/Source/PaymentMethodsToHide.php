@@ -31,6 +31,10 @@ class PaymentMethodsToHide implements OptionSourceInterface
     {
         return [
             [
+                'value' => 'none',
+                'label' => __("None")
+            ],
+            [
                 'value' => self::BLIK,
                 'label' => __("BLIK")
             ],
