@@ -15,7 +15,7 @@
             <span data-bind="i18n: 'Select a saved card or enter new card details:'"></span>
             <div>
                 <!-- ko foreach: instruments -->
-                    <div data-bind="visible: isButtonActive(), attr: {'id': 'wrapper-' + $data.token }">
+                    <div data-bind="attr: {'id': 'wrapper-' + $data.token }">
                         <div class="paynow-payment-option-card" data-bind="css: {'disabled': $data.isExpired}, attr: {'id': $data.token }, click: $parent.setPaymentMethodToken.bind($parent)">
                             <div class="paynow-payment-card-image">
                                 <img data-bind="attr: {src: $data.image, alt: $data.brand}">
