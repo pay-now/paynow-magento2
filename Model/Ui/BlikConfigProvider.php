@@ -31,7 +31,7 @@ class BlikConfigProvider extends ConfigProvider implements ConfigProviderInterfa
             && $this->configHelper->isConfigured()
             && $blikPaymentMethod
             && $blikPaymentMethod->isEnabled()
-            && !in_array(PaymentMethodsToHide::PAYMENT_TYPE_TO_CONFIG_MAP[Type::BLIK], $this->configHelper->getPaymentMethodsToHide());
+            && !in_array(PaymentMethodsToHide::PAYMENT_TYPE_TO_CONFIG_MAP[$blikPaymentMethod->getType()], $this->configHelper->getPaymentMethodsToHide());
         $GDPRNotices = $this->GDPRHelper->getNotices();
         $isWhiteLabel = $blikPaymentMethod && $blikPaymentMethod->getAuthorizationType() === AuthorizationType::CODE;
 
