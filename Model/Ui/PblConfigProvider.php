@@ -26,7 +26,7 @@ class PblConfigProvider extends ConfigProvider implements ConfigProviderInterfac
         $isActive = $this->configHelper->isActive() &&
             $this->configHelper->isConfigured() &&
             $this->configHelper->isPaymentMethodsActive()
-            && !in_array(PaymentMethodsToHide::PAYMENT_TYPE_TO_CONFIG_MAP[Type::PBL], $this->configHelper->getPaymentMethodsToHide());;
+            && !in_array(PaymentMethodsToHide::PAYMENT_TYPE_TO_CONFIG_MAP[Type::PBL], $this->configHelper->getPaymentMethodsToHide());
 
         $paymentMethods = [];
         if ($isActive) {

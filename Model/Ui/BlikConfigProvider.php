@@ -6,6 +6,7 @@ use Magento\Checkout\Model\ConfigProviderInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Paynow\Model\PaymentMethods\AuthorizationType;
+use Paynow\PaymentGateway\Model\Config\Source\PaymentMethodsToHide;
 
 /**
  * Class BlikConfigProvider
@@ -29,7 +30,8 @@ class BlikConfigProvider extends ConfigProvider implements ConfigProviderInterfa
         $isActive = $this->configHelper->isActive()
             && $this->configHelper->isConfigured()
             && $blikPaymentMethod
-            && $blikPaymentMethod->isEnabled();
+            && $blikPaymentMethod->isEnabled()
+            && !in_array(PaymentMethodsToHide::PAYMENT_TYPE_TO_CONFIG_MAP[Type::BLIK], $this->configHelper->getPaymentMethodsToHide());
         $GDPRNotices = $this->GDPRHelper->getNotices();
         $isWhiteLabel = $blikPaymentMethod && $blikPaymentMethod->getAuthorizationType() === AuthorizationType::CODE;
 
