@@ -201,8 +201,8 @@ class ConfigHelper extends AbstractHelper
 
 		$data = $this->getConfigData('hide_payment_methods', DefaultConfigProvider::CODE, $storeId, false);
 
-		if (is_array($data)) {
-			return $data;
+		if (is_string($data)) {
+			return explode(',', $data);
 		} else {
 			return [];
 		}
