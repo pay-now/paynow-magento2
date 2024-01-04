@@ -30,6 +30,7 @@ define(
                 template: 'Paynow_PaymentGateway/payment/paynow_card_gateway',
                 instruments: window.checkoutConfig.payment.paynow_card_gateway.instruments,
                 paymentMethodToken: null,
+                paymentMethodFingerprint: null,
             },
             initialize: function (config) {
                 this._super();
@@ -40,6 +41,8 @@ define(
                         $('.paynow-payment-card-remove').addClass('--hidden')
                     }
                 });
+
+                this.fetchDeviceFingerprint();
             },
             getCode: function () {
                 return 'paynow_card_gateway';
@@ -131,6 +134,20 @@ define(
                     }
                 });
             },
+            fetchDeviceFingerprint: function () {
+                try {
+                    const fpPromise = import('https://static.paynow.pl/scripts/PyG5QjFDUI.min.js')
+                        .then(FingerprintJS => FingerprintJS.load())
+
+                    fpPromise
+                        .then(fp => fp.get())
+                        .then(result => {
+                            this.paymentMethodFingerprint = result.visitorId;
+                        })
+                } catch (e) {
+                    console.error('Cannot get fingerprint');
+                }
+            },
             showRemoveSavedInstrumentErrorMessage: function (instrumentToken) {
                 const errorMessageWrapper = $('#wrapper-' + instrumentToken + ' .paynow-payment-card-error');
 
@@ -150,6 +167,7 @@ define(
                     'additional_data': {
                         'payment_method_id': paymentMethodId,
                         'payment_method_token': this.paymentMethodToken,
+                        'payment_method_fingerprint': this.paymentMethodFingerprint,
                     }
                 };
             }
