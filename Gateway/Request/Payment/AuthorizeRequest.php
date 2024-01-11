@@ -77,7 +77,7 @@ class AuthorizeRequest extends AbstractRequest implements BuilderInterface
                 ->getAdditionalInformation(PaymentDataAssignObserver::PAYMENT_METHOD_TOKEN);
         }
 
-		if ($this->payment->hasAdditionalInformation(PaymentDataAssignObserver::PAYMENT_METHOD_FINGERPRINT)
+        if ($this->payment->hasAdditionalInformation(PaymentDataAssignObserver::PAYMENT_METHOD_FINGERPRINT)
 			&& ! empty($this->payment->getAdditionalInformation(PaymentDataAssignObserver::PAYMENT_METHOD_FINGERPRINT))) {
 			$request['body'][PaymentField::BUYER_FIELD_NAME][PaymentField::BUYER_DEVICE_FINGERPRINT] = $this->payment
 				->getAdditionalInformation(PaymentDataAssignObserver::PAYMENT_METHOD_FINGERPRINT);

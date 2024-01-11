@@ -26,7 +26,7 @@ class PaymentDataAssignObserver extends AbstractDataAssignObserver
      */
     protected $additionalInformationList = [
         self::PAYMENT_METHOD_ID,
-		self::PAYMENT_METHOD_FINGERPRINT,
+        self::PAYMENT_METHOD_FINGERPRINT,
         self::PAYMENT_METHOD_TOKEN,
         self::BLIK_CODE
     ];
