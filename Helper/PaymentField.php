@@ -10,6 +10,7 @@ namespace Paynow\PaymentGateway\Helper;
 class PaymentField
 {
     const AMOUNT_FIELD_NAME = 'amount';
+    const BUYER_DEVICE_FINGERPRINT = 'deviceFingerprint';
     const BUYER_EMAIL_FIELD_NAME = 'email';
     const BUYER_EXTERNAL_ID = 'externalId';
     const BUYER_FIELD_NAME = 'buyer';
