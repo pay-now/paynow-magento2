@@ -104,7 +104,7 @@ class Retry extends Action
 
         if ($this->checkIfPaymentStatusIsPending($currentPaymentStatus) && !empty($currentPaymentId)) {
             $paymentStatusService = ObjectManager::getInstance()->create(PaymentStatusService::class);
-            $refreshedCurrentPaymentStatus = $paymentStatusService->getStatus($currentPaymentId) ?? '';
+            $refreshedCurrentPaymentStatus = $paymentStatusService->getStatus($currentPaymentId, $orderId) ?? '';
             if ($this->checkIfPaymentStatusIsPending($refreshedCurrentPaymentStatus)
                 && is_string($currentPaymentRedirectUrl)) {
                 $this->redirectResult->setUrl($currentPaymentRedirectUrl);

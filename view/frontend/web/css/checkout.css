@@ -36,9 +36,13 @@
     max-height: 100% !important;
 }
 
-.paynow-payment-option:not(.disabled):hover div,
-.paynow-payment-option:not(.disabled).active div {
+.paynow-payment-option:not(.disabled):hover div {
     border: 1px solid #d2d2d2;
+    background: #f3f3f3;
+}
+
+.paynow-payment-option:not(.disabled).active div {
+    border: 2px solid #16A035;
     background: #f3f3f3;
 }
 

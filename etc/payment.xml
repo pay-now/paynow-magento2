@@ -13,13 +13,13 @@
         <method name="paynow_blik_gateway">
             <allow_multiple_address>1</allow_multiple_address>
         </method>
+        <method name="paynow_pbl_gateway">
+            <allow_multiple_address>1</allow_multiple_address>
+        </method>
         <method name="paynow_card_gateway">
             <allow_multiple_address>1</allow_multiple_address>
         </method>
         <method name="paynow_digital_wallet_gateway">
-            <allow_multiple_address>1</allow_multiple_address>
-        </method>
-        <method name="paynow_pbl_gateway">
             <allow_multiple_address>1</allow_multiple_address>
         </method>
     </methods>
