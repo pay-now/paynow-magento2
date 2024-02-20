@@ -106,7 +106,7 @@ class AuthorizeRequest extends AbstractRequest implements BuilderInterface
         ){
             $request['body'][PaymentField::AUTHORIZATION_CODE] = $this->payment
                 ->getAdditionalInformation(PaymentDataAssignObserver::BLIK_CODE);
-    }
+        }
 
         $request['headers'] = [
             PaymentField::IDEMPOTENCY_KEY_FIELD_NAME => uniqid(substr($referenceId, 0, 22), true)
