@@ -64,21 +64,28 @@ class AuthorizeRequest extends AbstractRequest implements BuilderInterface
             $request['body'][PaymentField::BUYER_FIELD_NAME][PaymentField::BUYER_EXTERNAL_ID] = $this->helper
                 ->generateBuyerExternalId($this->order->getCustomerId(), $this->order->getStoreId());
         }
+        $isRetry = (
+            $this->payment->hasAdditionalInformation(PaymentField::IS_PAYMENT_RETRY_FIELD_NAME)
+            && $this->payment->getAdditionalInformation(PaymentField::IS_PAYMENT_RETRY_FIELD_NAME) == 1
+        );
 
         if ($this->payment->hasAdditionalInformation(PaymentDataAssignObserver::PAYMENT_METHOD_ID)
-            && ! empty($this->payment->getAdditionalInformation(PaymentDataAssignObserver::PAYMENT_METHOD_ID))) {
+            && ! empty($this->payment->getAdditionalInformation(PaymentDataAssignObserver::PAYMENT_METHOD_ID))
+            && !$isRetry) {
             $request['body'][PaymentField::PAYMENT_METHOD_ID] = $this->payment
                 ->getAdditionalInformation(PaymentDataAssignObserver::PAYMENT_METHOD_ID);
         }
 
         if ($this->payment->hasAdditionalInformation(PaymentDataAssignObserver::PAYMENT_METHOD_TOKEN)
-            && ! empty($this->payment->getAdditionalInformation(PaymentDataAssignObserver::PAYMENT_METHOD_TOKEN))) {
+            && ! empty($this->payment->getAdditionalInformation(PaymentDataAssignObserver::PAYMENT_METHOD_TOKEN))
+            && !$isRetry) {
             $request['body'][PaymentField::PAYMENT_METHOD_TOKEN] = $this->payment
                 ->getAdditionalInformation(PaymentDataAssignObserver::PAYMENT_METHOD_TOKEN);
         }
 
         if ($this->payment->hasAdditionalInformation(PaymentDataAssignObserver::PAYMENT_METHOD_FINGERPRINT)
-			&& ! empty($this->payment->getAdditionalInformation(PaymentDataAssignObserver::PAYMENT_METHOD_FINGERPRINT))) {
+			&& ! empty($this->payment->getAdditionalInformation(PaymentDataAssignObserver::PAYMENT_METHOD_FINGERPRINT))
+            && !$isRetry) {
 			$request['body'][PaymentField::BUYER_FIELD_NAME][PaymentField::BUYER_DEVICE_FINGERPRINT] = $this->payment
 				->getAdditionalInformation(PaymentDataAssignObserver::PAYMENT_METHOD_FINGERPRINT);
 		}
@@ -98,7 +105,8 @@ class AuthorizeRequest extends AbstractRequest implements BuilderInterface
         }
 
         if ($this->payment->hasAdditionalInformation(PaymentDataAssignObserver::BLIK_CODE)
-            && ! empty($this->payment->getAdditionalInformation(PaymentDataAssignObserver::BLIK_CODE))) {
+            && ! empty($this->payment->getAdditionalInformation(PaymentDataAssignObserver::BLIK_CODE))
+            && !$isRetry) {
             $request['body'][PaymentField::AUTHORIZATION_CODE] = $this->payment
                 ->getAdditionalInformation(PaymentDataAssignObserver::BLIK_CODE);
         }
