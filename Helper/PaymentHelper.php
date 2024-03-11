@@ -22,6 +22,7 @@ use Paynow\Configuration;
 use Paynow\Environment;
 use Paynow\Model\Payment\Status;
 use Paynow\PaymentGateway\Model\Logger\Logger;
+use Paynow\Util\ClientExternalIdCalculator;
 
 /**
  * Class Data
@@ -316,6 +317,6 @@ class PaymentHelper extends AbstractHelper
 
         $isTestMode = $this->configHelper->isTestMode($storeId);
 
-        return md5($identifier . $this->configHelper->getSignatureKey($storeId, $isTestMode));
+        return ClientExternalIdCalculator::calculate($identifier, $this->configHelper->getSignatureKey($storeId, $isTestMode));
     }
 }
