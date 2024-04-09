@@ -140,7 +140,7 @@ class Success extends Action
                 ->addFilter(OrderInterface::INCREMENT_ID, $payload->referenceId)
                 ->create()
             )->getItems();
-            $order =  count($orders) ? $orders[0] : null;
+            $order = array_shift($orders);
             if (is_null($order) || is_null($order->getEntityId())) {
                 return $this->redirectResult;
             }
