@@ -57,7 +57,7 @@ class AuthorizeRequest extends AbstractRequest implements BuilderInterface
                 PaymentField::BUYER_LASTNAME_FIELD_NAME  => $this->order->getShippingAddress()->getLastname(),
                 PaymentField::BUYER_LOCALE               => $this->helper->getStoreLocale(),
             ],
-            PaymentField::CONTINUE_URL_FIELD_NAME => $this->helper->getContinueUrl()
+            PaymentField::CONTINUE_URL_FIELD_NAME => $this->helper->getContinueUrl($this->order->getId(), $this->order->getStoreId()),
         ];
 
         if ($this->order->getCustomerId()) {
