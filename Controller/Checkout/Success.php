@@ -134,7 +134,7 @@ class Success extends Action
         $storeId = $this->storeManager->getStore()->getId();
         $isTestMode = $this->configHelper->isTestMode($storeId);
         $payload = JWT::decode($token, new Key($this->configHelper->getSignatureKey($storeId, $isTestMode), 'HS256'));
-        if (property_exists($payload, 'referenceId') && is_numeric($payload->orderId)) {
+        if (property_exists($payload, 'referenceId') && is_numeric($payload->referenceId)) {
             $orders = $this->orderRepository->getList(
                 $this->searchCriteriaBuilder
                 ->addFilter(OrderInterface::INCREMENT_ID, $payload->referenceId)
