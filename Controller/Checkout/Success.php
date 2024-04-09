@@ -5,11 +5,13 @@ namespace Paynow\PaymentGateway\Controller\Checkout;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use Magento\Checkout\Model\Session as CheckoutSession;
+use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\Controller\Result\Redirect as ResponseRedirect;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\UrlInterface;
+use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
 use Magento\Store\Model\StoreManagerInterface;
@@ -74,6 +76,11 @@ class Success extends Action
     protected $storeManager;
 
     /**
+     * @var SearchCriteriaBuilder
+     */
+    protected $searchCriteriaBuilder;
+
+    /**
      * Success constructor.
      *
      * @param Context $context
@@ -84,6 +91,7 @@ class Success extends Action
      * @param PaymentStatusService $paymentStatusService
      * @param OrderRepositoryInterface $orderRepository
      * @param ConfigHelper $configHelper
+     * @param SearchCriteriaBuilder $searchCriteriaBuilder
      * @param StoreManagerInterface $storeManager
      */
     public function __construct(
@@ -95,7 +103,9 @@ class Success extends Action
         PaymentStatusService $paymentStatusService,
         OrderRepositoryInterface $orderRepository,
         ConfigHelper $configHelper,
+        SearchCriteriaBuilder $searchCriteriaBuilder,
         StoreManagerInterface $storeManager
+
     ) {
         parent::__construct($context);
         $this->checkoutSession = $checkoutSession;
@@ -106,6 +116,7 @@ class Success extends Action
         $this->paymentStatusService = $paymentStatusService;
         $this->orderRepository = $orderRepository;
         $this->configHelper = $configHelper;
+        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->storeManager =  $storeManager;
     }
 
@@ -123,9 +134,14 @@ class Success extends Action
         $storeId = $this->storeManager->getStore()->getId();
         $isTestMode = $this->configHelper->isTestMode($storeId);
         $payload = JWT::decode($token, new Key($this->configHelper->getSignatureKey($storeId, $isTestMode), 'HS256'));
-        if (property_exists($payload, 'orderId') && is_numeric($payload->orderId)) {
-            $order = $this->orderRepository->get($payload->orderId);
-            if (is_null($order->getEntityId())) {
+        if (property_exists($payload, 'referenceId') && is_numeric($payload->orderId)) {
+            $orders = $this->orderRepository->getList(
+                $this->searchCriteriaBuilder
+                ->addFilter(OrderInterface::INCREMENT_ID, $payload->referenceId)
+                ->create()
+            )->getItems();
+            $order =  count($orders) ? $orders[0] : null;
+            if (is_null($order) || is_null($order->getEntityId())) {
                 return $this->redirectResult;
             }
             $this->checkoutSession->setLastSuccessQuoteId($order->getQuoteId());
