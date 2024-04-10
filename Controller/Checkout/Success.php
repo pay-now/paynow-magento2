@@ -152,7 +152,7 @@ class Success extends Action
             } else {
                 $order = $this->checkoutSession->getLastRealOrder();
             }
-        }else{
+        } else {
             $order = $this->checkoutSession->getLastRealOrder();
         }
 
