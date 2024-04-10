@@ -86,14 +86,30 @@ class PaymentTransactionHelper
         $this->transactionRepository->save($currentTransaction);
     }
 
-    public function closeTransactionId($orderId, $paymentId, $oldTransactionId)
+    public function openTransactionId($orderId, $paymentId, $transactionId)
     {
         $transaction = $this->transactionFactory->create();
         $transaction = $this->transactionResourceModel->loadObjectByTxnId(
             $transaction,
             $orderId,
             $paymentId,
-            $oldTransactionId
+            $transactionId
+        );
+        if (!$transaction->getId()) {
+            return;
+        }
+        $transaction->setIsClosed(false);
+        $this->transactionRepository->save($transaction);
+    }
+
+    public function closeTransactionId($orderId, $paymentId, $transactionId)
+    {
+        $transaction = $this->transactionFactory->create();
+        $transaction = $this->transactionResourceModel->loadObjectByTxnId(
+            $transaction,
+            $orderId,
+            $paymentId,
+            $transactionId
         );
         if (!$transaction->getId()) {
             return;

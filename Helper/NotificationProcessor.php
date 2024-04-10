@@ -3,6 +3,7 @@
 namespace Paynow\PaymentGateway\Helper;
 
 use Magento\Framework\App\ObjectManager;
+use Magento\Framework\Event\ManagerInterface as EventManager;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Sales\Api\OrderRepositoryInterface;
@@ -13,7 +14,6 @@ use Paynow\Model\Payment\Status;
 use Paynow\PaymentGateway\Model\Exception\NotificationRetryProcessing;
 use Paynow\PaymentGateway\Model\Exception\NotificationStopProcessing;
 use Paynow\PaymentGateway\Model\Logger\Logger;
-use Magento\Framework\Event\ManagerInterface as EventManager;
 
 /**
  * Class NotificationProcessor
@@ -228,13 +228,13 @@ class NotificationProcessor
                 $this->paymentPending();
                 break;
             case Status::STATUS_REJECTED:
-                $this->paymentRejected();
+                $this->paymentRejected($paymentId);
                 break;
             case Status::STATUS_CONFIRMED:
                 $this->paymentConfirmed($paymentId);
                 break;
             case Status::STATUS_ERROR:
-                $this->paymentError();
+                $this->paymentError($paymentId);
                 break;
             case Status::STATUS_EXPIRED:
                 $this->paymentExpired();
@@ -364,7 +364,12 @@ class NotificationProcessor
         } else {
             $this->order->addCommentToStatusHistory($message);
         }
-        $this->order->getPayment()->setIsClosed(false);
+        $paymentTransactionHelper = ObjectManager::getInstance()->create(PaymentTransactionHelper::class);
+        $paymentTransactionHelper->openTransactionId(
+            $this->order->getId(),
+            $this->order->getPayment()->getEntityId(),
+            $this->order->getPayment()->getLastTransId()
+        );
     }
 
     /**
@@ -382,7 +387,13 @@ class NotificationProcessor
         } else {
             $this->order->addCommentToStatusHistory($message);
         }
-        $this->order->getPayment()->setIsClosed(true);
+
+        $paymentTransactionHelper = ObjectManager::getInstance()->create(PaymentTransactionHelper::class);
+        $paymentTransactionHelper->closeTransactionId(
+            $this->order->getId(),
+            $this->order->getPayment()->getEntityId(),
+            $this->order->getPayment()->getLastTransId()
+        );
     }
 
     /**
@@ -447,11 +458,19 @@ class NotificationProcessor
             $this->order->addCommentToStatusHistory($message);
         }
 
-        $this->order->getPayment()->setIsClosed(true);
+        $paymentTransactionHelper = ObjectManager::getInstance()->create(PaymentTransactionHelper::class);
+        $paymentTransactionHelper->closeTransactionId(
+            $this->order->getId(),
+            $this->order->getPayment()->getEntityId(),
+            $this->order->getPayment()->getLastTransId()
+        );
     }
 
     /**
      * Sets payment errored
+     *
+     * @return void
+     * @throws NoSuchEntityException
      */
     private function paymentError()
     {
@@ -464,8 +483,12 @@ class NotificationProcessor
             $this->order
                 ->setState(Order::STATE_PAYMENT_REVIEW)
                 ->addStatusToHistory(Order::STATE_PAYMENT_REVIEW, $message);
-
-            $this->order->getPayment()->setIsClosed(true);
+            $paymentTransactionHelper = ObjectManager::getInstance()->create(PaymentTransactionHelper::class);
+            $paymentTransactionHelper->closeTransactionId(
+                $this->order->getId(),
+                $this->order->getPayment()->getEntityId(),
+                $this->order->getPayment()->getLastTransId()
+            );
         }
     }
 
