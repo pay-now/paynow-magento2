@@ -130,25 +130,29 @@ class Success extends Action
             $this->urlBuilder->getUrl('checkout/onepage/success')
         );
 
-        $token = $this->getRequest()->getParam('_token');
-        $storeId = $this->storeManager->getStore()->getId();
-        $isTestMode = $this->configHelper->isTestMode($storeId);
-        $payload = JWT::decode($token ?? '', new Key($this->configHelper->getSignatureKey($storeId, $isTestMode), 'HS256'));
-        if (property_exists($payload, 'referenceId') && is_numeric($payload->referenceId)) {
-            $orders = $this->orderRepository->getList(
-                $this->searchCriteriaBuilder
-                ->addFilter(OrderInterface::INCREMENT_ID, $payload->referenceId)
-                ->create()
-            )->getItems();
-            $order = array_shift($orders);
-            if (is_null($order) || is_null($order->getEntityId())) {
-                return $this->redirectResult;
+        $token = $this->getRequest()->getParam('_token') ?? '';
+        if (!empty($token)) {
+            $storeId = $this->storeManager->getStore()->getId();
+            $isTestMode = $this->configHelper->isTestMode($storeId);
+            $payload = JWT::decode($token, new Key($this->configHelper->getSignatureKey($storeId, $isTestMode), 'HS256'));
+            if (property_exists($payload, 'referenceId') && is_numeric($payload->referenceId)) {
+                $orders = $this->orderRepository->getList(
+                    $this->searchCriteriaBuilder
+                        ->addFilter(OrderInterface::INCREMENT_ID, $payload->referenceId)
+                        ->create()
+                )->getItems();
+                $order = array_shift($orders);
+                if (is_null($order) || is_null($order->getEntityId())) {
+                    return $this->redirectResult;
+                }
+                $this->checkoutSession->setLastSuccessQuoteId($order->getQuoteId());
+                $this->checkoutSession->setLastQuoteId($order->getQuoteId());
+                $this->checkoutSession->setLastOrderId($order->getEntityId());
+                $this->checkoutSession->setLastRealOrderId($order->getIncrementId());
+            } else {
+                $order = $this->checkoutSession->getLastRealOrder();
             }
-            $this->checkoutSession->setLastSuccessQuoteId($order->getQuoteId());
-            $this->checkoutSession->setLastQuoteId($order->getQuoteId());
-            $this->checkoutSession->setLastOrderId($order->getEntityId());
-            $this->checkoutSession->setLastRealOrderId($order->getIncrementId());
-        } else {
+        }else{
             $order = $this->checkoutSession->getLastRealOrder();
         }
 
