@@ -261,7 +261,7 @@ class PaymentMethodsHelper
     public function getDigitalWalletsPaymentMethods(?string $currency = null, ?float $amount = null)
     {
         if (!$this->configHelper->isConfigured()) {
-            return null;
+            return [];
         }
 
         try {
@@ -301,7 +301,7 @@ class PaymentMethodsHelper
 				]
 			);
         }
-        return null;
+        return [];
     }
 
 }

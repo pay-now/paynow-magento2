@@ -2,13 +2,20 @@
 
 namespace Paynow\PaymentGateway\Controller\Checkout;
 
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 use Magento\Checkout\Model\Session as CheckoutSession;
+use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\Controller\Result\Redirect as ResponseRedirect;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\UrlInterface;
+use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
-use Paynow\PaymentGateway\Helper\LockingHelper;
+use Magento\Store\Model\StoreManagerInterface;
+use Paynow\PaymentGateway\Helper\ConfigHelper;
 use Paynow\PaymentGateway\Helper\NotificationProcessor;
 use Paynow\PaymentGateway\Helper\PaymentField;
 use Paynow\PaymentGateway\Helper\PaymentStatusService;
@@ -39,11 +46,6 @@ class Success extends Action
     private $redirectResult;
 
     /**
-     * @var Order
-     */
-    private $order;
-
-    /**
      * @var UrlInterface
      */
     protected $urlBuilder;
@@ -59,6 +61,26 @@ class Success extends Action
     private $paymentStatusService;
 
     /**
+     * @var OrderRepositoryInterface
+     */
+    private $orderRepository;
+
+    /**
+     * @var ConfigHelper
+     */
+    private $configHelper;
+
+    /**
+     * @var StoreManagerInterface
+     */
+    protected $storeManager;
+
+    /**
+     * @var SearchCriteriaBuilder
+     */
+    protected $searchCriteriaBuilder;
+
+    /**
      * Success constructor.
      *
      * @param Context $context
@@ -67,6 +89,10 @@ class Success extends Action
      * @param UrlInterface $urlBuilder
      * @param NotificationProcessor $notificationProcessor
      * @param PaymentStatusService $paymentStatusService
+     * @param OrderRepositoryInterface $orderRepository
+     * @param ConfigHelper $configHelper
+     * @param SearchCriteriaBuilder $searchCriteriaBuilder
+     * @param StoreManagerInterface $storeManager
      */
     public function __construct(
         Context $context,
@@ -74,7 +100,12 @@ class Success extends Action
         Logger $logger,
         UrlInterface $urlBuilder,
         NotificationProcessor $notificationProcessor,
-        PaymentStatusService $paymentStatusService
+        PaymentStatusService $paymentStatusService,
+        OrderRepositoryInterface $orderRepository,
+        ConfigHelper $configHelper,
+        SearchCriteriaBuilder $searchCriteriaBuilder,
+        StoreManagerInterface $storeManager
+
     ) {
         parent::__construct($context);
         $this->checkoutSession = $checkoutSession;
@@ -82,41 +113,70 @@ class Success extends Action
         $this->redirectResult = $this->resultRedirectFactory->create();
         $this->urlBuilder = $urlBuilder;
         $this->notificationProcessor = $notificationProcessor;
-        $this->order = $this->checkoutSession->getLastRealOrder();
         $this->paymentStatusService = $paymentStatusService;
+        $this->orderRepository = $orderRepository;
+        $this->configHelper = $configHelper;
+        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
+        $this->storeManager =  $storeManager;
     }
 
     /**
      * @return ResponseRedirect
+     * @throws NoSuchEntityException
      */
     public function execute(): ResponseRedirect
     {
-        if ($this->shouldRetrieveStatus()) {
-            $this->retrievePaymentStatusAndUpdateOrder();
-        }
-
         $this->redirectResult->setUrl(
             $this->urlBuilder->getUrl('checkout/onepage/success')
         );
 
+        $token = $this->getRequest()->getParam('_token') ?? '';
+        if (!empty($token)) {
+            $storeId = $this->storeManager->getStore()->getId();
+            $isTestMode = $this->configHelper->isTestMode($storeId);
+            $payload = JWT::decode($token, new Key($this->configHelper->getSignatureKey($storeId, $isTestMode), 'HS256'));
+            if (property_exists($payload, 'referenceId') && is_numeric($payload->referenceId)) {
+                $orders = $this->orderRepository->getList(
+                    $this->searchCriteriaBuilder
+                        ->addFilter(OrderInterface::INCREMENT_ID, $payload->referenceId)
+                        ->create()
+                )->getItems();
+                $order = array_shift($orders);
+                if (is_null($order) || is_null($order->getEntityId())) {
+                    return $this->redirectResult;
+                }
+                $this->checkoutSession->setLastSuccessQuoteId($order->getQuoteId());
+                $this->checkoutSession->setLastQuoteId($order->getQuoteId());
+                $this->checkoutSession->setLastOrderId($order->getEntityId());
+                $this->checkoutSession->setLastRealOrderId($order->getIncrementId());
+            } else {
+                $order = $this->checkoutSession->getLastRealOrder();
+            }
+        } else {
+            $order = $this->checkoutSession->getLastRealOrder();
+        }
+
+        if (!is_null($order) && !is_null($order->getEntityId()) && $this->shouldRetrieveStatus($order)) {
+            $this->retrievePaymentStatusAndUpdateOrder($order);
+        }
         return $this->redirectResult;
     }
 
-    private function retrievePaymentStatusAndUpdateOrder()
+    private function retrievePaymentStatusAndUpdateOrder(Order $order)
     {
-        $allPayments = $this->order->getAllPayments();
+        $allPayments = $order->getAllPayments();
         $lastPaymentId = end($allPayments)->getAdditionalInformation(PaymentField::PAYMENT_ID_FIELD_NAME);
-        if ($lastPaymentId == $this->order->getIncrementId() . '_UNKNOWN') {
+        if ($lastPaymentId == $order->getIncrementId() . '_UNKNOWN') {
             $status =  \Paynow\Model\Payment\Status::STATUS_PENDING;
         } else {
-            $status = $this->paymentStatusService->getStatus($lastPaymentId, $this->order->getIncrementId());
+            $status = $this->paymentStatusService->getStatus($lastPaymentId, $order->getIncrementId());
         }
         $loggerContext = [PaymentField::PAYMENT_ID_FIELD_NAME => $lastPaymentId];
         try {
             $this->notificationProcessor->process(
                 $lastPaymentId,
                 $status,
-                $this->order->getIncrementId(),
+                $order->getIncrementId(),
                 date("Y-m-d\TH:i:s"),
                 true
             );
@@ -126,7 +186,7 @@ class Success extends Action
             $loggerContext['exception'] = [
                 'message' => $exception->getMessage(),
                 'file' => $exception->getFile(),
-                'line' => $exception->line(),
+                'line' => $exception->getLine(),
             ];
             $this->logger->error(
                 'Error occurred handling notification',
@@ -136,13 +196,13 @@ class Success extends Action
     }
 
     /**
+     * @param Order $order
      * @return bool
      */
-    private function shouldRetrieveStatus(): bool
+    private function shouldRetrieveStatus(Order $order): bool
     {
         return $this->getRequest()->getParam('paymentStatus') &&
             $this->getRequest()->getParam('paymentId') &&
-            $this->order &&
-            count($this->order->getAllPayments()) > 0;
+            count($order->getAllPayments()) > 0;
     }
 }

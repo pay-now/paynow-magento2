@@ -2,6 +2,7 @@
 
 namespace Paynow\PaymentGateway\Helper;
 
+use Firebase\JWT\JWT;
 use Magento\Catalog\Model\Product;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\Helper\AbstractHelper;
@@ -18,7 +19,6 @@ use Magento\Payment\Gateway\Data\OrderAdapterInterface;
 use Magento\Sales\Model\Order;
 use Magento\Store\Model\StoreManagerInterface;
 use Paynow\Client;
-use Paynow\Configuration;
 use Paynow\Environment;
 use Paynow\Model\Payment\Status;
 use Paynow\PaymentGateway\Model\Logger\Logger;
@@ -233,11 +233,23 @@ class PaymentHelper extends AbstractHelper
     /**
      * Returns return url
      *
+     * @param string $referenceId
+     * @param $storeId
      * @return string
+     * @throws NoSuchEntityException
      */
-    public function getContinueUrl(): string
+    public function getContinueUrl(string $referenceId, $storeId = null): string
     {
-        return $this->urlBuilder->getUrl('paynow/checkout/success');
+        if ($storeId === null) {
+            $storeId = $this->storeManager->getStore()->getId();
+        }
+
+        $isTestMode = $this->configHelper->isTestMode($storeId);
+
+        return $this->urlBuilder->getUrl(
+            'paynow/checkout/success',
+            ['_token' => JWT::encode(['referenceId' => $referenceId], $this->configHelper->getSignatureKey($storeId, $isTestMode), 'HS256')]
+        );
     }
 
     /**
