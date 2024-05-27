@@ -515,6 +515,7 @@ class NotificationProcessor
         $paymentStatusFlow = [
 
             Status::STATUS_NEW       => [
+				Status::STATUS_NEW,
                 Status::STATUS_PENDING,
                 Status::STATUS_ERROR,
                 Status::STATUS_EXPIRED,
@@ -522,12 +523,14 @@ class NotificationProcessor
                 Status::STATUS_REJECTED
             ],
             Status::STATUS_PENDING   => [
+				Status::STATUS_NEW,
                 Status::STATUS_CONFIRMED,
                 Status::STATUS_REJECTED,
                 Status::STATUS_EXPIRED,
                 Status::STATUS_ABANDONED
             ],
             Status::STATUS_REJECTED  => [
+				Status::STATUS_NEW,
                 Status::STATUS_ABANDONED,
                 Status::STATUS_CONFIRMED
             ],
@@ -538,8 +541,12 @@ class NotificationProcessor
                 Status::STATUS_ABANDONED,
                 Status::STATUS_NEW
             ],
-            Status::STATUS_EXPIRED   => [],
-            Status::STATUS_ABANDONED => [],
+            Status::STATUS_EXPIRED   => [
+				Status::STATUS_NEW
+			],
+            Status::STATUS_ABANDONED => [
+				Status::STATUS_NEW
+			],
         ];
 
         $previousStatusExists = isset($paymentStatusFlow[$previousStatus]);
