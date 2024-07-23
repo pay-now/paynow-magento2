@@ -7,17 +7,9 @@ use Magento\Config\Block\System\Config\Form\Field;
 use Magento\Framework\Data\Form\Element\AbstractElement;
 use Paynow\PaymentGateway\Helper\PaymentHelper;
 
-/**
- * Class Version
- *
- * @package Paynow\PaymentGateway\Block\Adminhtml\System\Config\Field
- */
 class Version extends Field
 {
-    /**
-     * @var PaymentHelper
-     */
-    private $paymentHelper;
+    private PaymentHelper $paymentHelper;
 
     public function __construct(PaymentHelper $helper, Context $context, array $data = [])
     {

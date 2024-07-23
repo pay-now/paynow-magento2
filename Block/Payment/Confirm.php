@@ -30,7 +30,7 @@ class Confirm extends Template
     }
 
     /**
-     * @return array|mixed|null
+     * @return string|null
      */
     public function getPaymentStatus(): ?string
     {
