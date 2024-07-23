@@ -2,10 +2,11 @@
 
 namespace Paynow\PaymentGateway\Helper;
 
+use Magento\Customer\Model\Session;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Model\Quote;
-use Magento\Customer\Model\Session;
 use Paynow\Exception\PaynowException;
+use Paynow\Model\PaymentMethods\AuthorizationType;
 use Paynow\Model\PaymentMethods\PaymentMethod;
 use Paynow\Model\PaymentMethods\Type;
 use Paynow\PaymentGateway\Model\Config\Source\PaymentMethodsToHide;
@@ -304,4 +305,54 @@ class PaymentMethodsHelper
         return [];
     }
 
+    /**
+     * Returns payment methods array for PayPo
+     *
+     * @param string|null $currency
+     * @param float|null $amount
+     *
+     * @return PaymentMethod[]
+     * @throws NoSuchEntityException
+     */
+    public function getPaypoPaymentMethods(?string $currency = null, ?float $amount = null)
+    {
+        if (!$this->configHelper->isConfigured()) {
+            return null;
+        }
+        try {
+            $payment = new Payment($this->paymentHelper->initializePaynowClient());
+            $idempotencyKey = KeysGenerator::generateIdempotencyKey(KeysGenerator::generateExternalIdFromQuoteId($this->quote->getId()));
+            $customerId = $this->customerSession->getCustomer()->getId();
+            $buyerExternalId = $customerId ? $this->paymentHelper->generateBuyerExternalId($customerId) : null;
+            $amount = $this->paymentHelper->formatAmount($amount);
+            $methods = $payment->getPaymentMethods($currency, $amount, false, $idempotencyKey, $buyerExternalId)->getAll();
+
+            $paymentMethodsArray = [];
+            foreach ($methods ?? [] as $paymentMethod) {
+                if ($paymentMethod->getType() == Type::PAYPO && $paymentMethod->isEnabled() && $paymentMethod->getAuthorizationType() === AuthorizationType::REDIRECT) {
+                    $paymentMethodsArray[] = [
+                        'id' => $paymentMethod->getId(),
+                        'name' => $paymentMethod->getName(),
+                        'description' => $paymentMethod->getDescription(),
+                        'image' => $paymentMethod->getImage(),
+                        'enabled' => $paymentMethod->isEnabled(),
+                    ];
+                }
+            }
+            return $paymentMethodsArray;
+        } catch (PaynowException $exception) {
+            $this->logger->error(
+                $exception->getMessage(),
+                [
+                    'service' => 'Payment',
+                    'action' => 'getPaymentMethods',
+                    'paymentMethod' => 'paypo',
+                    'currency' => $currency,
+                    'amount' => $amount,
+                    'code' => $exception->getCode(),
+                ]
+            );
+        }
+        return null;
+    }
 }

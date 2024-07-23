@@ -80,6 +80,19 @@
                 <title>Digital wallets with paynow.pl</title>
                 <group>paynow_group</group>
             </paynow_digital_wallet_gateway>
+            <paynow_paypo_gateway>
+                <active>1</active>
+                <debug>1</debug>
+                <extra_logs>1</extra_logs>
+                <order_status_change>1</order_status_change>
+                <currency>PLN</currency>
+                <is_gateway>1</is_gateway>
+                <model>PaypoPaymentGatewayFacade</model>
+                <payment_action>authorize</payment_action>
+                <sort_order>1</sort_order>
+                <title>PayPo with paynow.pl</title>
+                <group>paynow_group</group>
+            </paynow_paypo_gateway>
         </payment>
     </default>
 </config>
