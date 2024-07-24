@@ -311,10 +311,10 @@ class PaymentMethodsHelper
      * @param string|null $currency
      * @param float|null $amount
      *
-     * @return PaymentMethod[]
+     * @return ?PaymentMethod
      * @throws NoSuchEntityException
      */
-    public function getPaypoPaymentMethods(?string $currency = null, ?float $amount = null)
+    public function getPaypoPaymentMethod(?string $currency = null, ?float $amount = null)
     {
         if (!$this->configHelper->isConfigured()) {
             return null;
@@ -327,19 +327,12 @@ class PaymentMethodsHelper
             $amount = $this->paymentHelper->formatAmount($amount);
             $methods = $payment->getPaymentMethods($currency, $amount, false, $idempotencyKey, $buyerExternalId)->getAll();
 
-            $paymentMethodsArray = [];
             foreach ($methods ?? [] as $paymentMethod) {
-                if ($paymentMethod->getType() == Type::PAYPO && $paymentMethod->isEnabled() && $paymentMethod->getAuthorizationType() === AuthorizationType::REDIRECT) {
-                    $paymentMethodsArray[] = [
-                        'id' => $paymentMethod->getId(),
-                        'name' => $paymentMethod->getName(),
-                        'description' => $paymentMethod->getDescription(),
-                        'image' => $paymentMethod->getImage(),
-                        'enabled' => $paymentMethod->isEnabled(),
-                    ];
+                if ($paymentMethod->getType() == Type::PAYPO && $paymentMethod->isEnabled()) {
+                    return $paymentMethod;
                 }
             }
-            return $paymentMethodsArray;
+            return null;
         } catch (PaynowException $exception) {
             $this->logger->error(
                 $exception->getMessage(),

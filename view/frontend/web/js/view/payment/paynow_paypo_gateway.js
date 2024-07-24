@@ -26,8 +26,7 @@ define(
         return Component.extend({
             defaults: {
                 template: 'Paynow_PaymentGateway/payment/paynow_paypo_gateway',
-                methods: window.checkoutConfig.payment.paynow_paypo_gateway.paymentMethods,
-                paymentMethodId: null
+                paymentMethodId: window.checkoutConfig.payment.paynow_paypo_gateway.paymentMethodId
             },
             getCode: function () {
                 return 'paynow_paypo_gateway';
@@ -68,15 +67,8 @@ define(
             isButtonActive: function () {
                 return this.getCode() === this.isChecked();
             },
-            setPaymentMethod: function (paymentMethod) {
-                if (paymentMethod.enabled) {
-                    this.paymentMethodId = paymentMethod.id;
-                    $('.paynow-payment-option').removeClass('active');
-                    $('#payment_method_' + paymentMethod.id).addClass('active');
-                }
-            },
-            areAddressesFilled: function () {
-                return window.checkoutConfig.payment.paynow_paypo_gateway.addressesFilled;
+            getIsClickable: function () {
+                return window.checkoutConfig.payment.paynow_paypo_gateway.isClickable;
             },
             getGDPRNotices: function () {
                 return window.checkoutConfig.payment.paynow_paypo_gateway.GDPRNotices;
