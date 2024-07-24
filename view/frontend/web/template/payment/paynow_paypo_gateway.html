@@ -3,7 +3,7 @@
         <input type="radio"
                name="payment[method]"
                class="radio"
-               data-bind="css: {'disabled': getIsClickable()}, attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()"/>
+               data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: getIsClickable()"/>
         <label data-bind="attr: {'for': getCode()}" class="label">
             <img data-bind="attr: {src: getLogoPath(), alt: 'Paynow', width: 80}" class="payment-icon"/>
             <span data-bind="i18n: 'PayPo'"></span>
