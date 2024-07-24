@@ -5,11 +5,17 @@
                name="payment[method]"
                class="radio"
                data-bind=" attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()"/>
-        <!--/ko-->
         <label data-bind="attr: {'for': getCode()}" class="label">
             <img data-bind="attr: {src: getLogoPath(), alt: 'Paynow', width: 80}" class="payment-icon"/>
-            <span data-bind="i18n: 'PayPo'"></span>
+            <span data-bind="i18n: 'Buy now, pay later'"></span>
         </label>
+        <!--/ko-->
+        <!-- ko ifnot: getIsClickable() -->
+        <label data-bind="attr: {'for': getCode()}" class="label">
+            <img style="filter: grayscale(1);" data-bind="attr: {src: getLogoPath(), alt: 'Paynow', width: 80}" class="payment-icon"/>
+            <span data-bind="i18n: 'Buy now, pay later'"></span>
+        </label>
+        <!--/ko-->
     </div>
     <div class="payment-method-content">
         <!-- ko if: getGDPRNotices() -->
