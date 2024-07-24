@@ -306,7 +306,7 @@ class PaymentMethodsHelper
     }
 
     /**
-     * Returns payment methods array for PayPo
+     * Returns Paypo payment method
      *
      * @param string|null $currency
      * @param float|null $amount
