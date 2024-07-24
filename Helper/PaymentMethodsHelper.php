@@ -326,7 +326,6 @@ class PaymentMethodsHelper
             $buyerExternalId = $customerId ? $this->paymentHelper->generateBuyerExternalId($customerId) : null;
             $amount = $this->paymentHelper->formatAmount($amount);
             $methods = $payment->getPaymentMethods($currency, $amount, false, $idempotencyKey, $buyerExternalId)->getAll();
-
             foreach ($methods ?? [] as $paymentMethod) {
                 if ($paymentMethod->getType() == Type::PAYPO && $paymentMethod->isEnabled()) {
                     return $paymentMethod;
