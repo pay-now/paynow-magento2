@@ -52,8 +52,7 @@ class PaypoConfigProvider extends ConfigProvider implements ConfigProviderInterf
     {
         $quote = $this->checkoutSession->getQuote();
         $shippingAddress = $quote->getShippingAddress();
-        $billingAddress = $quote->getBillingAddress();
-        return $shippingAddress && $billingAddress &&
+        return $shippingAddress &&
             !empty($shippingAddress->getStreet()[0] ?? null) &&
             !empty($shippingAddress->getRegion()) &&
             !empty($shippingAddress->getCountry()) &&
