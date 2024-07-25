@@ -58,12 +58,6 @@ class PaypoConfigProvider extends ConfigProvider implements ConfigProviderInterf
             !empty($shippingAddress->getRegion()) &&
             !empty($shippingAddress->getCountry()) &&
             !empty($shippingAddress->getPostcode()) &&
-            !empty($shippingAddress->getCity()) &&
-            !empty($shippingAddress->getTelephone()) &&
-            !empty($billingAddress->getStreet()[0] ?? null) &&
-            !empty($billingAddress->getRegion()) &&
-            !empty($billingAddress->getCountry()) &&
-            !empty($billingAddress->getPostcode()) &&
-            !empty($billingAddress->getCity());
+            !empty($shippingAddress->getCity());
     }
 }
