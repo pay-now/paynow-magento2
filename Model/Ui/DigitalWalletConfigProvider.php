@@ -43,7 +43,7 @@ class DigitalWalletConfigProvider extends ConfigProvider implements ConfigProvid
             'payment' => [
                 self::CODE => [
                     'isActive' => $isActive,
-                    'logoPath' => null,
+                    'logoPath' => count($paymentMethods) === 1 ? $paymentMethods[0]->getImage() : $this->getImageUrl('digital-wallets.svg'),
                     'redirectUrl' => $this->getRedirectUrl(),
                     'paymentMethods' => $paymentMethods,
                     'GDPRNotices' => $GDPRNotices,
