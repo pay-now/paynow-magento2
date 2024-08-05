@@ -276,7 +276,7 @@ class PaymentMethodsHelper
             $digitalWalletsPaymentMethods = [];
             if (! empty($paymentMethods)) {
                 foreach ($paymentMethods as $item) {
-                    if (Type::GOOGLE_PAY === $item->getType() || Type::APPLE_PAY === $item->getType()) {
+                    if ((Type::GOOGLE_PAY === $item->getType() || Type::APPLE_PAY === $item->getType()) && $item->isEnabled()) {
                         $digitalWalletsPaymentMethods[] = [
 							'id'          => $item->getId(),
 							'name'        => $item->getName(),

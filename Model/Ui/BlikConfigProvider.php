@@ -29,6 +29,7 @@ class BlikConfigProvider extends ConfigProvider implements ConfigProviderInterfa
         $blikPaymentMethod = $this->paymentMethodsHelper->getBlikPaymentMethod($currencyCode, $grandTotal);
         $isActive = $this->configHelper->isActive()
             && $this->configHelper->isConfigured()
+			&& $this->configHelper->isPaymentMethodsActive()
             && $blikPaymentMethod
             && $blikPaymentMethod->isEnabled()
             && !in_array(PaymentMethodsToHide::PAYMENT_TYPE_TO_CONFIG_MAP[$blikPaymentMethod->getType()], $this->configHelper->getPaymentMethodsToHide());

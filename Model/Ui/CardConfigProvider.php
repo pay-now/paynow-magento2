@@ -30,6 +30,7 @@ class CardConfigProvider extends ConfigProvider implements ConfigProviderInterfa
         $cardPaymentMethod = $this->paymentMethodsHelper->getCardPaymentMethod($currencyCode, $grandTotal);
         $isActive          = $this->configHelper->isActive()
                              && $this->configHelper->isConfigured()
+							 && $this->configHelper->isPaymentMethodsActive()
                              && $cardPaymentMethod
                              && $cardPaymentMethod->isEnabled()
 							 && !in_array(PaymentMethodsToHide::PAYMENT_TYPE_TO_CONFIG_MAP[$cardPaymentMethod->getType()], $this->configHelper->getPaymentMethodsToHide());

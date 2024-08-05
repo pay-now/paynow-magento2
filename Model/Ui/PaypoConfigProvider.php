@@ -26,6 +26,7 @@ class PaypoConfigProvider extends ConfigProvider implements ConfigProviderInterf
         $paymentMethod = $this->paymentMethodsHelper->getPaypoPaymentMethod($currencyCode, $grandTotal);
         $isActive = $this->configHelper->isActive() &&
             $this->configHelper->isConfigured()
+			&& $this->configHelper->isPaymentMethodsActive()
             && !in_array(PaymentMethodsToHide::PAYMENT_TYPE_TO_CONFIG_MAP[Type::PAYPO], $this->configHelper->getPaymentMethodsToHide())
             && $paymentMethod;
 
@@ -38,7 +39,7 @@ class PaypoConfigProvider extends ConfigProvider implements ConfigProviderInterf
                     'redirectUrl' => $this->getRedirectUrl(),
                     'paymentMethodId' => $paymentMethod ? $paymentMethod->getId() : null,
                     'GDPRNotices' => $GDPRNotices,
-                    'isClickable' => $this->validateQuoteAddress() && $grandTotal > 10 && $grandTotal < 5000
+                    'isClickable' => $this->validateQuoteAddress()
                 ]
             ]
         ];

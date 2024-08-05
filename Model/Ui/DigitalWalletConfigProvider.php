@@ -31,6 +31,7 @@ class DigitalWalletConfigProvider extends ConfigProvider implements ConfigProvid
             $this->configHelper->isConfigured() &&
             $this->configHelper->isPaymentMethodsActive();
         $paymentMethods = $this->paymentMethodsHelper->getDigitalWalletsPaymentMethods($currencyCode, $grandTotal);
+		$isActive = $isActive && !empty($paymentMethods);
         foreach ($paymentMethods as $paymentMethod) {
             if (in_array(PaymentMethodsToHide::PAYMENT_TYPE_TO_CONFIG_MAP[$paymentMethod['type'] ?? ''] ?? '', $this->configHelper->getPaymentMethodsToHide())) {
                 $isActive = false;
@@ -43,7 +44,7 @@ class DigitalWalletConfigProvider extends ConfigProvider implements ConfigProvid
             'payment' => [
                 self::CODE => [
                     'isActive' => $isActive,
-                    'logoPath' => count($paymentMethods) === 1 ? $paymentMethods[0]->getImage() : $this->getImageUrl('digital-wallets.svg'),
+                    'logoPath' => count($paymentMethods) === 1 ? $paymentMethods[0]['image'] : $this->getImageUrl('digital-wallets.svg'),
                     'redirectUrl' => $this->getRedirectUrl(),
                     'paymentMethods' => $paymentMethods,
                     'GDPRNotices' => $GDPRNotices,
