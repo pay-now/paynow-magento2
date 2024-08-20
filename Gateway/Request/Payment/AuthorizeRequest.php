@@ -87,10 +87,7 @@ class AuthorizeRequest extends AbstractRequest implements BuilderInterface
                                 ->addRegionCodeFilter($shippingAddress->getRegionCode())
                                 ->getFirstItem()
                                 ->getData('name') ?? '',
-                        PaymentField::BUYER_SHIPPING_ADDRESS_COUNTRY => $this->countryCollection
-                                ->addCountryIdFilter($shippingAddress->getCountryId())
-                                ->getFirstItem()
-                                ->getData('name') ?? '',
+                        PaymentField::BUYER_SHIPPING_ADDRESS_COUNTRY => $shippingAddress->getCountryId() ?? '',
                     ],
                     PaymentField::BUYER_BILLING_ADDRESS_KEY => [
                         PaymentField::BUYER_BILLING_ADDRESS_STREET => $billingAddress->getStreetLine1(),
@@ -102,10 +99,7 @@ class AuthorizeRequest extends AbstractRequest implements BuilderInterface
                                 ->addRegionCodeFilter($billingAddress->getRegionCode())
                                 ->getFirstItem()
                                 ->getData('name') ?? '',
-                        PaymentField::BUYER_BILLING_ADDRESS_COUNTRY => $this->countryCollection
-                                ->addCountryIdFilter($billingAddress->getCountryId())
-                                ->getFirstItem()
-                                ->getData('name') ?? '',
+                        PaymentField::BUYER_BILLING_ADDRESS_COUNTRY => $billingAddress->getCountryId() ?? '',
                     ]
                 ]
             ],
