@@ -67,9 +67,6 @@ define(
             isButtonActive: function () {
                 return this.getCode() === this.isChecked();
             },
-            getIsClickable: function () {
-                return window.checkoutConfig.payment.paynow_paypo_gateway.isClickable;
-            },
             getGDPRNotices: function () {
                 return window.checkoutConfig.payment.paynow_paypo_gateway.GDPRNotices;
             },

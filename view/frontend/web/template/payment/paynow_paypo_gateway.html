@@ -1,6 +1,5 @@
 <div class="payment-method" data-bind="css: {'_active': isButtonActive()}">
     <div class="payment-method-title field choice">
-        <!-- ko if: getIsClickable() -->
         <input type="radio"
                name="payment[method]"
                class="radio"
@@ -9,13 +8,6 @@
             <img data-bind="attr: {src: getLogoPath(), alt: 'Paynow', width: 80}" class="payment-icon"/>
             <span data-bind="i18n: 'Buy now, pay later'"></span>
         </label>
-        <!--/ko-->
-        <!-- ko ifnot: getIsClickable() -->
-        <label data-bind="attr: {'for': getCode()}" class="label">
-            <img style="filter: grayscale(1);" data-bind="attr: {src: getLogoPath(), alt: 'Paynow', width: 80}" class="payment-icon"/>
-            <span data-bind="i18n: 'Buy now, pay later'"></span>
-        </label>
-        <!--/ko-->
     </div>
     <div class="payment-method-content">
         <!-- ko if: getGDPRNotices() -->

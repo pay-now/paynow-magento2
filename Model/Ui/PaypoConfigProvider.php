@@ -39,25 +39,8 @@ class PaypoConfigProvider extends ConfigProvider implements ConfigProviderInterf
                     'redirectUrl' => $this->getRedirectUrl(),
                     'paymentMethodId' => $paymentMethod ? $paymentMethod->getId() : null,
                     'GDPRNotices' => $GDPRNotices,
-                    'isClickable' => $this->validateQuoteAddress()
                 ]
             ]
         ];
-    }
-
-    /**
-     * @throws NoSuchEntityException
-     * @throws LocalizedException
-     */
-    private function validateQuoteAddress(): bool
-    {
-        $quote = $this->checkoutSession->getQuote();
-        $shippingAddress = $quote->getShippingAddress();
-        return $shippingAddress &&
-            !empty($shippingAddress->getStreet()[0] ?? null) &&
-            !empty($shippingAddress->getRegion()) &&
-            !empty($shippingAddress->getCountry()) &&
-            !empty($shippingAddress->getPostcode()) &&
-            !empty($shippingAddress->getCity());
     }
 }
