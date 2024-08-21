@@ -20,7 +20,8 @@ define(
         selectPaymentMethodAction,
         customer,
         checkoutData,
-        additionalValidators
+        additionalValidators,
+        url
     ) {
         'use strict';
 
@@ -29,6 +30,16 @@ define(
                 template: 'Paynow_PaymentGateway/payment/paynow_blik_gateway'
             },
             blikCodeValue: ko.observable(''),
+            initialize: function (config) {
+                this._super();
+                url.setBaseUrl(BASE_URL);
+
+                this.blikCodeValue.subscribe((newValue) => {
+                    if (newValue.length > 6) {
+                        this.blikCodeValue(newValue.substring(0, 6))
+                    }
+                });
+            },
             getCode: function () {
                 return 'paynow_blik_gateway';
             },
