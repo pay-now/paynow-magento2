@@ -18,6 +18,9 @@
                 <item name="paynow_digital_wallet_gateway" xsi:type="object">
                     Paynow\PaymentGateway\Model\Ui\DigitalWalletConfigProvider
                 </item>
+                <item name="paynow_paypo_gateway_config_provider" xsi:type="object">
+                    Paynow\PaymentGateway\Model\Ui\PaypoConfigProvider
+                </item>
             </argument>
         </arguments>
     </type>

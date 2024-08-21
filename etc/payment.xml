@@ -22,5 +22,8 @@
         <method name="paynow_digital_wallet_gateway">
             <allow_multiple_address>1</allow_multiple_address>
         </method>
+        <method name="paynow_paypo_gateway">
+            <allow_multiple_address>1</allow_multiple_address>
+        </method>
     </methods>
 </payment>

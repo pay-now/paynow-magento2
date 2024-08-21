@@ -15,7 +15,9 @@ define(
             paynow_blik = 'paynow_blik_gateway',
             paynow_pbl = 'paynow_pbl_gateway',
             paynow_digital_wallet = 'paynow_digital_wallet_gateway',
-            paynow_card = 'paynow_card_gateway';
+            paynow_card = 'paynow_card_gateway',
+            paynow_paypo = 'paynow_paypo_gateway';
+
 
 
         if (config[paynow_blik].isActive) {
@@ -50,6 +52,15 @@ define(
                 {
                     type: 'paynow_digital_wallet_gateway',
                     component: 'Paynow_PaymentGateway/js/view/payment/paynow_digital_wallet_gateway'
+                }
+            );
+        }
+
+        if (config[paynow_paypo].isActive) {
+            rendererList.push(
+                {
+                    type: 'paynow_paypo_gateway',
+                    component: 'Paynow_PaymentGateway/js/view/payment/paynow_paypo_gateway'
                 }
             );
         }

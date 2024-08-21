@@ -62,7 +62,7 @@ class AuthorizationValidator extends AbstractValidator
         }
 
         $errorCodes = [];
-        if (!$isResponseValid && $isWhiteLabelPayment && isset($response['errors'][0])) {
+        if (isset($response['errors'][0])) {
             $errorCodes[] = $response['errors'][0]->getType();
         }
 

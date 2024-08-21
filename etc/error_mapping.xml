@@ -3,5 +3,8 @@
         <message code="AUTHORIZATION_CODE_INVALID" translate="true">Wrong BLIK code</message>
         <message code="AUTHORIZATION_CODE_EXPIRED" translate="true">BLIK code has expired</message>
         <message code="AUTHORIZATION_CODE_USED" translate="true">BLIK code already used</message>
+        <message code="PAYMENT_AMOUNT_TOO_LARGE" translate="true">Amount is too large</message>
+        <message code="PAYMENT_AMOUNT_TOO_SMALL" translate="true">Amount is too small</message>
+        <message code="PAYMENT_METHOD_NOT_AVAILABLE" translate="true">Payment method not available</message>
     </message_list>
 </mapping>
