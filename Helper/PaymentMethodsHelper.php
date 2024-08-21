@@ -2,10 +2,11 @@
 
 namespace Paynow\PaymentGateway\Helper;
 
+use Magento\Customer\Model\Session;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Model\Quote;
-use Magento\Customer\Model\Session;
 use Paynow\Exception\PaynowException;
+use Paynow\Model\PaymentMethods\AuthorizationType;
 use Paynow\Model\PaymentMethods\PaymentMethod;
 use Paynow\Model\PaymentMethods\Type;
 use Paynow\PaymentGateway\Model\Config\Source\PaymentMethodsToHide;
@@ -275,7 +276,7 @@ class PaymentMethodsHelper
             $digitalWalletsPaymentMethods = [];
             if (! empty($paymentMethods)) {
                 foreach ($paymentMethods as $item) {
-                    if (Type::GOOGLE_PAY === $item->getType() || Type::APPLE_PAY === $item->getType()) {
+                    if ((Type::GOOGLE_PAY === $item->getType() || Type::APPLE_PAY === $item->getType()) && $item->isEnabled()) {
                         $digitalWalletsPaymentMethods[] = [
 							'id'          => $item->getId(),
 							'name'        => $item->getName(),
@@ -304,4 +305,46 @@ class PaymentMethodsHelper
         return [];
     }
 
+    /**
+     * Returns Paypo payment method
+     *
+     * @param string|null $currency
+     * @param float|null $amount
+     *
+     * @return ?PaymentMethod
+     * @throws NoSuchEntityException
+     */
+    public function getPaypoPaymentMethod(?string $currency = null, ?float $amount = null)
+    {
+        if (!$this->configHelper->isConfigured()) {
+            return null;
+        }
+        try {
+            $payment = new Payment($this->paymentHelper->initializePaynowClient());
+            $idempotencyKey = KeysGenerator::generateIdempotencyKey(KeysGenerator::generateExternalIdFromQuoteId($this->quote->getId()));
+            $customerId = $this->customerSession->getCustomer()->getId();
+            $buyerExternalId = $customerId ? $this->paymentHelper->generateBuyerExternalId($customerId) : null;
+            $amount = $this->paymentHelper->formatAmount($amount);
+            $methods = $payment->getPaymentMethods($currency, $amount, false, $idempotencyKey, $buyerExternalId)->getAll();
+            foreach ($methods ?? [] as $paymentMethod) {
+                if ($paymentMethod->getType() == Type::PAYPO && $paymentMethod->isEnabled()) {
+                    return $paymentMethod;
+                }
+            }
+            return null;
+        } catch (PaynowException $exception) {
+            $this->logger->error(
+                $exception->getMessage(),
+                [
+                    'service' => 'Payment',
+                    'action' => 'getPaymentMethods',
+                    'paymentMethod' => 'paypo',
+                    'currency' => $currency,
+                    'amount' => $amount,
+                    'code' => $exception->getCode(),
+                ]
+            );
+        }
+        return null;
+    }
 }

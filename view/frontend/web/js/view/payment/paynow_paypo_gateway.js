@@ -1,7 +1,6 @@
 define(
     [
         'jquery',
-        'ko',
         'Magento_Checkout/js/view/payment/default',
         'Magento_Checkout/js/model/url-builder',
         'Magento_Checkout/js/action/place-order',
@@ -9,11 +8,10 @@ define(
         'Magento_Customer/js/model/customer',
         'Magento_Checkout/js/checkout-data',
         'Magento_Checkout/js/model/payment/additional-validators',
-        'mage/url'
+        'ko',
     ],
     function (
         $,
-        ko,
         Component,
         urlBuilder,
         placeOrderAction,
@@ -21,27 +19,17 @@ define(
         customer,
         checkoutData,
         additionalValidators,
-        url
+        ko
     ) {
         'use strict';
 
         return Component.extend({
             defaults: {
-                template: 'Paynow_PaymentGateway/payment/paynow_blik_gateway'
-            },
-            blikCodeValue: ko.observable(''),
-            initialize: function (config) {
-                this._super();
-                url.setBaseUrl(BASE_URL);
-
-                this.blikCodeValue.subscribe((newValue) => {
-                    if (newValue.length > 6) {
-                        this.blikCodeValue(newValue.substring(0, 6))
-                    }
-                });
+                template: 'Paynow_PaymentGateway/payment/paynow_paypo_gateway',
+                paymentMethodId: window.checkoutConfig.payment.paynow_paypo_gateway.paymentMethodId
             },
             getCode: function () {
-                return 'paynow_blik_gateway';
+                return 'paynow_paypo_gateway';
             },
             placeOrder: function (data, event) {
                 if (event) {
@@ -60,7 +48,6 @@ define(
                     placeOrder = placeOrderAction(this.getData(), false, this.messageContainer);
                     $.when(placeOrder).fail(function () {
                         self.isPlaceOrderActionAllowed(true);
-                        self.blikCodeValue('');
                     }).done(this.afterPlaceOrder.bind(this));
                     return true;
                 }
@@ -72,37 +59,25 @@ define(
                 return true;
             },
             afterPlaceOrder: function () {
-                if(this.isWhiteLabelEnabled()){
-                    window.location.replace(window.checkoutConfig.payment.paynow_blik_gateway.blikConfirmUrl);
-                } else {
-                    window.location.replace(window.checkoutConfig.payment.paynow_blik_gateway.redirectUrl);
-                }
+                window.location.replace(window.checkoutConfig.payment.paynow_paypo_gateway.redirectUrl);
             },
             getLogoPath: function () {
-                return window.checkoutConfig.payment.paynow_blik_gateway.logoPath;
+                return window.checkoutConfig.payment.paynow_paypo_gateway.logoPath;
             },
-            isPaymentMethodActive:function () {
-                return this.getCode() === this.isChecked();
-                },
             isButtonActive: function () {
-                return this.isWhiteLabelEnabled() ? this.blikCodeValue().length === 6 && !isNaN(this.blikCodeValue()) && parseInt(this.blikCodeValue()) : true},
-            getGDPRNotices: function () {
-                return window.checkoutConfig.payment.paynow_blik_gateway.GDPRNotices;
+                return this.getCode() === this.isChecked();
             },
-            isWhiteLabelEnabled: function () {
-                return window.checkoutConfig.payment.paynow_blik_gateway.isWhiteLabel
+            getGDPRNotices: function () {
+                return window.checkoutConfig.payment.paynow_paypo_gateway.GDPRNotices;
             },
             getData: function () {
-                const blikCode = $('#paynow_blik_code').val();
-                const paymentMethodId = window.checkoutConfig.payment.paynow_blik_gateway.paymentMethodId
                 return {
                     'method': this.item.method,
                     'additional_data': {
-                        'payment_method_id': paymentMethodId,
-                        'blik_code': blikCode
+                        'payment_method_id': this.paymentMethodId
                     }
                 };
-            }
+            },
         });
     }
 );

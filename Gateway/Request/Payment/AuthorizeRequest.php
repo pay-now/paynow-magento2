@@ -2,6 +2,8 @@
 
 namespace Paynow\PaymentGateway\Gateway\Request\Payment;
 
+use Magento\Directory\Model\ResourceModel\Country\Collection as CountryCollection;
+use Magento\Directory\Model\ResourceModel\Region\Collection as RegionCollection;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 use Paynow\PaymentGateway\Gateway\Request\AbstractRequest;
@@ -27,10 +29,26 @@ class AuthorizeRequest extends AbstractRequest implements BuilderInterface
      */
     private $config;
 
-    public function __construct(PaymentHelper $paymentHelper, ConfigHelper $configHelper)
+    /**
+     * @var RegionCollection
+     */
+    private $regionCollection;
+
+    /**
+     * @var CountryCollection
+     */
+    private $countryCollection;
+
+    public function __construct(
+        PaymentHelper     $paymentHelper,
+        ConfigHelper      $configHelper,
+        RegionCollection  $regionCollection,
+        CountryCollection $countryCollection)
     {
         $this->helper = $paymentHelper;
         $this->config = $configHelper;
+        $this->regionCollection = $regionCollection;
+        $this->countryCollection = $countryCollection;
     }
 
     /**
@@ -46,16 +64,44 @@ class AuthorizeRequest extends AbstractRequest implements BuilderInterface
         $referenceId        = $this->order->getOrderIncrementId();
         $paymentDescription = __('Order No: ') . $referenceId;
 
+        $shippingAddress = $this->order->getShippingAddress();
+        $billingAddress  = $this->order->getBillingAddress();
         $request['body'] = [
-            PaymentField::AMOUNT_FIELD_NAME      => $this->helper->formatAmount($this->order->getGrandTotalAmount()),
-            PaymentField::CURRENCY_FIELD_NAME    => $this->order->getCurrencyCode(),
+            PaymentField::AMOUNT_FIELD_NAME => $this->helper->formatAmount($this->order->getGrandTotalAmount()),
+            PaymentField::CURRENCY_FIELD_NAME => $this->order->getCurrencyCode(),
             PaymentField::EXTERNAL_ID_FIELD_NAME => $referenceId,
             PaymentField::DESCRIPTION_FIELD_NAME => $paymentDescription,
-            PaymentField::BUYER_FIELD_NAME       => [
-                PaymentField::BUYER_EMAIL_FIELD_NAME     => $this->order->getShippingAddress()->getEmail(),
-                PaymentField::BUYER_FIRSTNAME_FIELD_NAME => $this->order->getShippingAddress()->getFirstname(),
-                PaymentField::BUYER_LASTNAME_FIELD_NAME  => $this->order->getShippingAddress()->getLastname(),
-                PaymentField::BUYER_LOCALE               => $this->helper->getStoreLocale(),
+            PaymentField::BUYER_FIELD_NAME => [
+                PaymentField::BUYER_EMAIL_FIELD_NAME => $shippingAddress ? $shippingAddress->getEmail() : "",
+                PaymentField::BUYER_FIRSTNAME_FIELD_NAME => $shippingAddress ? $shippingAddress->getFirstname() : "",
+                PaymentField::BUYER_LASTNAME_FIELD_NAME => $shippingAddress ? $shippingAddress->getLastname() : "",
+                PaymentField::BUYER_LOCALE => $this->helper->getStoreLocale(),
+                PaymentField::BUYER_ADDRESS_KEY => [
+                    PaymentField::BUYER_SHIPPING_ADDRESS_KEY => [
+                        PaymentField::BUYER_SHIPPING_ADDRESS_STREET => $shippingAddress->getStreetLine1(),
+                        PaymentField::BUYER_SHIPPING_ADDRESS_HOUSE_NUMBER => $shippingAddress->getStreetLine2(),
+                        PaymentField::BUYER_SHIPPING_ADDRESS_APARTMENT_NUMBER => '',
+                        PaymentField::BUYER_SHIPPING_ADDRESS_ZIPCODE => $shippingAddress->getPostcode(),
+                        PaymentField::BUYER_SHIPPING_ADDRESS_CITY => $shippingAddress->getCity(),
+                        PaymentField::BUYER_SHIPPING_ADDRESS_COUNTY => $this->regionCollection
+                                ->addRegionCodeFilter($shippingAddress->getRegionCode())
+                                ->getFirstItem()
+                                ->getData('name') ?? '',
+                        PaymentField::BUYER_SHIPPING_ADDRESS_COUNTRY => $shippingAddress->getCountryId() ?? '',
+                    ],
+                    PaymentField::BUYER_BILLING_ADDRESS_KEY => [
+                        PaymentField::BUYER_BILLING_ADDRESS_STREET => $billingAddress->getStreetLine1(),
+                        PaymentField::BUYER_BILLING_ADDRESS_HOUSE_NUMBER => $billingAddress->getStreetLine2(),
+                        PaymentField::BUYER_BILLING_ADDRESS_APARTMENT_NUMBER => '',
+                        PaymentField::BUYER_BILLING_ADDRESS_ZIPCODE => $billingAddress->getPostcode(),
+                        PaymentField::BUYER_BILLING_ADDRESS_CITY => $billingAddress->getCity(),
+                        PaymentField::BUYER_BILLING_ADDRESS_COUNTY => $this->regionCollection
+                                ->addRegionCodeFilter($billingAddress->getRegionCode())
+                                ->getFirstItem()
+                                ->getData('name') ?? '',
+                        PaymentField::BUYER_BILLING_ADDRESS_COUNTRY => $billingAddress->getCountryId() ?? '',
+                    ]
+                ]
             ],
             PaymentField::CONTINUE_URL_FIELD_NAME => $this->helper->getContinueUrl($referenceId, $this->order->getStoreId()),
         ];

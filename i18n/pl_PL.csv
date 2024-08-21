@@ -84,3 +84,7 @@ Information,Informacje
 "Enter your new card details", "Wprowadź dane nowej karty"
 "You can save it in the next step", "Możesz ją zapisać w następnym kroku"
 "An error occurred while deleting the saved card.", "Wystąpił błąd podczas usuwania zapisanej karty."
+"Buy now, pay later", "Kup teraz, zapłać później"
+"Amount is too large","Wartość Twojego zamówienia nie mieści się w limicie kwotowym dla tej metody płatności. Wybierz inną metodę."
+"Amount is too small","Wartość Twojego zamówienia nie mieści się w limicie kwotowym dla tej metody płatności. Wybierz inną metodę.",
+"Payment method not available","Metoda jest tymczasowo niedostępna."
