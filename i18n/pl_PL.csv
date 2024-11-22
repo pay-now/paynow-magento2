@@ -88,3 +88,4 @@ Information,Informacje
 "Amount is too large","Wartość Twojego zamówienia nie mieści się w limicie kwotowym dla tej metody płatności. Wybierz inną metodę."
 "Amount is too small","Wartość Twojego zamówienia nie mieści się w limicie kwotowym dla tej metody płatności. Wybierz inną metodę.",
 "Payment method not available","Metoda jest tymczasowo niedostępna."
+"Invalid BLIK code","Nieprawidłowy kod BLIK"

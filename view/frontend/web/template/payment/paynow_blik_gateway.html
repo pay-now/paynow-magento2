@@ -17,6 +17,7 @@
             </label>
             <input data-bind="value: blikCodeValue, valueUpdate: 'keyup'" autocomplete="off" inputmode="numeric" pattern="[0-9]{6}" minlength="6" maxlength="6" size="6" id="paynow_blik_code" name="blikCode" type="text" placeholder="___ ___"  class="required form-control">
             <span class="error"></span>
+            <span id="paynow-blik-validation" class="error blik-validation-error" data-bind="i18n: 'Invalid BLIK code'"></span>
             <!-- ko if: getGDPRNotices() -->
             <div data-bind="template: 'Paynow_PaymentGateway/payment/data_processing_info'"></div>
             <!--/ko-->

@@ -35,6 +35,7 @@ define(
                 url.setBaseUrl(BASE_URL);
 
                 this.blikCodeValue.subscribe((newValue) => {
+                    $('#paynow-blik-validation').removeClass('--visible');
                     if (newValue.length > 6) {
                         this.blikCodeValue(newValue.substring(0, 6))
                     }
@@ -54,6 +55,10 @@ define(
                 if (!customer.isLoggedIn()) {
                     $(loginFormSelector).validation();
                     emailValidationResult = Boolean($(loginFormSelector + ' input[name=username]').valid());
+                }
+                if (!this.isButtonActive()) {
+                    $('#paynow-blik-validation').addClass('--visible');
+                    return false;
                 }
                 if (emailValidationResult && this.validate() && additionalValidators.validate()) {
                     this.isPlaceOrderActionAllowed(false);

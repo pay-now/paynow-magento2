@@ -83,6 +83,11 @@
     background: #f6f6f6;
 }
 
+.blik-validation-error:not(.--visible) {
+    display: none;
+    color: #E52E07;
+}
+
 .paynow-data-processing-info {
     color: #797979;
     text-align: justify;
