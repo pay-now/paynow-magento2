@@ -271,7 +271,13 @@ class PaymentHelper extends AbstractHelper
      */
     public function getRetryPaymentUrl($orderId): string
     {
-        return $this->urlBuilder->getUrl('paynow/payment/retry', ['order_id' => $orderId]);
+		$storeId = $this->storeManager->getStore()->getId();
+		$isTestMode = $this->configHelper->isTestMode($storeId);
+
+        return $this->urlBuilder->getUrl('paynow/payment/retry', [
+			'order_id' => $orderId,
+			'_token' => JWT::encode(['orderId' => $orderId], $this->configHelper->getSignatureKey($storeId, $isTestMode), 'HS256'),
+		]);
     }
 
     /**

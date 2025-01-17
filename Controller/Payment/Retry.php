@@ -2,6 +2,8 @@
 
 namespace Paynow\PaymentGateway\Controller\Payment;
 
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\ObjectManager;
@@ -11,6 +13,7 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order\Payment;
+use Magento\Store\Model\StoreManagerInterface;
 use Paynow\Model\Payment\Status;
 use Paynow\PaymentGateway\Helper\ConfigHelper;
 use Paynow\PaymentGateway\Helper\PaymentField;
@@ -46,6 +49,11 @@ class Retry extends Action
      */
     private $redirectResult;
 
+	/**
+	 * @var StoreManagerInterface
+	 */
+	protected $storeManager;
+
     /**
      * @var Logger
      */
@@ -58,13 +66,15 @@ class Retry extends Action
      * @param ConfigHelper $configHelper
      * @param PaymentHelper $paymentHelper
      * @param Logger $logger
+	 * @param StoreManagerInterface $storeManager
      */
     public function __construct(
         Context                  $context,
         OrderRepositoryInterface $orderRepository,
         ConfigHelper             $configHelper,
         PaymentHelper            $paymentHelper,
-        Logger                   $logger
+        Logger                   $logger,
+		StoreManagerInterface 	 $storeManager
     ) {
         parent::__construct($context);
         $this->orderRepository = $orderRepository;
@@ -72,6 +82,7 @@ class Retry extends Action
         $this->paymentHelper = $paymentHelper;
         $this->redirectResult = $this->resultRedirectFactory->create();
         $this->logger = $logger;
+		$this->storeManager = $storeManager;
     }
 
     /**
@@ -82,12 +93,24 @@ class Retry extends Action
     public function execute()
     {
         if (!$this->configHelper->isRetryPaymentActive()) {
-            $this->messageManager->addErrorMessage(__('Retry payment is not active.'));
-            $this->redirectResult->setPath('sales/order/history', ['_secure' => $this->getRequest()->isSecure()]);
-            return $this->redirectResult;
+            return $this->retryIsNotAvailable();
         }
 
         $orderId = (int)$this->getRequest()->getParams()['order_id'];
+		$token = $this->getRequest()->getParam('_token') ?? '';
+
+		if (empty($token)) {
+			return $this->retryIsNotAvailable();
+		}
+
+		$storeId = $this->storeManager->getStore()->getId();
+		$isTestMode = $this->configHelper->isTestMode($storeId);
+		$payload = JWT::decode($token, new Key($this->configHelper->getSignatureKey($storeId, $isTestMode), 'HS256'));
+
+		if (!property_exists($payload, 'orderId') || !is_numeric($payload->orderId) || $payload->orderId !== $orderId) {
+			return $this->retryIsNotAvailable();
+		}
+
         /** @var OrderInterface */
         $order = $this->orderRepository->get($orderId);
 
@@ -198,4 +221,11 @@ class Retry extends Action
             ]
         );
     }
+
+	private function retryIsNotAvailable()
+	{
+		$this->messageManager->addErrorMessage(__('Retry payment is not active.'));
+		$this->redirectResult->setPath('sales/order/history', ['_secure' => $this->getRequest()->isSecure()]);
+		return $this->redirectResult;
+	}
 }
