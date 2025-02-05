@@ -19,7 +19,7 @@ class StoredKeyMaskerTest extends TestCase
      */
     private $storedKeyMasker;
 
-    public function setUp()
+    public function setUp(): void
     {
         /** @var MockObject|EncryptorInterface $encryptor */
         $encryptor = $this->createMock(Encryptor::class);

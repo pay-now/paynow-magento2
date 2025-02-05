@@ -32,7 +32,7 @@ class CaptureValidatorTest extends TestCase
      *
      * @return void
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->resultFactory = $this->getMockBuilder('Magento\Payment\Gateway\Validator\ResultInterfaceFactory')
             ->disableOriginalConstructor()
@@ -69,7 +69,7 @@ class CaptureValidatorTest extends TestCase
      *
      * @dataProvider dataProviderTestValidate
      */
-    public function testValidate(array $validationSubject, $isValid, $messages)
+    public function testValidate(array $validationSubject, bool $isValid, array $messages)
     {
         /** @var ResultInterface|MockObject $result */
         $result = new Result($isValid, $messages);
@@ -92,7 +92,7 @@ class CaptureValidatorTest extends TestCase
     /**
      * @return array
      */
-    public function dataProviderTestValidate()
+    public function dataProviderTestValidate(): array
     {
         return [
             [
