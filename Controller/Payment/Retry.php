@@ -87,7 +87,6 @@ class Retry extends Action
 
     /**
      * @return ResponseRedirect
-     * @throws LocalizedException
      * @throws NoSuchEntityException
      */
     public function execute()
@@ -142,7 +141,26 @@ class Retry extends Action
             }
         }
 
-        $this->authorizeNewPayment($order);
+        try {
+            $this->authorizeNewPayment($order);
+        } catch (\Throwable $exception) {
+            $this->logger->info(
+                'New payment authorization failed:' . $exception->getMessage(),
+                [
+                    'order' => $order->getEntityId(),
+                    'method' => $order->getPayment()->getMethod(),
+                ]
+            );
+
+            if($order->getCustomerId()) {
+                $this->redirectResult->setPath('sales/order/history', ['_secure' => $this->getRequest()->isSecure()]);
+            } else {
+                $this->redirectResult->setPath('checkout/cart', ['_secure' => $this->getRequest()->isSecure()]);
+            }
+
+            return $this->redirectResult;
+        }
+
         return $this->redirectResult;
     }
 
@@ -158,6 +176,7 @@ class Retry extends Action
         $paymentAuthorization = $order->getPayment()
             ->setAdditionalInformation(PaymentField::IS_PAYMENT_RETRY_FIELD_NAME, true)
             ->authorize(true, $order->getBaseTotalDue());
+
         $redirectUrl = $paymentAuthorization->getAdditionalInformation(PaymentField::REDIRECT_URL_FIELD_NAME);
         $paymentId = $paymentAuthorization->getAdditionalInformation(PaymentField::PAYMENT_ID_FIELD_NAME);
 

@@ -62,11 +62,12 @@ class Action extends Template
     /**
      * Returns retry payment url
      *
-     * @param $orderId
+     * @param mixed $orderId
+     *
      * @return string
      */
     public function getRetryPaymentUrl($orderId): string
     {
-        return $this->paymentHelper->getRetryPaymentUrl($orderId);
+        return $this->paymentHelper->getRetryPaymentUrl((int) $orderId);
     }
 }
