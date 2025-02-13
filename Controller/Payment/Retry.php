@@ -155,7 +155,7 @@ class Retry extends Action
             if($order->getCustomerId()) {
                 $this->redirectResult->setPath('sales/order/history', ['_secure' => $this->getRequest()->isSecure()]);
             } else {
-                $this->redirectResult->setPath('checkout/cart', ['_secure' => $this->getRequest()->isSecure()]);
+                $this->redirectResult->setPath('sales/guest/form', ['_secure' => $this->getRequest()->isSecure()]);
             }
 
             return $this->redirectResult;
