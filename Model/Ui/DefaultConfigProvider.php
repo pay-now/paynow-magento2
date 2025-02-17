@@ -13,7 +13,7 @@ use Magento\Framework\Exception\NoSuchEntityException;
  */
 class DefaultConfigProvider extends ConfigProvider implements ConfigProviderInterface
 {
-    const CODE = 'paynow_gateway';
+    public const CODE = 'paynow_gateway';
 
     /**
      * Returns configuration
@@ -23,17 +23,10 @@ class DefaultConfigProvider extends ConfigProvider implements ConfigProviderInte
      */
     public function getConfig(): array
     {
-        $grandTotal = $this->checkoutSession->getQuote()->getGrandTotal();
-        $currencyCode = $this->checkoutSession->getQuote()->getCurrency()->getQuoteCurrencyCode();
-
         $isActive = $this->configHelper->isActive() &&
             $this->configHelper->isConfigured() &&
             !$this->configHelper->isPaymentMethodsActive();
 
-        $paymentMethods = [];
-        if ($isActive) {
-            $paymentMethods = $this->paymentMethodsHelper->getAvailable($currencyCode, $grandTotal);
-        }
         $GDPRNotices = $this->GDPRHelper->getNotices();
 
         return [
@@ -42,7 +35,7 @@ class DefaultConfigProvider extends ConfigProvider implements ConfigProviderInte
                     'isActive' => $isActive,
                     'logoPath' => 'https://static.paynow.pl/brand/paynow_logo_black.png',
                     'redirectUrl' => $this->getRedirectUrl(),
-                    'paymentMethods' => $paymentMethods,
+                    'paymentMethods' => [],
                     'GDPRNotices' => $GDPRNotices,
                 ]
             ]
