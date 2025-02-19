@@ -9,7 +9,10 @@ use Paynow\PaymentGateway\Helper\PaymentHelper;
 
 class Version extends Field
 {
-    private PaymentHelper $paymentHelper;
+    /**
+     * @var \Paynow\PaymentGateway\Helper\PaymentHelper
+     */
+    private $paymentHelper;
 
     public function __construct(PaymentHelper $helper, Context $context, array $data = [])
     {
