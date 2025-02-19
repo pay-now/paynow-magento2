@@ -31,6 +31,7 @@ use Paynow\Util\ClientExternalIdCalculator;
  */
 class PaymentHelper extends AbstractHelper
 {
+    private const MAX_ORDER_ITEM_NAME_LENGTH = 120;
     /**
      * @var ConfigHelper
      */
@@ -180,7 +181,7 @@ class PaymentHelper extends AbstractHelper
             $product = $item->getProduct();
 
             return [
-                'name'     => $item->getName(),
+                'name'     => self::truncateOrderItemName($item->getName()),
                 'category' => $this->getCategoriesNames($product),
                 'quantity' => $item->getQtyOrdered(),
                 'price'    => $this->formatAmount($item->getPrice())
@@ -336,5 +337,16 @@ class PaymentHelper extends AbstractHelper
         $isTestMode = $this->configHelper->isTestMode($storeId);
 
         return ClientExternalIdCalculator::calculate($identifier, $this->configHelper->getSignatureKey($storeId, $isTestMode));
+    }
+
+    public static function truncateOrderItemName(string $name): string
+    {
+        $name = trim($name);
+
+        if(strlen($name) <= self::MAX_ORDER_ITEM_NAME_LENGTH) {
+            return $name;
+        }
+
+        return substr($name, 0, self::MAX_ORDER_ITEM_NAME_LENGTH - 3) . '...';
     }
 }
