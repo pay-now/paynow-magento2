@@ -76,7 +76,7 @@ class Success extends MagentoSuccess
      */
     public function getRetryPaymentUrl(): string
     {
-        return $this->paymentHelper->getRetryPaymentUrl($this->order->getEntityId());
+        return $this->paymentHelper->getRetryPaymentUrl((int) $this->order->getEntityId());
     }
 
     /**

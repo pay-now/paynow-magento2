@@ -37,7 +37,7 @@ class AuthorizationValidatorTest extends TestCase
      *
      * @return void
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->resultFactory = $this->getMockBuilder('Magento\Payment\Gateway\Validator\ResultInterfaceFactory')
             ->disableOriginalConstructor()
@@ -74,7 +74,7 @@ class AuthorizationValidatorTest extends TestCase
      *
      * @dataProvider dataProviderTestValidate
      */
-    public function testValidate(array $validationSubject, $isValid, $messages, $messageCodes)
+    public function testValidate(array $validationSubject, bool $isValid, array $messages, $messageCodes)
     {
         /** @var ResultInterface|MockObject $result */
         $result = new Result($isValid, $messages);
@@ -97,7 +97,7 @@ class AuthorizationValidatorTest extends TestCase
     /**
      * @return array
      */
-    public function dataProviderTestValidate()
+    public function dataProviderTestValidate(): array
     {
         $error = $this->getMockBuilder(Error::class)
             ->disableOriginalConstructor()
