@@ -103,11 +103,11 @@ class Notifications extends Action
     {
         $payload          = $this->getRequest()->getContent();
         $notificationData = json_decode($payload, true);
-        $this->logger->debug("Received payment status notification", $notificationData);
         if ($notificationData == null) {
             $this->logger->error("Received invalid payment status notification", ['payload' => $payload]);
             return;
         }
+		$this->logger->debug("Received payment status notification", $notificationData);
 
         $storeId      = $this->storeManager->getStore()->getId();
         $order        = $this->orderFactory->create()
