@@ -66,6 +66,9 @@ define(
             getLogoPath: function () {
                 return window.checkoutConfig.payment.paynow_digital_wallet_gateway.logoPath;
             },
+            getLogoWidth: function() {
+                return 80 * window.checkoutConfig.payment.paynow_digital_wallet_gateway.paymentMethods.length;
+            },
             isButtonActive: function () {
                 return this.getCode() === this.isChecked();
             },

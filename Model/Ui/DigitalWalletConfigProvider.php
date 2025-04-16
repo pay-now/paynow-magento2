@@ -44,12 +44,28 @@ class DigitalWalletConfigProvider extends ConfigProvider implements ConfigProvid
             'payment' => [
                 self::CODE => [
                     'isActive' => $isActive,
-                    'logoPath' => count($paymentMethods) === 1 ? $paymentMethods[0]['image'] : $this->getImageUrl('digital-wallets.svg'),
+                    'logoPath' => $this->getDigitalWalletsLogo($paymentMethods),
                     'redirectUrl' => $this->getRedirectUrl(),
                     'paymentMethods' => $paymentMethods,
                     'GDPRNotices' => $GDPRNotices,
                 ]
             ]
         ];
+    }
+
+    private function getDigitalWalletsLogo(array $wallets): string
+    {
+        if(count($wallets) === 1) {
+            return $wallets[0]['image'];
+        }
+
+        $types = array_map(function($dw) {
+            return strtolower(substr($dw['type'], 0, 1));
+        }, $wallets);
+
+        sort($types);
+        $types = implode('', $types);
+
+        return $this->getImageUrl('digital-wallets-' . $types . '.svg');
     }
 }

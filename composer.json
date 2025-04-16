@@ -2,18 +2,19 @@
   "name": "pay-now/paynow-magento2",
   "description": "Module for Paynow payments",
   "type": "magento2-module",
-  "version": "1.5.8",
+  "version": "1.5.9",
   "license": "MIT",
   "config": {
     "allow-plugins": {
+      "cweagans/composer-patches": true,
       "dealerdirect/phpcodesniffer-composer-installer": true,
       "laminas/laminas-dependency-plugin": true,
       "magento/*": true,
-      "php-http/discovery": true,
-      "magento/composer-root-update-plugin": true,
       "magento/composer-dependency-version-audit-plugin": true,
+      "magento/composer-root-update-plugin": true,
       "magento/inventory-composer-installer": true,
-      "magento/magento-composer-installer": true
+      "magento/magento-composer-installer": true,
+      "php-http/discovery": true
     },
     "preferred-install": "dist",
     "sort-packages": true
@@ -42,13 +43,14 @@
     "magento/module-sales": ">=101",
     "nyholm/psr7": "^1.2",
     "paragonie/sodium_compat": "^1|^2",
-    "pay-now/paynow-php-sdk": "^2.4.3",
+    "pay-now/paynow-php-sdk": "2.4.3",
     "php-http/curl-client": "^2.1"
   },
   "require-dev": {
     "magento/magento-coding-standard": "2.*",
-    "phpunit/phpunit": "^8.5.36",
-    "squizlabs/php_codesniffer": "^3.6"
+    "phpunit/phpunit": "*",
+    "squizlabs/php_codesniffer": "*",
+    "symfony/var-dumper": "*"
   },
   "autoload": {
     "files": [
@@ -81,5 +83,12 @@
     "post-update-cmd": [
       "([ $COMPOSER_DEV_MODE -eq 0 ] || vendor/bin/phpcs --config-set installed_paths ../../magento/magento-coding-standard/)"
     ]
+  },
+  "extra": {
+    "patches": {
+      "pay-now/paynow-php-sdk": [
+        "patches/pay-now-paynow-php-sdk-src-paynow-model-paymentmethods-type-php.patch"
+      ]
+    }
   }
 }
