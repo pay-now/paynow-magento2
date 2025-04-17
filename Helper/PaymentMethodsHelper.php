@@ -21,6 +21,11 @@ use Paynow\Service\Payment;
 class PaymentMethodsHelper
 {
     /**
+     * Temporary: until SDK:2.4.4
+     */
+    public const CLICK_TO_PAY = 'CLICK_TO_PAY';
+
+    /**
      * @var PaymentHelper
      */
     private $paymentHelper;
@@ -275,7 +280,7 @@ class PaymentMethodsHelper
             $paymentMethods = $payment->getPaymentMethods($currency, $amount, $applePayEnabled, $idempotencyKey, $buyerExternalId)->getAll();
 
             $digitalWalletsPaymentMethods = [
-                Type::CLICK_TO_PAY => null,
+                self::CLICK_TO_PAY => null,
                 Type::GOOGLE_PAY => null,
                 Type::APPLE_PAY => null,
             ];

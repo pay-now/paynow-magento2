@@ -4,7 +4,7 @@ namespace Paynow\PaymentGateway\Model\Config\Source;
 
 use Magento\Framework\Data\OptionSourceInterface;
 use Paynow\Model\PaymentMethods\Type;
-
+use Paynow\PaymentGateway\Helper\PaymentMethodsHelper;
 
 /**
  * Class PaymentMethodsToHide
@@ -25,7 +25,7 @@ class PaymentMethodsToHide implements OptionSourceInterface
         Type::BLIK => self::BLIK,
         Type::PBL => self::PBL,
         Type::CARD => self::CARD,
-        Type::CLICK_TO_PAY => self::DIGITAL_WALLET,
+        PaymentMethodsHelper::CLICK_TO_PAY => self::DIGITAL_WALLET,
         Type::GOOGLE_PAY => self::DIGITAL_WALLET,
         Type::APPLE_PAY => self::DIGITAL_WALLET,
         Type::PAYPO => self::PAYPO,

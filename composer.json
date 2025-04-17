@@ -36,7 +36,6 @@
   "require": {
     "php": ">=7.2",
     "ext-json": "*",
-    "cweagans/composer-patches": "^1.7",
     "firebase/php-jwt": "^6.4",
     "magento/framework": ">=101",
     "magento/module-checkout": ">=100.2",
@@ -51,8 +50,7 @@
     "magento/magento-coding-standard": "2.*",
     "phpunit/phpunit": "*",
     "squizlabs/php_codesniffer": "*",
-    "symfony/var-dumper": "*",
-    "symplify/vendor-patches": "^11.4"
+    "symfony/var-dumper": "*"
   },
   "autoload": {
     "files": [
@@ -85,12 +83,5 @@
     "post-update-cmd": [
       "([ $COMPOSER_DEV_MODE -eq 0 ] || vendor/bin/phpcs --config-set installed_paths ../../magento/magento-coding-standard/)"
     ]
-  },
-  "extra": {
-    "patches": {
-      "pay-now/paynow-php-sdk": [
-        "patches/pay-now-paynow-php-sdk-src-paynow-model-paymentmethods-type-php.patch"
-      ]
-    }
   }
 }
