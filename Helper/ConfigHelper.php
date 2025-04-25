@@ -46,7 +46,7 @@ class ConfigHelper extends AbstractHelper
      *
      * @return bool
      */
-    public function isTestMode(int $storeId = null): bool
+    public function isTestMode(?int $storeId = null): bool
     {
         return $this->getConfigData('test_mode', DefaultConfigProvider::CODE, $storeId, true);
     }
@@ -58,7 +58,7 @@ class ConfigHelper extends AbstractHelper
      *
      * @return bool
      */
-    public function extraLogsEnabled(int $storeId = null): bool
+    public function extraLogsEnabled(?int $storeId = null): bool
     {
         return $this->getConfigData('extra_logs', DefaultConfigProvider::CODE, $storeId, true);
     }
@@ -71,7 +71,7 @@ class ConfigHelper extends AbstractHelper
      * @return bool
      * @throws NoSuchEntityException
      */
-    public function isActive(int $storeId = null)
+    public function isActive(?int $storeId = null)
     {
         if ($storeId === null) {
             $storeId = $this->storeManager->getStore()->getId();
@@ -88,7 +88,7 @@ class ConfigHelper extends AbstractHelper
      * @return bool
      * @throws NoSuchEntityException
      */
-    public function isPaymentMethodsActive(int $storeId = null)
+    public function isPaymentMethodsActive(?int $storeId = null)
     {
         if ($storeId === null) {
             $storeId = $this->storeManager->getStore()->getId();
