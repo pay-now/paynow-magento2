@@ -44,7 +44,7 @@
     "magento/module-sales": ">=101",
     "nyholm/psr7": "^1.2",
     "paragonie/sodium_compat": "^1|^2",
-    "pay-now/paynow-php-sdk": "2.4.3",
+    "pay-now/paynow-php-sdk": "2.4.4",
     "php-http/curl-client": "^2.1"
   },
   "require-dev": {
@@ -85,12 +85,5 @@
     "post-update-cmd": [
       "([ $COMPOSER_DEV_MODE -eq 0 ] || vendor/bin/phpcs --config-set installed_paths ../../magento/magento-coding-standard/)"
     ]
-  },
-  "extra": {
-    "patches": {
-      "pay-now/paynow-php-sdk": [
-        "patches/pay-now-paynow-php-sdk-src-paynow-model-paymentmethods-type-php.patch"
-      ]
-    }
   }
 }
