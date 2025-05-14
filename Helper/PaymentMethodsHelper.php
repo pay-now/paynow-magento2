@@ -273,22 +273,31 @@ class PaymentMethodsHelper
 			$buyerExternalId = $customerId ? $this->paymentHelper->generateBuyerExternalId($customerId) : null;
 			$applePayEnabled = htmlspecialchars($_COOKIE['applePayEnabled'] ?? '0') === '1';
             $paymentMethods = $payment->getPaymentMethods($currency, $amount, $applePayEnabled, $idempotencyKey, $buyerExternalId)->getAll();
-            $digitalWalletsPaymentMethods = [];
+
+            $digitalWalletsPaymentMethods = [
+                Type::CLICK_TO_PAY => null,
+                Type::GOOGLE_PAY => null,
+                Type::APPLE_PAY => null,
+            ];
+
             if (! empty($paymentMethods)) {
                 foreach ($paymentMethods as $item) {
-                    if ((Type::GOOGLE_PAY === $item->getType() || Type::APPLE_PAY === $item->getType()) && $item->isEnabled()) {
-                        $digitalWalletsPaymentMethods[] = [
-							'id'          => $item->getId(),
-							'name'        => $item->getName(),
-							'description' => $item->getDescription(),
-							'image'       => $item->getImage(),
-							'enabled'     => $item->isEnabled(),
-							'type'		  => $item->getType()
-						];
+                    if(!array_key_exists($item->getType(), $digitalWalletsPaymentMethods) || !$item->isEnabled()) {
+                        continue;
                     }
+
+                    $digitalWalletsPaymentMethods[$item->getType()] = [
+                        'id'          => $item->getId(),
+                        'name'        => $item->getName(),
+                        'description' => $item->getDescription(),
+                        'image'       => $item->getImage(),
+                        'enabled'     => $item->isEnabled(),
+                        'type'        => $item->getType()
+                    ];
                 }
             }
-            return $digitalWalletsPaymentMethods;
+
+            return array_values(array_filter($digitalWalletsPaymentMethods));
         } catch (PaynowException $exception) {
 			$this->logger->error(
 				$exception->getMessage(),
