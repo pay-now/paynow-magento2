@@ -19,11 +19,13 @@ class PaymentMethodsToHide implements OptionSourceInterface
     public const CARD = 'paynow_card';
     public const DIGITAL_WALLET = 'paynow_digital_wallet';
     public const PAYPO = 'paynow_paypo';
+    public const CLICK_TO_PAY = 'paynow_click_to_pay';
 
     public const PAYMENT_TYPE_TO_CONFIG_MAP = [
         Type::BLIK => self::BLIK,
         Type::PBL => self::PBL,
         Type::CARD => self::CARD,
+        Type::CLICK_TO_PAY => self::DIGITAL_WALLET,
         Type::GOOGLE_PAY => self::DIGITAL_WALLET,
         Type::APPLE_PAY => self::DIGITAL_WALLET,
         Type::PAYPO => self::PAYPO,
@@ -55,6 +57,10 @@ class PaymentMethodsToHide implements OptionSourceInterface
             [
                 'value' => self::PAYPO,
                 'label' => __("PayPo")
+            ],
+            [
+                'value' => self::CLICK_TO_PAY,
+                'label' => __("Click to Pay")
             ],
         ];
     }
