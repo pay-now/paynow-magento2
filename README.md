@@ -19,7 +19,7 @@ Wtyczka Paynow dodaje szybkie płatności i płatności BLIK do sklepu na Magent
 * [Licencja](#licencja)
 
 ## Wymgania
-- PHP od wersji 7.1
+- PHP od wersji 7.2
 - Magento w wersji 2.0 lub wyższej
 
 ## Instalacja

@@ -21,7 +21,7 @@ The Paynow plugin adds quick bank transfers and BLIK payments to a Magento shop.
 
 ## Prerequisites
 
-- PHP since 7.1
+- PHP since 7.2
 - Magento version from 2.0 or higher
 
 ## Installation
