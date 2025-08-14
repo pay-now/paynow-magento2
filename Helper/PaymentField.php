@@ -36,6 +36,7 @@ class PaymentField
     const BUYER_BILLING_ADDRESS_COUNTRY = 'country';
     const CONTINUE_URL_FIELD_NAME = 'continueUrl';
     const CURRENCY_FIELD_NAME = 'currency';
+	const CART_ID_FIELD_NAME = 'cartId';
     const DESCRIPTION_FIELD_NAME = 'description';
     const EXTERNAL_ID_FIELD_NAME = 'externalId';
     const IDEMPOTENCY_KEY_FIELD_NAME = 'Idempotency-Key';

@@ -6,6 +6,7 @@ use Magento\Directory\Model\ResourceModel\Country\Collection as CountryCollectio
 use Magento\Directory\Model\ResourceModel\Region\Collection as RegionCollection;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Payment\Gateway\Request\BuilderInterface;
+use Magento\Checkout\Model\Session as CheckoutSession;
 use Paynow\PaymentGateway\Gateway\Request\AbstractRequest;
 use Paynow\PaymentGateway\Helper\ConfigHelper;
 use Paynow\PaymentGateway\Helper\PaymentField;
@@ -39,16 +40,20 @@ class AuthorizeRequest extends AbstractRequest implements BuilderInterface
      */
     private $countryCollection;
 
+	private $checkoutSession;
+
     public function __construct(
         PaymentHelper     $paymentHelper,
         ConfigHelper      $configHelper,
         RegionCollection  $regionCollection,
-        CountryCollection $countryCollection)
-    {
+        CountryCollection $countryCollection,
+		CheckoutSession   $checkoutSession
+	) {
         $this->helper = $paymentHelper;
         $this->config = $configHelper;
         $this->regionCollection = $regionCollection;
         $this->countryCollection = $countryCollection;
+		$this->checkoutSession = $checkoutSession;
     }
 
     /**
@@ -158,7 +163,8 @@ class AuthorizeRequest extends AbstractRequest implements BuilderInterface
         }
 
         $request['headers'] = [
-            PaymentField::IDEMPOTENCY_KEY_FIELD_NAME => uniqid(substr($referenceId, 0, 22), true)
+            PaymentField::IDEMPOTENCY_KEY_FIELD_NAME => uniqid(substr($referenceId, 0, 22), true),
+			PaymentField::CART_ID_FIELD_NAME  => $this->checkoutSession->getQuote()->getId()
         ];
 
         return $request;

@@ -63,7 +63,11 @@ class AuthorizationValidator extends AbstractValidator
 
         $errorCodes = [];
         if (isset($response['errors'][0])) {
-            $errorCodes[] = $response['errors'][0]->getType();
+			if (is_array($response['errors'][0]) && array_key_exists('type', $response['errors'][0])) {
+				$errorCodes[] = $response['errors'][0]['type'];
+			} elseif (method_exists($response['errors'][0], 'getType')) {
+				$errorCodes[] = $response['errors'][0]->getType();
+			}
         }
 
         $this->logger->debug("Validating authorization response", [
