@@ -201,4 +201,7 @@
         </arguments>
     </virtualType>
 
+    <preference for="Magento\Payment\Gateway\Data\Order\OrderAdapter"
+                type="Paynow\PaymentGateway\Gateway\Data\Order\OrderAdapter" />
+
 </config>

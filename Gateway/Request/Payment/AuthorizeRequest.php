@@ -162,9 +162,14 @@ class AuthorizeRequest extends AbstractRequest implements BuilderInterface
                 ->getAdditionalInformation(PaymentDataAssignObserver::BLIK_CODE);
         }
 
+        $cartId = $this->checkoutSession->getQuote()->getId();
+        if (empty($cartId)) {
+            $cartId = $this->order->getQuoteId();
+        }
+
         $request['headers'] = [
             PaymentField::IDEMPOTENCY_KEY_FIELD_NAME => uniqid(substr($referenceId, 0, 22), true),
-			PaymentField::CART_ID_FIELD_NAME  => $this->checkoutSession->getQuote()->getId()
+			PaymentField::CART_ID_FIELD_NAME  => $cartId
         ];
 
         return $request;
