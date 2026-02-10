@@ -187,6 +187,15 @@ class NotificationProcessor
             );
         }
 
+        if ($orderPaymentId != $paymentId && $isConfirmed && $orderPaymentStatus == Status::STATUS_CONFIRMED) {
+            $this->addConfirmPaymentToOrderHistory($paymentId);
+            $this->lockingHelper->delete($externalId);
+            throw new NotificationStopProcessing(
+                'Skipped processing. Order already has a successful CONFIRMED payment from different transaction.',
+                $this->context
+            );
+        }
+
         if (!empty($orderPaymentStatusDate) && $orderPaymentStatusDate > $modifiedAt && !$isConfirmed) {
             if (!$isNew || $orderPaymentId == $paymentId) {
                 $this->lockingHelper->delete($externalId);
@@ -195,6 +204,14 @@ class NotificationProcessor
                     $this->context
                 );
             }
+        }
+
+        if ($orderPaymentStatus == Status::STATUS_CONFIRMED && $status == Status::STATUS_PENDING) {
+            $this->lockingHelper->delete($externalId);
+            throw new NotificationStopProcessing(
+                'Skipped processing. Cannot change CONFIRMED status to PENDING.',
+                $this->context
+            );
         }
 
         if (!$this->isCorrectStatus($orderPaymentStatus, $status) && !$isNew && !$force && !$isConfirmed) {
