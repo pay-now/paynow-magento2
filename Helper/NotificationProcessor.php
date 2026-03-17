@@ -439,6 +439,7 @@ class NotificationProcessor
             $this->order = $this->orderRepository->save($this->order);
         }
         $this->capturePayment();
+        $this->verifyOrderStatus(Status::STATUS_CONFIRMED);
     }
 
     /**
@@ -453,6 +454,110 @@ class NotificationProcessor
         } else {
             $this->logger->warning('Payment has not been captured', $this->context);
         }
+    }
+
+    /**
+     * @param string $paymentStatus
+     * @return void
+     */
+    private function verifyOrderStatus(string $paymentStatus): void
+    {
+        $expectedStateMap = [
+            Status::STATUS_NEW       => [Order::STATE_PENDING_PAYMENT, Order::STATE_NEW],
+            Status::STATUS_PENDING   => [Order::STATE_PENDING_PAYMENT],
+            Status::STATUS_CONFIRMED => [Order::STATE_PROCESSING, Order::STATE_COMPLETE],
+            Status::STATUS_REJECTED  => [Order::STATE_PAYMENT_REVIEW, Order::STATE_CANCELED],
+            Status::STATUS_ERROR     => [Order::STATE_PAYMENT_REVIEW],
+            Status::STATUS_EXPIRED   => [Order::STATE_PAYMENT_REVIEW, Order::STATE_CANCELED],
+            Status::STATUS_ABANDONED => [Order::STATE_PENDING_PAYMENT],
+        ];
+
+        $correctionStateMap = [
+            Status::STATUS_NEW       => Order::STATE_PENDING_PAYMENT,
+            Status::STATUS_PENDING   => Order::STATE_PENDING_PAYMENT,
+            Status::STATUS_CONFIRMED => Order::STATE_PROCESSING,
+            Status::STATUS_REJECTED  => Order::STATE_PAYMENT_REVIEW,
+            Status::STATUS_ERROR     => Order::STATE_PAYMENT_REVIEW,
+            Status::STATUS_EXPIRED   => Order::STATE_PAYMENT_REVIEW,
+            Status::STATUS_ABANDONED => Order::STATE_PENDING_PAYMENT,
+        ];
+
+        $currentState  = $this->order->getState();
+        $currentStatus = $this->order->getStatus();
+        $paymentInfo   = $this->order->getPayment()->getAdditionalInformation();
+
+        $verificationContext = $this->context + [
+            'orderState'          => $currentState,
+            'orderStatus'         => $currentStatus,
+            'paymentStoredStatus' => $paymentInfo[PaymentField::STATUS_FIELD_NAME] ?? 'n/a',
+            'paymentStoredId'     => $paymentInfo[PaymentField::PAYMENT_ID_FIELD_NAME] ?? 'n/a',
+            'expectedStates'      => implode(', ', $expectedStateMap[$paymentStatus] ?? []),
+        ];
+
+        $expectedStates = $expectedStateMap[$paymentStatus] ?? [];
+        $isStateCorrect = in_array($currentState, $expectedStates);
+
+        if ($isStateCorrect) {
+            $this->logger->info(
+                sprintf(
+                    'Order status verification passed. Order is in expected state "%s" (status: "%s") for payment status "%s".',
+                    $currentState,
+                    $currentStatus,
+                    $paymentStatus
+                ),
+                $verificationContext
+            );
+
+            return;
+        }
+
+        $this->logger->warning(
+            sprintf(
+                'Order status verification failed. Order is in state "%s" (status: "%s") but expected one of [%s] for payment status "%s".',
+                $currentState,
+                $currentStatus,
+                implode(', ', $expectedStates),
+                $paymentStatus
+            ),
+            $verificationContext
+        );
+
+        $correctionState = $correctionStateMap[$paymentStatus] ?? null;
+        if ($correctionState === null) {
+            $this->logger->warning(
+                sprintf('No correction state defined for payment status "%s". Order state was not changed.', $paymentStatus),
+                $verificationContext
+            );
+
+            return;
+        }
+
+        $correctionContext = $verificationContext + [
+            'correctionState' => $correctionState,
+        ];
+
+        $this->order
+            ->setState($correctionState)
+            ->addStatusToHistory(
+                $correctionState,
+                sprintf(
+                    'Order state manually corrected from "%s" to "%s" after payment status "%s" notification.',
+                    $currentState,
+                    $correctionState,
+                    $paymentStatus
+                )
+            );
+        $this->order = $this->orderRepository->save($this->order);
+
+        $this->logger->warning(
+            sprintf(
+                'Order state corrected from "%s" to "%s" for payment status "%s".',
+                $currentState,
+                $correctionState,
+                $paymentStatus
+            ),
+            $correctionContext
+        );
     }
 
     /**
