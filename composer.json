@@ -43,7 +43,6 @@
     "magento/module-payment": ">=100.2",
     "magento/module-sales": ">=101",
     "nyholm/psr7": "^1.2",
-    "paragonie/sodium_compat": "^1|^2",
     "pay-now/paynow-php-sdk": "3.0.0",
     "php-http/curl-client": "^2.1"
   },
