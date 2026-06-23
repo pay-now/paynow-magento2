@@ -46,7 +46,7 @@ class ConfigHelper extends AbstractHelper
      *
      * @return bool
      */
-    public function isTestMode(int $storeId = null): bool
+    public function isTestMode(?int $storeId = null): bool
     {
         return $this->getConfigData('test_mode', DefaultConfigProvider::CODE, $storeId, true);
     }
@@ -58,7 +58,7 @@ class ConfigHelper extends AbstractHelper
      *
      * @return bool
      */
-    public function extraLogsEnabled(int $storeId = null): bool
+    public function extraLogsEnabled(?int $storeId = null): bool
     {
         return $this->getConfigData('extra_logs', DefaultConfigProvider::CODE, $storeId, true);
     }
@@ -71,7 +71,7 @@ class ConfigHelper extends AbstractHelper
      * @return bool
      * @throws NoSuchEntityException
      */
-    public function isActive(int $storeId = null)
+    public function isActive(?int $storeId = null)
     {
         if ($storeId === null) {
             $storeId = $this->storeManager->getStore()->getId();
@@ -88,7 +88,7 @@ class ConfigHelper extends AbstractHelper
      * @return bool
      * @throws NoSuchEntityException
      */
-    public function isPaymentMethodsActive(int $storeId = null)
+    public function isPaymentMethodsActive(?int $storeId = null)
     {
         if ($storeId === null) {
             $storeId = $this->storeManager->getStore()->getId();
@@ -100,12 +100,12 @@ class ConfigHelper extends AbstractHelper
     /**
      * Returns is module retry payment enabled
      *
-     * @param null $storeId
+     * @param int|null $storeId
      *
      * @return bool
      * @throws NoSuchEntityException
      */
-    public function isRetryPaymentActive($storeId = null): bool
+    public function isRetryPaymentActive(?int $storeId = null): bool
     {
         if ($storeId === null) {
             $storeId = $this->storeManager->getStore()->getId();
@@ -117,12 +117,12 @@ class ConfigHelper extends AbstractHelper
     /**
      * Returns is order status change enabled
      *
-     * @param null $storeId
+     * @param int|null $storeId
      *
      * @return bool
      * @throws NoSuchEntityException
      */
-    public function isOrderStatusChangeActive($storeId = null): bool
+    public function isOrderStatusChangeActive(?int $storeId = null): bool
     {
         if ($storeId === null) {
             $storeId = $this->storeManager->getStore()->getId();
@@ -134,12 +134,12 @@ class ConfigHelper extends AbstractHelper
     /**
      * Returns is send order items enabled
      *
-     * @param null $storeId
+     * @param int|null $storeId
      *
      * @return bool
      * @throws NoSuchEntityException
      */
-    public function isSendOrderItemsActive($storeId = null): bool
+    public function isSendOrderItemsActive(?int $storeId = null): bool
     {
         if ($storeId === null) {
             $storeId = $this->storeManager->getStore()->getId();
@@ -151,12 +151,12 @@ class ConfigHelper extends AbstractHelper
     /**
      * Returns is payment validity usage enabled
      *
-     * @param null $storeId
+     * @param int|null $storeId
      *
      * @return bool
      * @throws NoSuchEntityException
      */
-    public function isPaymentValidityActive($storeId = null): bool
+    public function isPaymentValidityActive(?int $storeId = null): bool
     {
         if ($storeId === null) {
             $storeId = $this->storeManager->getStore()->getId();
@@ -168,12 +168,12 @@ class ConfigHelper extends AbstractHelper
     /**
      * Returns is payment validity time
      *
-     * @param null $storeId
+     * @param int|null $storeId
      *
      * @return int
      * @throws NoSuchEntityException
      */
-    public function getPaymentValidityTime($storeId = null): int
+    public function getPaymentValidityTime(?int $storeId = null): int
     {
         if ($storeId === null) {
             $storeId = $this->storeManager->getStore()->getId();
@@ -186,12 +186,12 @@ class ConfigHelper extends AbstractHelper
     /**
      * Returns payment methods to hide
      *
-     * @param null $storeId
+     * @param int|null $storeId
      *
      * @return array
      * @throws NoSuchEntityException
      */
-    public function getPaymentMethodsToHide($storeId = null): array
+    public function getPaymentMethodsToHide(?int $storeId = null): array
 	{
         if ($storeId === null) {
             $storeId = $this->storeManager->getStore()->getId();
@@ -234,12 +234,12 @@ class ConfigHelper extends AbstractHelper
     /**
      * Returns that is configured
      *
-     * @param $storeId
+     * @param int|null $storeId
      *
      * @return bool
      * @throws NoSuchEntityException
      */
-    public function isConfigured($storeId = null): bool
+    public function isConfigured(?int $storeId = null): bool
     {
         if ($storeId === null) {
             $storeId = $this->storeManager->getStore()->getId();
