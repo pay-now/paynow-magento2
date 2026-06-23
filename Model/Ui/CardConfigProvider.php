@@ -5,6 +5,7 @@ namespace Paynow\PaymentGateway\Model\Ui;
 use Magento\Checkout\Model\ConfigProviderInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Paynow\Model\PaymentMethods\Type;
 use Paynow\PaymentGateway\Model\Config\Source\PaymentMethodsToHide;
 
 /**
@@ -36,8 +37,9 @@ class CardConfigProvider extends ConfigProvider implements ConfigProviderInterfa
 							 && !in_array(PaymentMethodsToHide::PAYMENT_TYPE_TO_CONFIG_MAP[$cardPaymentMethod->getType()], $this->configHelper->getPaymentMethodsToHide());
         $GDPRNotices = $this->GDPRHelper->getNotices();
         $instruments = [];
+        $isRedirectOnly = $cardPaymentMethod && $cardPaymentMethod->getType() === Type::CLICK_TO_PAY;
 
-        if ($cardPaymentMethod) {
+        if ($cardPaymentMethod && !$isRedirectOnly) {
             foreach ($cardPaymentMethod->getSavedInstruments() ?? [] as $savedInstrument) {
                 $instruments[] = [
                     'token' => $savedInstrument->getToken(),
@@ -61,6 +63,7 @@ class CardConfigProvider extends ConfigProvider implements ConfigProviderInterfa
                     'GDPRNotices' => $GDPRNotices,
                     'instruments' => $instruments,
                     'hasInstruments' => !empty($instruments),
+                    'isRedirectOnly' => $isRedirectOnly,
 					'removeCardErrorMessage' => __('An error occurred while deleting the saved card.'),
                 ]
             ]

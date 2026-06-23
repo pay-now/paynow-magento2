@@ -25,7 +25,7 @@ class PaymentMethodsToHide implements OptionSourceInterface
         Type::BLIK => self::BLIK,
         Type::PBL => self::PBL,
         Type::CARD => self::CARD,
-        Type::CLICK_TO_PAY => self::DIGITAL_WALLET,
+        Type::CLICK_TO_PAY => self::CLICK_TO_PAY,
         Type::GOOGLE_PAY => self::DIGITAL_WALLET,
         Type::APPLE_PAY => self::DIGITAL_WALLET,
         Type::PAYPO => self::PAYPO,
