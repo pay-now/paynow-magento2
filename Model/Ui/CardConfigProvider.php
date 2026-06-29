@@ -57,7 +57,9 @@ class CardConfigProvider extends ConfigProvider implements ConfigProviderInterfa
                 self::CODE => [
                     'isActive' => $isActive,
                     'defaultCartImage' => $this->getImageUrl('card-default.svg'),
-                    'logoPath' => $cardPaymentMethod ? $cardPaymentMethod->getImage() : null,
+                    'logoPath' => $cardPaymentMethod
+                        ? ($isRedirectOnly ? $this->getImageUrl('click-to-pay.svg') : $cardPaymentMethod->getImage())
+                        : null,
                     'redirectUrl' => $this->getRedirectUrl(),
                     'paymentMethodId' => $cardPaymentMethod ? $cardPaymentMethod->getId(): null,
                     'GDPRNotices' => $GDPRNotices,
