@@ -177,10 +177,32 @@ class PaymentMethodsHelper
             $idempotencyKey = KeysGenerator::generateIdempotencyKey(KeysGenerator::generateExternalIdFromQuoteId($this->quote->getId()));
             $customerId = $this->customerSession->getCustomer()->getId();
             $buyerExternalId = $customerId ? $this->paymentHelper->generateBuyerExternalId($customerId) : null;
-            $paymentMethods = $payment->getPaymentMethods($currency, $amount, false, $idempotencyKey, $buyerExternalId)->getOnlyCards();
+            $hiddenPaymentMethods = $this->configHelper->getPaymentMethodsToHide();
 
-            if (!empty($paymentMethods)) {
-                return $paymentMethods[0];
+            if (in_array(PaymentMethodsToHide::CARD, $hiddenPaymentMethods, true)) {
+                return null;
+            }
+
+            $paymentMethodsResponse = $payment->getPaymentMethods(
+                $currency,
+                $amount,
+                false,
+                $idempotencyKey,
+                $buyerExternalId
+            );
+
+            foreach ($paymentMethodsResponse->getAll() ?? [] as $paymentMethod) {
+                if ($paymentMethod->getType() === Type::CLICK_TO_PAY
+                    && $paymentMethod->isEnabled()
+                    && !in_array(PaymentMethodsToHide::CLICK_TO_PAY, $hiddenPaymentMethods, true)
+                ) {
+                    return $paymentMethod;
+                }
+            }
+
+            $cardPaymentMethods = $paymentMethodsResponse->getOnlyCards();
+            if (!empty($cardPaymentMethods) && $cardPaymentMethods[0]->isEnabled()) {
+                return $cardPaymentMethods[0];
             }
         } catch (PaynowException $exception) {
             $this->logger->error(
@@ -275,7 +297,6 @@ class PaymentMethodsHelper
             $paymentMethods = $payment->getPaymentMethods($currency, $amount, $applePayEnabled, $idempotencyKey, $buyerExternalId)->getAll();
 
             $digitalWalletsPaymentMethods = [
-                Type::CLICK_TO_PAY => null,
                 Type::GOOGLE_PAY => null,
                 Type::APPLE_PAY => null,
             ];

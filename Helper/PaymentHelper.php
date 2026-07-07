@@ -150,7 +150,7 @@ class PaymentHelper extends AbstractHelper
      * @return Client
      * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
-    public function initializePaynowClient(int $storeId = null)
+    public function initializePaynowClient(?int $storeId = null)
     {
         if ($storeId === null) {
             $storeId = $this->storeManager->getStore()->getId();

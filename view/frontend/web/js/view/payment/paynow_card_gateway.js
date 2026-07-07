@@ -42,7 +42,9 @@ define(
                     }
                 });
 
-                this.fetchDeviceFingerprint();
+                if (!this.isRedirectOnly()) {
+                    this.fetchDeviceFingerprint();
+                }
             },
             getCode: function () {
                 return 'paynow_card_gateway';
@@ -89,6 +91,9 @@ define(
             },
             hasInstruments: function () {
                 return window.checkoutConfig.payment.paynow_card_gateway.hasInstruments;
+            },
+            isRedirectOnly: function () {
+                return window.checkoutConfig.payment.paynow_card_gateway.isRedirectOnly;
             },
             isPaymentMethodActive:function () {
                 return this.getCode() === this.isChecked();
@@ -161,14 +166,19 @@ define(
                 $('#' + instrument.token + ' .paynow-payment-card-remove').toggleClass('--hidden');
             },
             getData: function () {
-                const paymentMethodId = window.checkoutConfig.payment.paynow_card_gateway.paymentMethodId
+                const paymentMethodId = window.checkoutConfig.payment.paynow_card_gateway.paymentMethodId,
+                    additionalData = {
+                        'payment_method_id': paymentMethodId
+                    };
+
+                if (!this.isRedirectOnly()) {
+                    additionalData.payment_method_token = this.paymentMethodToken;
+                    additionalData.payment_method_fingerprint = this.paymentMethodFingerprint;
+                }
+
                 return {
                     'method': this.item.method,
-                    'additional_data': {
-                        'payment_method_id': paymentMethodId,
-                        'payment_method_token': this.paymentMethodToken,
-                        'payment_method_fingerprint': this.paymentMethodFingerprint,
-                    }
+                    'additional_data': additionalData
                 };
             }
         });
