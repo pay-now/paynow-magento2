@@ -448,6 +448,14 @@ class NotificationProcessor
      */
     private function capturePayment()
     {
+        if (!$this->order->canInvoice()) {
+            $this->logger->warning(
+                'Payment has not been captured. Order cannot be invoiced (already fully invoiced?).',
+                $this->context
+            );
+            return;
+        }
+
         if ($this->order->getPayment()->canCapture()) {
             $this->order->getPayment()->capture();
             $this->logger->info('Payment has been captured', $this->context);
