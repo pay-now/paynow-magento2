@@ -5,6 +5,7 @@ namespace Paynow\PaymentGateway\Gateway\Request\Payment;
 use Magento\Directory\Model\ResourceModel\Country\Collection as CountryCollection;
 use Magento\Directory\Model\ResourceModel\Region\Collection as RegionCollection;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\HTTP\Header;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Paynow\PaymentGateway\Gateway\Request\AbstractRequest;
@@ -42,18 +43,25 @@ class AuthorizeRequest extends AbstractRequest implements BuilderInterface
 
 	private $checkoutSession;
 
+	/**
+	 * @var Header
+	 */
+	private $httpHeader;
+
     public function __construct(
         PaymentHelper     $paymentHelper,
         ConfigHelper      $configHelper,
         RegionCollection  $regionCollection,
         CountryCollection $countryCollection,
-		CheckoutSession   $checkoutSession
+		CheckoutSession   $checkoutSession,
+		Header            $httpHeader
 	) {
         $this->helper = $paymentHelper;
         $this->config = $configHelper;
         $this->regionCollection = $regionCollection;
         $this->countryCollection = $countryCollection;
 		$this->checkoutSession = $checkoutSession;
+		$this->httpHeader = $httpHeader;
     }
 
     /**
@@ -160,6 +168,10 @@ class AuthorizeRequest extends AbstractRequest implements BuilderInterface
             && !$isRetry) {
             $request['body'][PaymentField::AUTHORIZATION_CODE] = $this->payment
                 ->getAdditionalInformation(PaymentDataAssignObserver::BLIK_CODE);
+            $request['body'][PaymentField::BUYER_FIELD_NAME][PaymentField::BUYER_IP_ADDRESS] = $this->order
+                ->getRemoteIp();
+            $request['body'][PaymentField::BUYER_FIELD_NAME][PaymentField::BUYER_USER_AGENT] = $this->httpHeader
+                ->getHttpUserAgent();
         }
 
         $cartId = $this->checkoutSession->getQuote()->getId();
