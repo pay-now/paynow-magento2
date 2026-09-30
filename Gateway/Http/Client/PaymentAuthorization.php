@@ -39,19 +39,27 @@ class PaymentAuthorization implements ClientInterface
     private $cache;
 
     /**
+     * @var PaymentTimeoutClassifier
+     */
+    private $timeoutClassifier;
+
+    /**
      * PaymentAuthorization constructor.
      * @param PaymentHelper $paymentHelper
      * @param Logger $logger
      * @param CacheInterface $cache
+     * @param PaymentTimeoutClassifier|null $timeoutClassifier
      */
     public function __construct(
         PaymentHelper $paymentHelper,
         Logger $logger,
-        CacheInterface $cache
+        CacheInterface $cache,
+        ?PaymentTimeoutClassifier $timeoutClassifier = null
     ) {
         $this->client = $paymentHelper->initializePaynowClient();
         $this->logger = $logger;
         $this->cache = $cache;
+        $this->timeoutClassifier = $timeoutClassifier ?? new PaymentTimeoutClassifier();
     }
 
     /**
@@ -60,16 +68,18 @@ class PaymentAuthorization implements ClientInterface
      */
     public function placeRequest(TransferInterface $transferObject)
     {
-        $externalId = (string)($transferObject->getHeaders()[PaymentField::CART_ID_FIELD_NAME] ?? '');
+        $cartId = (string)($transferObject->getHeaders()[PaymentField::CART_ID_FIELD_NAME] ?? '');
+        $externalId = (string)($transferObject->getBody()[PaymentField::EXTERNAL_ID_FIELD_NAME] ?? '');
         $loggerContext = [
-            PaymentField::EXTERNAL_ID_FIELD_NAME => $externalId
+            PaymentField::EXTERNAL_ID_FIELD_NAME => $externalId,
+            PaymentField::CART_ID_FIELD_NAME => $cartId,
         ];
 
-        // Limit liczby prób autoryzacji per zamówienie (best-effort bez locka)
-        $attempts = $this->getAttempts($externalId);
+        // Limit liczby prób autoryzacji per koszyk (best-effort bez locka)
+        $attempts = $this->getAttempts($cartId);
         if ($attempts >= self::MAX_AUTH_ATTEMPTS) {
             $this->logger->warning(
-                sprintf('Max authorize attempts reached (%d) for order %s', $attempts, $externalId),
+                sprintf('Max authorize attempts reached (%d) for cart %s', $attempts, $cartId),
                 array_merge($loggerContext, ['service' => 'Payment', 'action' => 'authorize'])
             );
 
@@ -87,7 +97,7 @@ class PaymentAuthorization implements ClientInterface
             ];
         }
         // Zapisz kolejną próbę przed wywołaniem API
-        $this->saveAttempts($externalId, $attempts + 1);
+        $this->saveAttempts($cartId, $attempts + 1);
 
         try {
             $service = new Payment($this->client);
@@ -109,11 +119,7 @@ class PaymentAuthorization implements ClientInterface
             ];
         } catch (PaynowException $exception) {
             if (isset($transferObject->getBody()[PaymentField::CONTINUE_URL_FIELD_NAME]) &&
-                isset($transferObject->getBody()[PaymentField::AUTHORIZATION_CODE]) &&
-                (
-                    $exception->getCode() == 504 ||
-                    strpos($exception->getMessage(), 'cURL error 28') !== false
-                )) {
+                $this->timeoutClassifier->isRecoverable($exception)) {
                 return [
                     PaymentField::STATUS_FIELD_NAME => Status::STATUS_NEW,
                     PaymentField::PAYMENT_ID_FIELD_NAME =>
