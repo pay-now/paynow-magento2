@@ -17,6 +17,8 @@ class PaymentField
     const BUYER_FIRSTNAME_FIELD_NAME = 'firstName';
     const BUYER_LASTNAME_FIELD_NAME = 'lastName';
     const BUYER_LOCALE = 'locale';
+    const BUYER_IP_ADDRESS = 'ipAddress';
+    const BUYER_USER_AGENT = 'userAgent';
     const BUYER_ADDRESS_KEY = 'address';
     const BUYER_SHIPPING_ADDRESS_KEY = 'shipping';
     const BUYER_SHIPPING_ADDRESS_STREET = 'street';
