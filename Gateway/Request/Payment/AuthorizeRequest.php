@@ -2,10 +2,10 @@
 
 namespace Paynow\PaymentGateway\Gateway\Request\Payment;
 
-use Magento\Directory\Model\ResourceModel\Country\Collection as CountryCollection;
-use Magento\Directory\Model\ResourceModel\Region\Collection as RegionCollection;
+use Magento\Directory\Model\RegionFactory;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\HTTP\Header;
+use Magento\Payment\Gateway\Data\AddressAdapterInterface;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Paynow\PaymentGateway\Gateway\Request\AbstractRequest;
@@ -32,14 +32,9 @@ class AuthorizeRequest extends AbstractRequest implements BuilderInterface
     private $config;
 
     /**
-     * @var RegionCollection
+     * @var RegionFactory
      */
-    private $regionCollection;
-
-    /**
-     * @var CountryCollection
-     */
-    private $countryCollection;
+    private $regionFactory;
 
 	private $checkoutSession;
 
@@ -51,15 +46,13 @@ class AuthorizeRequest extends AbstractRequest implements BuilderInterface
     public function __construct(
         PaymentHelper     $paymentHelper,
         ConfigHelper      $configHelper,
-        RegionCollection  $regionCollection,
-        CountryCollection $countryCollection,
+        RegionFactory     $regionFactory,
 		CheckoutSession   $checkoutSession,
 		Header            $httpHeader
 	) {
         $this->helper = $paymentHelper;
         $this->config = $configHelper;
-        $this->regionCollection = $regionCollection;
-        $this->countryCollection = $countryCollection;
+        $this->regionFactory = $regionFactory;
 		$this->checkoutSession = $checkoutSession;
 		$this->httpHeader = $httpHeader;
     }
@@ -77,17 +70,18 @@ class AuthorizeRequest extends AbstractRequest implements BuilderInterface
         $referenceId        = $this->order->getOrderIncrementId();
         $paymentDescription = __('Order No: ') . $referenceId;
 
-        $shippingAddress = $this->order->getShippingAddress();
         $billingAddress  = $this->order->getBillingAddress();
+        // virtual/downloadable orders have no shipping address - fall back to billing
+        $shippingAddress = $this->order->getShippingAddress() ?: $billingAddress;
         $request['body'] = [
             PaymentField::AMOUNT_FIELD_NAME => $this->helper->formatAmount($this->order->getGrandTotalAmount()),
             PaymentField::CURRENCY_FIELD_NAME => $this->order->getCurrencyCode(),
             PaymentField::EXTERNAL_ID_FIELD_NAME => $referenceId,
             PaymentField::DESCRIPTION_FIELD_NAME => $paymentDescription,
             PaymentField::BUYER_FIELD_NAME => [
-                PaymentField::BUYER_EMAIL_FIELD_NAME => $shippingAddress ? $shippingAddress->getEmail() : "",
-                PaymentField::BUYER_FIRSTNAME_FIELD_NAME => $shippingAddress ? $shippingAddress->getFirstname() : "",
-                PaymentField::BUYER_LASTNAME_FIELD_NAME => $shippingAddress ? $shippingAddress->getLastname() : "",
+                PaymentField::BUYER_EMAIL_FIELD_NAME => $shippingAddress->getEmail(),
+                PaymentField::BUYER_FIRSTNAME_FIELD_NAME => $shippingAddress->getFirstname(),
+                PaymentField::BUYER_LASTNAME_FIELD_NAME => $shippingAddress->getLastname(),
                 PaymentField::BUYER_LOCALE => $this->helper->getStoreLocale(),
                 PaymentField::BUYER_ADDRESS_KEY => [
                     PaymentField::BUYER_SHIPPING_ADDRESS_KEY => [
@@ -96,10 +90,7 @@ class AuthorizeRequest extends AbstractRequest implements BuilderInterface
                         PaymentField::BUYER_SHIPPING_ADDRESS_APARTMENT_NUMBER => '',
                         PaymentField::BUYER_SHIPPING_ADDRESS_ZIPCODE => $shippingAddress->getPostcode(),
                         PaymentField::BUYER_SHIPPING_ADDRESS_CITY => $shippingAddress->getCity(),
-                        PaymentField::BUYER_SHIPPING_ADDRESS_COUNTY => $this->regionCollection
-                                ->addRegionCodeFilter($shippingAddress->getRegionCode())
-                                ->getFirstItem()
-                                ->getData('name') ?? '',
+                        PaymentField::BUYER_SHIPPING_ADDRESS_COUNTY => $this->getRegionName($shippingAddress),
                         PaymentField::BUYER_SHIPPING_ADDRESS_COUNTRY => $shippingAddress->getCountryId() ?? '',
                     ],
                     PaymentField::BUYER_BILLING_ADDRESS_KEY => [
@@ -108,10 +99,7 @@ class AuthorizeRequest extends AbstractRequest implements BuilderInterface
                         PaymentField::BUYER_BILLING_ADDRESS_APARTMENT_NUMBER => '',
                         PaymentField::BUYER_BILLING_ADDRESS_ZIPCODE => $billingAddress->getPostcode(),
                         PaymentField::BUYER_BILLING_ADDRESS_CITY => $billingAddress->getCity(),
-                        PaymentField::BUYER_BILLING_ADDRESS_COUNTY => $this->regionCollection
-                                ->addRegionCodeFilter($billingAddress->getRegionCode())
-                                ->getFirstItem()
-                                ->getData('name') ?? '',
+                        PaymentField::BUYER_BILLING_ADDRESS_COUNTY => $this->getRegionName($billingAddress),
                         PaymentField::BUYER_BILLING_ADDRESS_COUNTRY => $billingAddress->getCountryId() ?? '',
                     ]
                 ]
@@ -185,5 +173,18 @@ class AuthorizeRequest extends AbstractRequest implements BuilderInterface
         ];
 
         return $request;
+    }
+
+    /**
+     * @param AddressAdapterInterface $address
+     *
+     * @return string
+     */
+    private function getRegionName(AddressAdapterInterface $address): string
+    {
+        // fresh model per address: region codes are unique only within a country, empty code loads nothing
+        return (string)$this->regionFactory->create()
+            ->loadByCode($address->getRegionCode(), $address->getCountryId())
+            ->getName();
     }
 }
