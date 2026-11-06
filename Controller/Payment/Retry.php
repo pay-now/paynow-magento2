@@ -2,8 +2,6 @@
 
 namespace Paynow\PaymentGateway\Controller\Payment;
 
-use Firebase\JWT\JWT;
-use Firebase\JWT\Key;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\ObjectManager;
@@ -16,6 +14,7 @@ use Magento\Sales\Model\Order\Payment;
 use Magento\Store\Model\StoreManagerInterface;
 use Paynow\Model\Payment\Status;
 use Paynow\PaymentGateway\Helper\ConfigHelper;
+use Paynow\PaymentGateway\Helper\Jwt;
 use Paynow\PaymentGateway\Helper\PaymentField;
 use Paynow\PaymentGateway\Helper\PaymentHelper;
 use Paynow\PaymentGateway\Helper\PaymentStatusService;
@@ -104,7 +103,7 @@ class Retry extends Action
 
 		$storeId = $this->storeManager->getStore()->getId();
 		$isTestMode = $this->configHelper->isTestMode($storeId);
-		$payload = JWT::decode($token, new Key($this->configHelper->getSignatureKey($storeId, $isTestMode), 'HS256'));
+		$payload = Jwt::decode($token, $this->configHelper->getSignatureKey($storeId, $isTestMode));
 
 		if (!property_exists($payload, 'orderId') || !is_numeric($payload->orderId) || $payload->orderId !== $orderId) {
 			return $this->retryIsNotAvailable();

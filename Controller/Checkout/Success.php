@@ -2,8 +2,6 @@
 
 namespace Paynow\PaymentGateway\Controller\Checkout;
 
-use Firebase\JWT\JWT;
-use Firebase\JWT\Key;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\App\Action\Action;
@@ -16,6 +14,7 @@ use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
 use Magento\Store\Model\StoreManagerInterface;
 use Paynow\PaymentGateway\Helper\ConfigHelper;
+use Paynow\PaymentGateway\Helper\Jwt;
 use Paynow\PaymentGateway\Helper\NotificationProcessor;
 use Paynow\PaymentGateway\Helper\PaymentField;
 use Paynow\PaymentGateway\Helper\PaymentStatusService;
@@ -134,7 +133,7 @@ class Success extends Action
         if (!empty($token)) {
             $storeId = $this->storeManager->getStore()->getId();
             $isTestMode = $this->configHelper->isTestMode($storeId);
-            $payload = JWT::decode($token, new Key($this->configHelper->getSignatureKey($storeId, $isTestMode), 'HS256'));
+            $payload = Jwt::decode($token, $this->configHelper->getSignatureKey($storeId, $isTestMode));
             if (property_exists($payload, 'referenceId') && is_numeric($payload->referenceId)) {
                 $orders = $this->orderRepository->getList(
                     $this->searchCriteriaBuilder

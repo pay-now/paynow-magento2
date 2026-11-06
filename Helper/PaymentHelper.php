@@ -2,7 +2,6 @@
 
 namespace Paynow\PaymentGateway\Helper;
 
-use Firebase\JWT\JWT;
 use Magento\Catalog\Model\Product;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\Helper\AbstractHelper;
@@ -249,7 +248,7 @@ class PaymentHelper extends AbstractHelper
 
         return $this->urlBuilder->getUrl(
             'paynow/checkout/success',
-            ['_token' => JWT::encode(['referenceId' => $referenceId], $this->configHelper->getSignatureKey($storeId, $isTestMode), 'HS256')]
+            ['_token' => Jwt::encode(['referenceId' => $referenceId], $this->configHelper->getSignatureKey($storeId, $isTestMode))]
         );
     }
 
@@ -277,7 +276,7 @@ class PaymentHelper extends AbstractHelper
 
         return $this->urlBuilder->getUrl('paynow/payment/retry', [
             'order_id' => $orderId,
-            '_token' => JWT::encode(['orderId' => $orderId], $this->configHelper->getSignatureKey($storeId, $isTestMode), 'HS256'),
+            '_token' => Jwt::encode(['orderId' => $orderId], $this->configHelper->getSignatureKey($storeId, $isTestMode)),
         ]);
     }
 
@@ -303,7 +302,9 @@ class PaymentHelper extends AbstractHelper
     {
         $paymentStatus = $order->getPayment()->getAdditionalInformation(PaymentField::STATUS_FIELD_NAME);
 
+        // without keys Jwt::encode throws while rendering the retry link
         return $this->configHelper->isRetryPaymentActive()
+            && $this->configHelper->isConfigured()
             && in_array(
                 $order->getStatus(),
                 [
