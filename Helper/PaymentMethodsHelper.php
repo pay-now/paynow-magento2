@@ -82,7 +82,7 @@ class PaymentMethodsHelper
             $idempotencyKey = KeysGenerator::generateIdempotencyKey(KeysGenerator::generateExternalIdFromQuoteId($this->quote->getId()));
             $customerId = $this->customerSession->getCustomer()->getId();
             $buyerExternalId = $customerId ? $this->paymentHelper->generateBuyerExternalId($customerId) : null;
-            $applePayEnabled = htmlspecialchars($_COOKIE['applePayEnabled'] ?? '0') === '1';
+            $applePayEnabled = ($_COOKIE['applePayEnabled'] ?? '0') === '1';
             $methods      = $payment->getPaymentMethods($currency, $amount, $applePayEnabled, $idempotencyKey, $buyerExternalId)->getAll();
 			$hiddenPaymentMethods = $this->configHelper->getPaymentMethodsToHide();
 
@@ -293,7 +293,7 @@ class PaymentMethodsHelper
 			$idempotencyKey = KeysGenerator::generateIdempotencyKey(KeysGenerator::generateExternalIdFromQuoteId($this->quote->getId()));
 			$customerId = $this->customerSession->getCustomer()->getId();
 			$buyerExternalId = $customerId ? $this->paymentHelper->generateBuyerExternalId($customerId) : null;
-			$applePayEnabled = htmlspecialchars($_COOKIE['applePayEnabled'] ?? '0') === '1';
+			$applePayEnabled = ($_COOKIE['applePayEnabled'] ?? '0') === '1';
             $paymentMethods = $payment->getPaymentMethods($currency, $amount, $applePayEnabled, $idempotencyKey, $buyerExternalId)->getAll();
 
             $digitalWalletsPaymentMethods = [
